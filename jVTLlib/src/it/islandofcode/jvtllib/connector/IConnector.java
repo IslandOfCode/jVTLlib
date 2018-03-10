@@ -1,6 +1,6 @@
-package it.islandofcode.connector;
+package it.islandofcode.jvtllib.connector;
 
-import it.islandofcode.model.DataSet;
+import it.islandofcode.jvtllib.model.DataSet;
 
 /**
  * @author Pier Riccardo Monzo

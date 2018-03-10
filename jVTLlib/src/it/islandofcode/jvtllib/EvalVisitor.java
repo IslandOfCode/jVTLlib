@@ -1,9 +1,9 @@
-package it.islandofcode.parser.test;
+package it.islandofcode.jvtllib;
 
-import it.islandofcode.connector.IConnector;
-import it.islandofcode.model.DataSet;
-import it.islandofcode.parser.antlr.VTLBaseVisitor;
-import it.islandofcode.parser.antlr.VTLParser.*;
+import it.islandofcode.jvtllib.connector.IConnector;
+import it.islandofcode.jvtllib.model.DataSet;
+import it.islandofcode.jvtllib.antlr.VTLBaseVisitor;
+import it.islandofcode.jvtllib.antlr.VTLParser.*;
 
 
 /**
