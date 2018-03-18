@@ -3,17 +3,17 @@ package it.islandofcode.jvtllib.connector;
 import it.islandofcode.jvtllib.model.DataSet;
 
 /**
- * @author Pier Riccardo Monzo
- * @date 07 mar 2018
  * Classe per esporre metodi per implementare get() e put() in VTL.<br>
  * Va implementata e passata come parametro al main.
+ * 
+ * @author Pier Riccardo Monzo
  */
 public interface IConnector {
 	//TODO verificare e implementare ulteriormente laddove necessario.
 	
 	/**
 	 * Recupera un dataset da una specifica posizione.<br>
-	 * Il nome dipende dal tipo di base di dati, ad esempio:<br>
+	 * La posizione dipende dal tipo di base di dati, ad esempio:<br>
 	 * <ul>
 	 * 	<li>Se database, la posizione è intesa come nome tabella.
 	 * 	<li>Se file di testo (ad es. csv), la posizione può essere ignorata/vuota
@@ -23,7 +23,7 @@ public interface IConnector {
 	 * @param location String
 	 * @return {@link DataSet}
 	 */
-	public DataSet get(String name, String location);
+	public DataSet get(String location);
 	
 	/**
 	 * Salva permanentemente un {@link DataSet} nella posizione specificata.<br>
