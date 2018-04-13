@@ -1,0 +1,37 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>jVTLlib</groupId>
+  <artifactId>jVTLlib</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.7.0</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <name>jVTLlib</name>
+  <url>https://islandofcode.it/project/jVTLlib</url>
+  <description>Un interprete java per CU scritte in VTL, basato sulle specifiche BIRD.</description>
+  <organization>
+  	<name>IslandOfCode.it</name>
+  	<url>https://islandofcode.it</url>
+  </organization>
+  <issueManagement>
+  	<system>gogs</system>
+  	<url>https://gogs.islandofcode.it</url>
+  </issueManagement>
+  <dependencies>
+  	<dependency>
+  		<groupId>org.mongodb</groupId>
+  		<artifactId>mongodb-driver</artifactId>
+  		<version>3.6.3</version>
+  	</dependency>
+  </dependencies>
+</project>
