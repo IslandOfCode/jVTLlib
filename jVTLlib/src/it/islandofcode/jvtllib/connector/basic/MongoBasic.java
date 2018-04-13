@@ -1,6 +1,10 @@
 package it.islandofcode.jvtllib.connector.basic;
 
+import org.bson.Document;
+
 import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 
 import it.islandofcode.jvtllib.connector.IConnector;
 import it.islandofcode.jvtllib.model.DataSet;
@@ -9,11 +13,10 @@ import it.islandofcode.jvtllib.model.DataSet;
  * @author Pier Riccardo Monzo
  */
 public class MongoBasic implements IConnector {
+	MongoClient MC;
+	String database;
+	String table;
 	
-	public MongoBasic() {
-		MongoClient MC = new MongoClient();
-	}
-
 	public MongoBasic(String IP, int port) {
 		//se IP/porta non specificato o fuori specifica, vai di default
 		if(IP==null || IP.isEmpty())
@@ -21,7 +24,7 @@ public class MongoBasic implements IConnector {
 		if(port<=0 || port>65535)
 			port=27017;
 		
-		MongoClient MC = new MongoClient(IP,port);
+		MC = new MongoClient(IP,port);
 	}
 
 	/* (non-Javadoc)
@@ -29,7 +32,15 @@ public class MongoBasic implements IConnector {
 	 */
 	@Override
 	public DataSet get(String location) {
-		// TODO Auto-generated method stub
+		this.database = location.split("\\")[0];
+		this.table = location.split("\\")[1];
+		
+		if(this.checkStatus()) {
+			MongoDatabase db = MC.getDatabase(this.database);
+			MongoCollection<Document> table = db.getCollection(this.table);
+			//TODO
+		}
+		
 		return null;
 	}
 
@@ -38,7 +49,14 @@ public class MongoBasic implements IConnector {
 	 */
 	@Override
 	public boolean set(String location, DataSet data) {
-		// TODO Auto-generated method stub
+		if(this.checkStatus()) {
+			//esiste, sovrascrivo?
+		} else {
+			//non esiste, lo creo.
+			MongoDatabase db = MC.getDatabase(location);
+		}
+		
+		
 		return false;
 	}
 
@@ -47,7 +65,10 @@ public class MongoBasic implements IConnector {
 	 */
 	@Override
 	public boolean checkStatus() {
-		// TODO Auto-generated method stub
+		for(String N :MC.listDatabaseNames()) {
+			if(N.equals(this.getLocation()))
+				return true;
+		}
 		return false;
 	}
 
