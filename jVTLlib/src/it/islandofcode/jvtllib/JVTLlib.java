@@ -1,8 +1,18 @@
 package it.islandofcode.jvtllib;
 
 import java.io.File;
+import java.io.IOException;
+
+import org.antlr.v4.runtime.ANTLRFileStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import it.islandofcode.jvtllib.connector.IConnector;
+import it.islandofcode.jvtllib.newparser.newVTLLexer;
+import it.islandofcode.jvtllib.newparser.newVTLParser;
+import it.islandofcode.jvtllib.newparser.error.ParseException;
+import it.islandofcode.jvtllib.newparser.error.UnderlineListener;
+import it.islandofcode.jvtllib.newparser.test.NewEval;
 
 /**
  * @author Pier Riccardo Monzo
@@ -12,11 +22,11 @@ public class JVTLlib {
 	/**
 	 * Per il momento si considera un solo connettore per volta.
 	 */
-	private IConnector connect;
+	private IConnector connect = null;
 	/**
 	 * Path al file da eseguire.
 	 */
-	private String pathfile;
+	private String pathfile = null;
 	/**
 	 * Tempo di esecuzione dello script in millisecondi.
 	 */
@@ -43,31 +53,63 @@ public class JVTLlib {
 	/**
 	 * Passa una stringa che indica il path della CU VTL da eseguire.
 	 * @param path String
-	 * @param check boolean Se true, effettua dei controlli sulla presenza del file e se sia popolato.
 	 */
-	public void addFile(String path, boolean check) {
+	public void addFile(String path) {
 		if(path == null || path.isEmpty())
 			throw new IllegalArgumentException("Path cannot be null or empty");
-		if(check) {
-			if(!(new File(pathfile)).exists()) {
-				throw new IllegalArgumentException("File not exist!");
-			}
-			if((new File(pathfile)).length()<=0) {
-				throw new IllegalArgumentException("File cannot be empty");
-			}
-		}
 		
 		this.pathfile = path;
 	}
 	
-	public boolean parseOnly() /*throws ParserException*/{
+	public void parseOnly() throws ParseException, IOException{
+		long startTime = System.currentTimeMillis();
 		
-		return false;
+		newVTLLexer lexer = new newVTLLexer(new ANTLRFileStream(pathfile));
+		newVTLParser parser = new newVTLParser(new CommonTokenStream(lexer));
+		
+		//error handling test
+		parser.removeErrorListeners();
+		parser.addErrorListener(new UnderlineListener());
+		
+		try {
+			parser.parse();
+		} catch(RuntimeException ex) {
+			//System.out.println("eccezione! " + ex.getMessage() + " @ " + ex.getClass().getSimpleName());
+			//retrow ex
+			this.lastExTime = (System.currentTimeMillis() - startTime);
+			throw ex;
+		}
+		//se arrivo qui senza eccezioni, allora il codice è grammaticalmente corretto
+		this.lastExTime = (System.currentTimeMillis() - startTime);
 	}
 	
-	public boolean execute() throws RuntimeException{
+	public boolean execute() throws RuntimeException, IOException{
+		long startTime = System.currentTimeMillis();
 		
+		newVTLLexer lexer = new newVTLLexer(new ANTLRFileStream(pathfile));
+		newVTLParser parser = new newVTLParser(new CommonTokenStream(lexer));
 		
-		return false;
+		//error handling test
+		parser.removeErrorListeners();
+		parser.addErrorListener(new UnderlineListener());
+		
+		ParseTree tree = null;
+		try {
+			tree = parser.parse();
+			NewEval visitor = new NewEval(this.connect);
+	        visitor.visit(tree);
+		} catch(RuntimeException ex) {
+			//System.out.println("eccezione! " + ex.getMessage() + " @ " + ex.getClass().getSimpleName());
+			//retrow ex
+			this.lastExTime = (System.currentTimeMillis() - startTime);
+			throw ex;
+		}
+		this.lastExTime = (System.currentTimeMillis() - startTime);
+		return true;
+	}
+	
+	
+	public long getTimeExecution() {
+		return this.lastExTime;
 	}
 }

@@ -1,10 +1,8 @@
-package it.islandofcode.jvtllib.newparser.test;
+package it.islandofcode.jvtllib.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import it.islandofcode.jvtllib.model.Scalar;
-import it.islandofcode.jvtllib.model.VTLObj;
 import it.islandofcode.jvtllib.newparser.newVTLParser.SingleruleContext;
 
 /**

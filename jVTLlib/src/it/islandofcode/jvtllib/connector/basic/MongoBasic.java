@@ -7,7 +7,11 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 import it.islandofcode.jvtllib.connector.IConnector;
+import it.islandofcode.jvtllib.model.DataPoint;
 import it.islandofcode.jvtllib.model.DataSet;
+import it.islandofcode.jvtllib.model.DataStructure;
+import it.islandofcode.jvtllib.model.Scalar;
+import it.islandofcode.jvtllib.model.VTLObj;
 
 /**
  * @author Pier Riccardo Monzo
@@ -39,8 +43,32 @@ public class MongoBasic implements IConnector {
 		if(this.checkStatus()) {
 			MongoDatabase db = MC.getDatabase(this.database);
 			MongoCollection<Document> table = db.getCollection(this.table);
-			//TODO
-		}
+			
+			Document first = table.find().first();
+			DataStructure dstr = new DataStructure(location+"_dstr");
+			for(String K : first.keySet()) {
+				if(K.equals("_id"))
+					continue;
+				dstr.putComponent(
+						K,
+						new Scalar(Scalar.SCALARTYPE.String),
+						DataStructure.type.Identifier
+						);
+			}
+			
+			ds = new DataSet(location,this.database,dstr,true);
+			for(Document D : table.find()) {
+				DataPoint dp = new DataPoint();
+				for(String I : D.keySet()) {
+					if(I.equals("_id"))
+						continue;
+					dp.setValue(I, new Scalar(""+D.get(I)));
+				}
+				ds.setPoint(dp);
+			}
+			
+		} else
+			return null; //se faccio check prima di get, non dovrei MAI arrivare qui.
 		
 		return ds;
 	}
@@ -67,7 +95,7 @@ public class MongoBasic implements IConnector {
 	@Override
 	public boolean checkStatus() {
 		for(String N : MC.listDatabaseNames()) {
-			if(N.equals(this.getLocation()))
+			if(N.equals(this.database))
 				return true;
 		}
 		return false;
@@ -78,8 +106,7 @@ public class MongoBasic implements IConnector {
 	 */
 	@Override
 	public String getLocation() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.table;
 	}
-
+	
 }
