@@ -17,7 +17,7 @@ public class MongoBasic implements IConnector {
 	String database;
 	String table;
 	
-	public MongoBasic(String IP, int port) {
+	public MongoBasic(String IP, int port, String db) {
 		//se IP/porta non specificato o fuori specifica, vai di default
 		if(IP==null || IP.isEmpty())
 			IP="127.0.0.1";
@@ -25,6 +25,7 @@ public class MongoBasic implements IConnector {
 			port=27017;
 		
 		MC = new MongoClient(IP,port);
+		this.database = db;
 	}
 
 	/* (non-Javadoc)
@@ -32,8 +33,8 @@ public class MongoBasic implements IConnector {
 	 */
 	@Override
 	public DataSet get(String location) {
-		this.database = location.split("\\")[0];
-		this.table = location.split("\\")[1];
+		this.table = location;
+		DataSet ds = null;
 		
 		if(this.checkStatus()) {
 			MongoDatabase db = MC.getDatabase(this.database);
@@ -41,7 +42,7 @@ public class MongoBasic implements IConnector {
 			//TODO
 		}
 		
-		return null;
+		return ds;
 	}
 
 	/* (non-Javadoc)
@@ -65,7 +66,7 @@ public class MongoBasic implements IConnector {
 	 */
 	@Override
 	public boolean checkStatus() {
-		for(String N :MC.listDatabaseNames()) {
+		for(String N : MC.listDatabaseNames()) {
 			if(N.equals(this.getLocation()))
 				return true;
 		}

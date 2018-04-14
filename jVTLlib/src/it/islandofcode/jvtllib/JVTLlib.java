@@ -9,9 +9,18 @@ import it.islandofcode.jvtllib.connector.IConnector;
  */
 public class JVTLlib {
 	
-	IConnector connect;
-	String pathfile;
-	String script;
+	/**
+	 * Per il momento si considera un solo connettore per volta.
+	 */
+	private IConnector connect;
+	/**
+	 * Path al file da eseguire.
+	 */
+	private String pathfile;
+	/**
+	 * Tempo di esecuzione dello script in millisecondi.
+	 */
+	private long lastExTime = -1;
 	
 
 	/**
@@ -32,22 +41,12 @@ public class JVTLlib {
 	}
 	
 	/**
-	 * Se si vuole eseguire un semplice script e non una CU.
-	 * @param script String
-	 */
-	public void addScript(String script) {
-		if(script == null || script.isEmpty())
-			throw new IllegalArgumentException("Script cannot be null or empty");
-		this.script = script;
-	}
-	
-	/**
 	 * Passa una stringa che indica il path della CU VTL da eseguire.
 	 * @param path String
 	 * @param check boolean Se true, effettua dei controlli sulla presenza del file e se sia popolato.
 	 */
 	public void addFile(String path, boolean check) {
-		if(script == null || script.isEmpty())
+		if(path == null || path.isEmpty())
 			throw new IllegalArgumentException("Path cannot be null or empty");
 		if(check) {
 			if(!(new File(pathfile)).exists()) {
@@ -61,7 +60,12 @@ public class JVTLlib {
 		this.pathfile = path;
 	}
 	
-	public boolean execute() {
+	public boolean parseOnly() /*throws ParserException*/{
+		
+		return false;
+	}
+	
+	public boolean execute() throws RuntimeException{
 		
 		
 		return false;

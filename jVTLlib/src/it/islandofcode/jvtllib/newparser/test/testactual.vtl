@@ -1,0 +1,16 @@
+ds1:=get("random")
+b:=get("random")
+printvar ds1
+
+ds2:=b[
+	filter(NAME="peppe"),
+	calc(10 as "AGE")
+]
+
+ds2:=ds2[keep(NAME,AGE)]
+printvar ds2
+
+dsr1:=[inner ds1 as "A", ds2 as "B" on A.NAME=B.NAME]{keep(A.NAME,B.AGE)}
+
+printvar dsr1
+nop
