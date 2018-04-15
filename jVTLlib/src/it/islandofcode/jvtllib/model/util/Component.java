@@ -15,13 +15,6 @@ public class Component {
 	private VTLObj datatype;
 	private DataStructure.type type;
 	
-	/**
-	 * @deprecated
-	 */
-	public Component() {
-		
-	}
-	
 	public Component(String id, VTLObj datatype, DataStructure.type type) {
 		this.id = id;
 		this.datatype = datatype;

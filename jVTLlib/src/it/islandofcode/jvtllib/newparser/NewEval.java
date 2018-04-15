@@ -1,4 +1,4 @@
-package it.islandofcode.jvtllib.newparser.test;
+package it.islandofcode.jvtllib.newparser;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,10 +17,10 @@ import com.rits.cloning.Cloner;
 import it.islandofcode.jvtllib.connector.IConnector;
 import it.islandofcode.jvtllib.model.*;
 import it.islandofcode.jvtllib.model.VTLObj.OBJTYPE;
-import it.islandofcode.jvtllib.newparser.newVTLBaseVisitor;
-import it.islandofcode.jvtllib.newparser.newVTLParser;
-import it.islandofcode.jvtllib.newparser.newVTLParser.*;
 import it.islandofcode.jvtllib.model.util.Component;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLBaseVisitor;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.*;
 /**
  * @author Pier Riccardo Monzo
  */
@@ -50,9 +50,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		 */
 		//LOG.setLevel(Level.FINEST);
 		Handler systemOut = new ConsoleHandler();
-		systemOut.setLevel( Level.FINE );
+		systemOut.setLevel( Level.INFO );
 		LOG.addHandler( systemOut );
-		LOG.setLevel( Level.FINE );
+		LOG.setLevel( Level.INFO );
 
 		// Prevent logs from processed by default Console handler.
 		LOG.setUseParentHandlers( false ); // Solution 1
@@ -66,13 +66,6 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		MEMORY.clear(); // non è necessario, giusto per.
 		LOG.info("MEMORY inizializzato.");
 		return super.visitParse(ctx);
-	}
-
-	@Override
-	public VTLObj visitStatement(StatementContext ctx) {
-		LOG.finest("Stato della memoria: " + MEMORY.size());
-		LOG.finest("Statement attuale: [" + ctx.getText() + "]");
-		return super.visitStatement(ctx);
 	}
 
 	@Override
@@ -1599,10 +1592,10 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		// recupero vecchio componente
 		Component OC = null;
-		System.out.println("VARNAME "+ctx.varname());
+		//System.out.println("VARNAME "+ctx.varname());
 		if(ctx.varname()!=null)
 			OC = O.getComponent( ctx.varname().getText() );
-		System.out.println("VARMEMBER "+ctx.varmember() );
+		//System.out.println("VARMEMBER "+ctx.varmember() );
 		if(ctx.varmember()!=null) {
 			OC = O.getComponent( ctx.varmember().getText().replaceFirst("\\.", "_") );
 			System.out.println("COMPONENT " + ctx.varmember().getText().replaceFirst("\\.", "_"));
@@ -1791,6 +1784,55 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		}
 
 		return null;
+	}
+	
+	
+	/* (non-Javadoc)
+	 * @see it.islandofcode.jvtllib.newparser.antlr.newVTLBaseVisitor#visitClausedrop(it.islandofcode.jvtllib.newparser.antlr.newVTLParser.ClausedropContext)
+	 */
+	@Override
+	public VTLObj visitClausedrop(ClausedropContext ctx) {
+		//se una delle colonne passate non esiste, la ignoro. Se nessuna esiste, ritorno il ds senza modifiche.
+		
+		String ref = ((Scalar) this.MEMORY.get("workDS")).asString();
+		//recupero dataset
+		DataSet ds = ((DataSet)this.MEMORY.get(ref));
+		//prendo il dstr del dataset origine
+		DataStructure dstr = CLONER.deepClone( ds.getDataStructure() );
+		//ne creo uno nuovo
+		DataStructure ndstr = new DataStructure(dstr.getName());
+		int find;
+		for(String K : dstr.getKeys()) {
+			find = -1;
+			for(int c=0; c<ctx.varname().size(); c++) {
+				if(K.equals(ctx.varname(c).getText())) {
+					find = c;
+					break;
+				}
+			}
+			if(find<0) {//se non è nella lista da scartare, aggiungo
+				ndstr.putComponent(
+						dstr.getComponent(K).getId(),
+						dstr.getComponent(K).getDataType(),
+						dstr.getComponent(K).getType()
+						);
+			}
+		}
+		//se ho cancellato tutte le colonne, eccezione
+		if(ndstr.getKeys().size()<=0)
+			throw new RuntimeException("DROP cant return a empty ds (with zero component)");
+		//se alla fine ho lo stesso numero di colonne, significa che non ne ho scartata alcuna, quindi ritorno il vecchio ds
+		if(ndstr.getKeys().size()==dstr.getKeys().size())
+			return ds;
+		
+		//creo nuovo dataset
+		DataSet nds = new DataSet(ds.getName(),ds.getDescription(),ndstr,false);
+		
+		for(int p=0; p<ds.getSize(); p++) {
+			nds.setPoint(ds.getPoint(p));
+		}
+
+		return nds;
 	}
 
 

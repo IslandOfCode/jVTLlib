@@ -3,7 +3,7 @@ package it.islandofcode.jvtllib.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import it.islandofcode.jvtllib.newparser.newVTLParser.SingleruleContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.SingleruleContext;
 
 /**
  * @author Pier Riccardo Monzo

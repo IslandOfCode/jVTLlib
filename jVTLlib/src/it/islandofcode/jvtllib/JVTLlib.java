@@ -1,6 +1,5 @@
 package it.islandofcode.jvtllib;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.antlr.v4.runtime.ANTLRFileStream;
@@ -8,13 +7,18 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import it.islandofcode.jvtllib.connector.IConnector;
-import it.islandofcode.jvtllib.newparser.newVTLLexer;
-import it.islandofcode.jvtllib.newparser.newVTLParser;
+import it.islandofcode.jvtllib.newparser.NewEval;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLLexer;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser;
 import it.islandofcode.jvtllib.newparser.error.ParseException;
 import it.islandofcode.jvtllib.newparser.error.UnderlineListener;
-import it.islandofcode.jvtllib.newparser.test.NewEval;
 
 /**
+ * <pre>'Have you guessed the riddle yet?' the Hatter said, turning to Alice again.
+ *'No, I give it up,' Alice replied: 'what's the answer?'
+ *'I haven't the slightest idea,' said the Hatter.
+ *					"Alice in Wonderland", Lewis Carroll</pre>
+ * 
  * @author Pier Riccardo Monzo
  */
 public class JVTLlib {
@@ -36,9 +40,7 @@ public class JVTLlib {
 	/**
 	 * 
 	 */
-	public JVTLlib() {
-		// TODO Auto-generated constructor stub
-	}
+	public JVTLlib() { }
 
 	/**
 	 * Aggiunge un connettore. Obbligatorio.

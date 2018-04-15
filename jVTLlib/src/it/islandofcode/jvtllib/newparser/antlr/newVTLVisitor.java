@@ -1,5 +1,5 @@
 // Generated from newVTL.g4 by ANTLR 4.6
-package it.islandofcode.jvtllib.newparser;
+package it.islandofcode.jvtllib.newparser.antlr;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
@@ -17,11 +17,33 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitParse(newVTLParser.ParseContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link newVTLParser#statement}.
+	 * Visit a parse tree produced by the {@code putData}
+	 * labeled alternative in {@link newVTLParser#statement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitStatement(newVTLParser.StatementContext ctx);
+	T visitPutData(newVTLParser.PutDataContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code definestatement}
+	 * labeled alternative in {@link newVTLParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDefinestatement(newVTLParser.DefinestatementContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code assingstatement}
+	 * labeled alternative in {@link newVTLParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAssingstatement(newVTLParser.AssingstatementContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code debugstatement}
+	 * labeled alternative in {@link newVTLParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDebugstatement(newVTLParser.DebugstatementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link newVTLParser#assignment}.
 	 * @param ctx the parse tree
@@ -140,13 +162,6 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitClauseExpr(newVTLParser.ClauseExprContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code putData}
-	 * labeled alternative in {@link newVTLParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPutData(newVTLParser.PutDataContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code InCondexpr}
 	 * labeled alternative in {@link newVTLParser#expr}.
@@ -295,6 +310,13 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitClausecalc(newVTLParser.ClausecalcContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code clausedrop}
+	 * labeled alternative in {@link newVTLParser#clausebody}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitClausedrop(newVTLParser.ClausedropContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link newVTLParser#clausebodyparam}.
 	 * @param ctx the parse tree

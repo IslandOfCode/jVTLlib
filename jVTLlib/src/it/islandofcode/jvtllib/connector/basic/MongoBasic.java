@@ -1,10 +1,15 @@
 package it.islandofcode.jvtllib.connector.basic;
 
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+
 import org.bson.Document;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
 
 import it.islandofcode.jvtllib.connector.IConnector;
 import it.islandofcode.jvtllib.model.DataPoint;
@@ -12,6 +17,7 @@ import it.islandofcode.jvtllib.model.DataSet;
 import it.islandofcode.jvtllib.model.DataStructure;
 import it.islandofcode.jvtllib.model.Scalar;
 import it.islandofcode.jvtllib.model.VTLObj;
+import it.islandofcode.jvtllib.model.util.Component;
 
 /**
  * @author Pier Riccardo Monzo
@@ -20,6 +26,11 @@ public class MongoBasic implements IConnector {
 	MongoClient MC;
 	String database;
 	String table;
+	
+	/*
+	 * Si usa uniVocity per il parsing da csv
+	 * https://github.com/uniVocity/univocity-parsers
+	 */
 	
 	public MongoBasic(String IP, int port, String db) {
 		//se IP/porta non specificato o fuori specifica, vai di default
@@ -49,10 +60,13 @@ public class MongoBasic implements IConnector {
 			for(String K : first.keySet()) {
 				if(K.equals("_id"))
 					continue;
+				Component C = this.retrive(K);
+				if(C==null)
+					return null; //se non ho trovato la colonna o non sono riuscito a generarla, torno null.
 				dstr.putComponent(
-						K,
-						new Scalar(Scalar.SCALARTYPE.String),
-						DataStructure.type.Identifier
+						C.getId(),
+						C.getDataType(),
+						C.getType()
 						);
 			}
 			
@@ -62,7 +76,7 @@ public class MongoBasic implements IConnector {
 				for(String I : D.keySet()) {
 					if(I.equals("_id"))
 						continue;
-					dp.setValue(I, new Scalar(""+D.get(I)));
+					dp.setValue(I, new Scalar(""+D.get(I)) );
 				}
 				ds.setPoint(dp);
 			}
@@ -78,13 +92,6 @@ public class MongoBasic implements IConnector {
 	 */
 	@Override
 	public boolean set(String location, DataSet data) {
-		if(this.checkStatus()) {
-			//esiste, sovrascrivo?
-		} else {
-			//non esiste, lo creo.
-			MongoDatabase db = MC.getDatabase(location);
-		}
-		
 		
 		return false;
 	}
@@ -107,6 +114,67 @@ public class MongoBasic implements IConnector {
 	@Override
 	public String getLocation() {
 		return this.table;
+	}
+	
+	
+	private final Component retrive(String key) {
+		CsvParserSettings parserSettings = new CsvParserSettings();
+		parserSettings.setHeaderExtractionEnabled(true); //ignora il primo rigo (Header)
+		CsvParser p = new CsvParser(parserSettings);
+		Component c = null;
+		try {
+			p.beginParsing(new InputStreamReader(this.getClass().getResourceAsStream("/BIRDmap.csv"), "UTF-8"));
+			String[] row;
+			VTLObj obtype = null;
+			DataStructure.type attr;
+			while ((row = p.parseNext()) != null) {
+				if(!row[0].equals(key)) {
+					continue;
+				}
+				switch(row[4]) {
+				case "string":
+					obtype = new Scalar(Scalar.SCALARTYPE.String);
+					break;
+				case "float":
+					obtype = new Scalar(Scalar.SCALARTYPE.Float);
+					break;
+				case "integer":
+					obtype = new Scalar(Scalar.SCALARTYPE.Integer);
+					break;
+				case "boolean":
+					obtype = new Scalar(Scalar.SCALARTYPE.Boolean);
+					break;
+				case "date":
+					obtype = new Scalar(Scalar.SCALARTYPE.Date);
+					break;
+				default:
+					p.stopParsing();
+					return null;
+				}
+				
+				switch(row[1]) {
+				case "D":
+					attr = DataStructure.string2type("identifier");
+					break;
+				case "O":
+					attr = DataStructure.string2type("measure");
+					break;
+				case "A":
+					attr = DataStructure.string2type("attribute");
+					break;
+				default:
+					p.stopParsing();
+					return null;
+				}
+				
+				c = new Component(row[0],obtype,attr);
+			}
+		} catch (UnsupportedEncodingException e) {
+			p.stopParsing();
+			return null;
+		}
+		p.stopParsing();
+		return c;
 	}
 	
 }

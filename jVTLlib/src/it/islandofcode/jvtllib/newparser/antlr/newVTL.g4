@@ -2,10 +2,11 @@ grammar newVTL;
 //regola iniziale, in main si chiama questo per avviare l'esecuzione
 parse : statement+ EOF;
 
-//ogni riga può essere un assegnamento, una definizione o, per il momento, istruzioni di debug personali.
-statement : define //queste sono le istruzioni del VTL-DL
-		  | assignment
-		  | debug //queste istruzioni sono mie e non fanno parte del VTL
+//ogni riga può essere un assegnamento, una definizione, una put o, per il momento, istruzioni di debug personali.
+statement : putFunction 	#putData
+		  | define #definestatement//queste sono le istruzioni del VTL-DL
+		  | assignment #assingstatement
+		  | debug #debugstatement//queste istruzioni sono mie e non fanno parte del VTL
 		  ;
 
 /*
@@ -53,7 +54,6 @@ expr : op=(NOT | PLUS | MINUS) right=expr						#unaryexpr
 	 | setfun													#setExpr
 	 //le uniche funzioni di I/O
 	 | getFunction												#getData
-	 | putFunction												#putData
 	 //le unità di base, le foglie dell'albero se vogliamo
 	 | varmember												#membershipexpr
 	 | varname													#varexpr
@@ -107,7 +107,7 @@ errorCode : ERRCODE LPAR literal RPAR;
 
 /* Funzioni per input/output */
 getFunction : GET LPAR stringLiteral RPAR;
-putFunction : PUT LPAR stringLiteral RPAR;
+putFunction : PUT LPAR stringLiteral COMMA varname RPAR;
 
 
 /* CLAUSE FUNCTION */
@@ -121,6 +121,7 @@ clausebody : op=(KEEP|RENAME) LPAR clausebodyparam (COMMA clausebodyparam)* RPAR
 		   //lo separo da keep/ename, perchè questo deve solo aggiungere una/più colonna
 		   //dopo aver calcolato un'expr
 		   | CALC LPAR clausebodycalc (COMMA clausebodycalc)* RPAR #clausecalc
+		   | DROP LPAR varname (COMMA varname)* RPAR #clausedrop
 		   ;
 
 //blocco per keep/rename
@@ -267,6 +268,7 @@ KEEP: 'keep';
 RENAME : 'rename' ;
 FILTER : 'filter' ;
 CALC : 'calc';
+DROP : 'drop';
 
 UNION : 'union';
 INTERSECT : 'intersect' ;
