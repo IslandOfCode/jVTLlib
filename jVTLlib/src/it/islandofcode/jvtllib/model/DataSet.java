@@ -2,7 +2,6 @@ package it.islandofcode.jvtllib.model;
 
 import java.util.ArrayList;
 
-import it.islandofcode.jvtllib.model.exception.DataStructureNotComplete;
 import it.islandofcode.jvtllib.model.util.Component;
 
 /**

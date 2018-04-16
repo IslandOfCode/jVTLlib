@@ -50,9 +50,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		 */
 		//LOG.setLevel(Level.FINEST);
 		Handler systemOut = new ConsoleHandler();
-		systemOut.setLevel( Level.INFO );
+		systemOut.setLevel( Level.OFF );
 		LOG.addHandler( systemOut );
-		LOG.setLevel( Level.INFO );
+		LOG.setLevel( Level.OFF );
 
 		// Prevent logs from processed by default Console handler.
 		LOG.setUseParentHandlers( false ); // Solution 1
