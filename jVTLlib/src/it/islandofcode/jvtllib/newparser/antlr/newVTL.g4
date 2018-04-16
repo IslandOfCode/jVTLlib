@@ -106,7 +106,7 @@ singlerule : varname COLON WHEN booleanLiteral THEN expr (errorCode)? 		#singler
 errorCode : ERRCODE LPAR literal RPAR;
 
 /* Funzioni per input/output */
-getFunction : GET LPAR stringLiteral RPAR;
+getFunction : GET LPAR stringLiteral (COMMA KEEP LPAR varname (COMMA varname)* RPAR)? RPAR;
 putFunction : PUT LPAR stringLiteral COMMA varname RPAR;
 
 
@@ -148,6 +148,11 @@ setfun: UNION LPAR varname (COMMA varname)* RPAR		#setUnion
 condOperator: NVL LPAR varname COMMA expr RPAR							#nvlCondOp
 			| IF expr THEN expr (ELSEIF expr THEN expr)* ELSE expr		#IfThenElseCondOp
 			;
+
+
+/* NAMED PROCEDURES */
+namedProc : ;
+/* NAMED FUNCTIONS */
 
 /*
  * Qui le istruzioni personali

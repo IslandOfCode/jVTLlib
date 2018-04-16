@@ -2225,18 +2225,39 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	 */
 	@Override
 	public VTLObj visitGetData(GetDataContext ctx) {
+/*		if (this.connector == null)
+			throw new RuntimeException("Connector cant be null!");
+		// TODO è un pò debuluccia come implementazione. Andrebbero fatto mooolti
+		// controlli.
+		// per il momento ce la teniamo così
+		LOG.info("GET from [" + ctx.getFunction().stringLiteral().getText() + "]");
+		String[] keep = {};
+		return this.connector.get(ctx.getFunction().stringLiteral().getText().replace("\"", ""), keep);
+*/
+		return super.visitGetData(ctx);
+	}
+	
+	
+	
+	@Override
+	public VTLObj visitGetFunction(GetFunctionContext ctx) {
 		if (this.connector == null)
 			throw new RuntimeException("Connector cant be null!");
 		// TODO è un pò debuluccia come implementazione. Andrebbero fatto mooolti
 		// controlli.
 		// per il momento ce la teniamo così
-		LOG.info("GET < " + ctx.getFunction().stringLiteral().getText());
-
-		return this.connector.get(ctx.getFunction().stringLiteral().getText().replace("\"", ""));
-
-		// return super.visitGetData(ctx);
+		LOG.info("GET from [" + ctx.stringLiteral().getText() + "]");
+		String[] keep = null;
+		if(ctx.varname().size()>0) {
+			keep = new String[ctx.varname().size()];
+			for(int k=0; k<ctx.varname().size(); k++) {
+				keep[k] = ctx.varname(k).getText();
+			}
+		}
+		return this.connector.get(ctx.stringLiteral().getText().replace("\"", ""), keep);
 	}
-	
+
+
 	/*
 	 * (non-Javadoc)
 	 * 

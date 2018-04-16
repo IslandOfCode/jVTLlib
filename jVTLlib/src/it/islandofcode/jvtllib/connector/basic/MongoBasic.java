@@ -47,7 +47,7 @@ public class MongoBasic implements IConnector {
 	 * @see it.islandofcode.jvtllib.connector.IConnector#get(java.lang.String)
 	 */
 	@Override
-	public DataSet get(String location) {
+	public DataSet get(String location, String[] keep) {
 		this.table = location;
 		DataSet ds = null;
 		
@@ -60,15 +60,34 @@ public class MongoBasic implements IConnector {
 			for(String K : first.keySet()) {
 				if(K.equals("_id"))
 					continue;
-				Component C = this.retrive(K);
-				if(C==null)
-					return null; //se non ho trovato la colonna o non sono riuscito a generarla, torno null.
-				dstr.putComponent(
-						C.getId(),
-						C.getDataType(),
-						C.getType()
-						);
-			}
+				if(keep!=null) {
+					for(int i=0; i<keep.length; i++) {
+						if(keep[i].equals(K)) {
+							Component C = this.retrive(K);
+							if(C==null)
+								return null; //se non ho trovato la colonna o non sono riuscito a generarla, torno null.
+							dstr.putComponent(
+									C.getId(),
+									C.getDataType(),
+									C.getType()
+									);
+							break;
+						}
+					}//fine for su keep
+				} else {
+					Component C = this.retrive(K);
+					if(C==null)
+						return null; //se non ho trovato la colonna o non sono riuscito a generarla, torno null.
+					dstr.putComponent(
+							C.getId(),
+							C.getDataType(),
+							C.getType()
+							);
+				}
+				
+				
+				
+			}//fine for su first
 			
 			ds = new DataSet(location,this.database,dstr,true);
 			for(Document D : table.find()) {

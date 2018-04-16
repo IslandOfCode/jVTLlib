@@ -106,6 +106,8 @@ public class JVTLlib {
 			this.lastExTime = (System.currentTimeMillis() - startTime);
 			throw ex;
 		}
+		//se arrivo qui, significa che il codice è corretto ed è stato eseguito senza errori
+		//ovvio che questo non significa che il codice sia sintatticamente corretto.
 		this.lastExTime = (System.currentTimeMillis() - startTime);
 		return true;
 	}

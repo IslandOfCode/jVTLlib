@@ -23,7 +23,7 @@ public interface IConnector {
 	 * @param location String
 	 * @return {@link DataSet}
 	 */
-	public DataSet get(String location);
+	public DataSet get(String location, String[] keep);
 	
 	/**
 	 * Salva permanentemente un {@link DataSet} nella posizione specificata.<br>

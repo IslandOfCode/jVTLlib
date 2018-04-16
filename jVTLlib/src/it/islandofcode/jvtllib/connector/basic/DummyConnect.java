@@ -20,7 +20,7 @@ public class DummyConnect implements IConnector {
 	 * @see it.islandofcode.connector.IConnector#get(java.lang.String)
 	 */
 	@Override
-	public DataSet get(String location) {
+	public DataSet get(String location, String[] keep) {
 
 		this.location = location;
 		//questo controllo a che serve? Tanto non sarà mai nullo...
