@@ -238,6 +238,13 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDefinevariable(newVTLParser.DefinevariableContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code defineProcedure}
+	 * labeled alternative in {@link newVTLParser#define}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDefineProcedure(newVTLParser.DefineProcedureContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link newVTLParser#dpruleset}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -378,6 +385,24 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitIfThenElseCondOp(newVTLParser.IfThenElseCondOpContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link newVTLParser#namedProcDef}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNamedProcDef(newVTLParser.NamedProcDefContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link newVTLParser#procVarInList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitProcVarInList(newVTLParser.ProcVarInListContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link newVTLParser#singleVarIn}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSingleVarIn(newVTLParser.SingleVarInContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code DBGprintvar}
 	 * labeled alternative in {@link newVTLParser#debug}.

@@ -55,6 +55,7 @@ public class MongoBasic implements IConnector {
 			MongoDatabase db = MC.getDatabase(this.database);
 			MongoCollection<Document> table = db.getCollection(this.table);
 			
+			//creiamo qui in DataStructure
 			Document first = table.find().first();
 			DataStructure dstr = new DataStructure(location+"_dstr");
 			for(String K : first.keySet()) {
@@ -110,7 +111,7 @@ public class MongoBasic implements IConnector {
 	 * @see it.islandofcode.jvtllib.connector.IConnector#set(java.lang.String, it.islandofcode.jvtllib.model.DataSet)
 	 */
 	@Override
-	public boolean set(String location, DataSet data) {
+	public boolean put(String location, DataSet data) {
 		
 		return false;
 	}

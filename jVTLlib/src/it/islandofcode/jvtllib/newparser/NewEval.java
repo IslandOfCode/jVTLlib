@@ -965,9 +965,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			Scalar c = (Scalar)conexp;
 			
 			if( ((Scalar) a).getScalarType().equals(Scalar.SCALARTYPE.Boolean) ) { //se ant è un bool
-				if( !a.asBoolean() ) { //condizione fallita, torna errore
-					this.MEMORY.put("ErrMsg", new Scalar(err,Scalar.SCALARTYPE.String));//ctx.errorCode().literal().getText(),Scalar.SCALARTYPE.String));
-					return Scalar.createBoolean(false);
+				if( !a.asBoolean() ) { //precondizione fallita, ignoro la regola.
+					//this.MEMORY.put("ErrMsg", new Scalar(err,Scalar.SCALARTYPE.String));//ctx.errorCode().literal().getText(),Scalar.SCALARTYPE.String));
+					return Scalar.createBoolean(true);
 				} else { //se l'antecedente non ha ritornato false, verifico il conseguente
 					if( c.getScalarType().equals(Scalar.SCALARTYPE.Boolean) ) //se cons è un bool
 						if( !c.asBoolean() ) { //condizione fallita, torna errore
@@ -1010,12 +1010,14 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		
 		/*
-		 * Come visitCheckFunWithOpt, ma con (not valid,measures) come opzioni di default
+		 * Come visitCheckFunWithOpt, ma con (not valid,condition) come opzioni di default
 		 */
 		LOG.fine("Valutazione CHECKFUNBASE");
 		//recupero datastructure e aggiungo colonna errormessage
 		DataStructure dstr = ds.getDataStructure();
 		dstr.putComponent("ERRORMESSAGE", new Scalar(Scalar.SCALARTYPE.String), DataStructure.type.Attribute);
+		dstr.putComponent("CONDITION", new Scalar(Scalar.SCALARTYPE.Boolean), DataStructure.type.Measure);
+		dstr.putComponent("RULE_ID", new Scalar(Scalar.SCALARTYPE.String), DataStructure.type.Attribute);
 		
 		DataSet ret = null;
 			ret = new DataSet(
@@ -1028,13 +1030,14 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		//un datapoint vuoto che userò come var d'appoggio
 		DataPoint dp = null;
 		int numFailed = 0;
-		Scalar ErrMsg;
+		Scalar ErrMsg, ErrID;
 		
 		//ciclo su tutte le righe del dataset
 		for(int i=0; i<ds.getSize(); i++) {
 			//resetto contatori
 			numFailed = 0;
 			ErrMsg = new Scalar(Scalar.SCALARTYPE.String);
+			ErrID = new Scalar(Scalar.SCALARTYPE.String);
 			this.MEMORY.put("ErrMsg", ErrMsg);
 			//ciclo sui ruleset presenti nella lista
 			for(DPRuleset RS : LDPR) {
@@ -1050,16 +1053,21 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					 * incremento contatore e spezzo il ciclo 
 					 */
 					if( !((Scalar) this.visit(SRC)).asBoolean() ) {
+						//if(ErrMsg.asString().isEmpty()) continue;
 						numFailed++;
+						ErrID = new Scalar(RS.getRuleId()+"_"+SRC.getChild(0).getText(), Scalar.SCALARTYPE.String);
 						break;
 					}
 				}
+				//esco al primo errore.
+				if(numFailed>0)
+					break;
 			}
 			
 			/*
 			 * In caso di fallimento, ritorno il primo errorcode
 			 * (del primo SingleRule)
-			 * dell'ultimo ruleset che ha generato errore.
+			 * del primo ruleset che ha generato errore.
 			 */
 			
 			ErrMsg = (Scalar) this.MEMORY.get("ErrMsg");
@@ -1071,6 +1079,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					ErrMsg = new Scalar("More than one rule have failed.",Scalar.SCALARTYPE.String);
 				
 				dp.setValue("ERRORMESSAGE", ErrMsg);
+				dp.setValue("CONDITION", Scalar.createBoolean(false));
+				dp.setValue("RULE_ID", ErrID);
 				ret.setPoint(dp);
 			}
 			//questa riga ha passato i controlli quindi la scarto
@@ -1117,6 +1127,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		if(ctx.checkParamOpt().CONDITION() != null) {
 			dstr.putComponent("CONDITION", new Scalar(Scalar.SCALARTYPE.Boolean), DataStructure.type.Measure);
 		}
+		dstr.putComponent("RULE_ID", new Scalar(Scalar.SCALARTYPE.String), DataStructure.type.Attribute);
 		
 		DataSet ret = null;
 			ret = new DataSet(
@@ -1129,13 +1140,13 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		//un datapoint vuoto che userò come var d'appoggio
 		DataPoint dp = null;
 		int numFailed = 0;
-		Scalar ErrMsg;
+		Scalar ErrMsg, ErrID;
 		
 		//ciclo su tutte le righe del dataset
 		for(int i=0; i<ds.getSize(); i++) {
 			//resetto contatori
 			numFailed = 0;
-			ErrMsg = new Scalar(Scalar.SCALARTYPE.String);
+			ErrID = ErrMsg = new Scalar(Scalar.SCALARTYPE.String);
 			this.MEMORY.put("ErrMsg", ErrMsg);
 			
 			//ciclo sui ruleset presenti nella lista
@@ -1151,14 +1162,16 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					 * incremento contatore e spezzo il ciclo 
 					 */
 					if( !((Scalar) this.visit(SRC)).asBoolean() ) {
+						//if(ErrMsg.asString().isEmpty()) continue;
 						numFailed++;
+						ErrID = new Scalar(RS.getRuleId()+"_"+SRC.getChild(0).getText(), Scalar.SCALARTYPE.String);
 						break;
 					}
 				}
 			}
 			
 			dp = ds.getPoint(i); //recupero un datapoint
-			
+			dp.setValue("RULE_ID", ErrID);
 			
 			ErrMsg = (Scalar) this.MEMORY.get("ErrMsg");
 			//se ho avuto uno o più hit
@@ -2215,30 +2228,44 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		//visito e ritorno l'else
 		return this.visit(ctx.expr(ctx.expr().size()-1));
 	}
+	
 
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see it.islandofcode.jvtllib.newparser.newVTLBaseVisitor#visitGetData(it.
-	 * islandofcode.jvtllib.newparser.newVTLParser.GetDataContext)
-	 */
 	@Override
-	public VTLObj visitGetData(GetDataContext ctx) {
-/*		if (this.connector == null)
-			throw new RuntimeException("Connector cant be null!");
-		// TODO è un pò debuluccia come implementazione. Andrebbero fatto mooolti
-		// controlli.
-		// per il momento ce la teniamo così
-		LOG.info("GET from [" + ctx.getFunction().stringLiteral().getText() + "]");
-		String[] keep = {};
-		return this.connector.get(ctx.getFunction().stringLiteral().getText().replace("\"", ""), keep);
-*/
-		return super.visitGetData(ctx);
+	public VTLObj visitNamedProcDef(NamedProcDefContext ctx) {
+		// TODO Auto-generated method stub
+		//return super.visitNamedProcDef(ctx);
+		
+		System.out.println("NAMED PROCEDURE [" + ctx.varname(0).getText() + "]");
+		this.visit(ctx.procVarInList());
+		System.out.println("\tOUTPUT on " + ctx.varname(ctx.varname().size()-1).getText());
+		for(int i=0; i<ctx.assignment().size(); i++) {
+			System.out.println("\tBODY["+i+"]{ " + ctx.assignment(i).getText() + " }");
+		}
+		
+		return null;
 	}
+
 	
 	
-	
+	@Override
+	public VTLObj visitProcVarInList(ProcVarInListContext ctx) {
+		// TODO Auto-generated method stub
+		//return super.visitProcVarIn(ctx);
+		
+		for(int i=0; i<ctx.singleVarIn().size(); i++)
+			this.visit(ctx.singleVarIn(i));
+				
+		return null;
+	}
+
+	@Override
+	public VTLObj visitSingleVarIn(SingleVarInContext ctx) {
+		// TODO Auto-generated method stub
+		System.out.println("\tINPUT on " + ctx.varname().getText() + " type " + ctx.datatype.getText());
+		return null;
+	}
+
+
 	@Override
 	public VTLObj visitGetFunction(GetFunctionContext ctx) {
 		if (this.connector == null)

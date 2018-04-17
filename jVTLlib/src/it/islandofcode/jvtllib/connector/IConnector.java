@@ -33,7 +33,7 @@ public interface IConnector {
 	 * @param data {@link DataSet}
 	 * @return boolean
 	 */
-	public boolean set(String location, DataSet data);
+	public boolean put(String location, DataSet data);
 	
 	/**
 	 * Ritorna True se questo oggetto è collegato ad una base di dati<br>

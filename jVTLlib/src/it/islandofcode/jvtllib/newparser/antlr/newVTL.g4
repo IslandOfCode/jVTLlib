@@ -93,6 +93,7 @@ checkParamOpt  : (COMMA (CONDITION | MEASURES) )? ;
  */
 define : dpruleset					#datapointruleset
 	   | DEFINE 'variable' varname	#definevariable
+	   | namedProcDef				#defineProcedure
 	   ;
 
 /* le regole specifiche per datapoint ruleset */
@@ -151,7 +152,9 @@ condOperator: NVL LPAR varname COMMA expr RPAR							#nvlCondOp
 
 
 /* NAMED PROCEDURES */
-namedProc : ;
+namedProcDef : DEFINE PROCEDURE varname LPAR procVarInList (COMMA OUTPUT varname AS datatype=(DATASET|STRINGTYPE)) RPAR LBRA assignment+ RBRA;
+procVarInList : singleVarIn (COMMA singleVarIn)*;
+singleVarIn : (INPUT varname AS datatype=(DATASET|STRINGTYPE));
 /* NAMED FUNCTIONS */
 
 /*
@@ -285,6 +288,9 @@ IF:'if';
 ELSEIF:'elseif';
 ELSE:'else';
 
+INPUT : 'input';
+OUTPUT : 'output';
+
 //math
 ROUND : 'round' ;
 CEIL : 'ceil' ;
@@ -319,6 +325,7 @@ DATAPOINT : 'datapoint';
 RULESET : 'ruleset';
 HIERARCHICAL : 'hierarchical';
 MAPPING : 'mapping';
+PROCEDURE : 'procedure';
 
 /* SCALAR TYPE */
 NULLTYPE : 'null';
@@ -327,6 +334,7 @@ INTTYPE : 'integer';
 FLOATTYPE : 'float';
 BOOLTYPE : 'boolean';
 DATETYPE : 'date';
+DATASET : 'dataset';
 
 
 /* LITERAL DEFINITION */
