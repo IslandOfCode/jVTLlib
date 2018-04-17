@@ -1602,7 +1602,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		// recupero i datastructure
 		DataStructure O = (DataStructure) this.MEMORY.get(refo);
 		DataStructure N = (DataStructure) this.MEMORY.get(refn);
-		
+
 		// recupero vecchio componente
 		Component OC = null;
 		//System.out.println("VARNAME "+ctx.varname());
