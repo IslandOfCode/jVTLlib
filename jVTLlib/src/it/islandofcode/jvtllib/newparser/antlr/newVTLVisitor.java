@@ -31,6 +31,13 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDefinestatement(newVTLParser.DefinestatementContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code callProcStat}
+	 * labeled alternative in {@link newVTLParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCallProcStat(newVTLParser.CallProcStatContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code assingstatement}
 	 * labeled alternative in {@link newVTLParser#statement}.
 	 * @param ctx the parse tree
@@ -403,6 +410,12 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitSingleVarIn(newVTLParser.SingleVarInContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link newVTLParser#callProc}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCallProc(newVTLParser.CallProcContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code DBGprintvar}
 	 * labeled alternative in {@link newVTLParser#debug}.

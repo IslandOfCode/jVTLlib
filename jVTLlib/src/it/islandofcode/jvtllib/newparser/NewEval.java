@@ -1602,12 +1602,24 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		// recupero i datastructure
 		DataStructure O = (DataStructure) this.MEMORY.get(refo);
 		DataStructure N = (DataStructure) this.MEMORY.get(refn);
+		
+		Procedure P = null;
+		if(this.GLOBAL.containsKey("f_prcdr_body")) {
+			P = (Procedure) this.GLOBAL.get((String)this.GLOBAL.get("f_prcdr_body"));
+		}
+		
+		String varname = ctx.varname().getText();
+		
+		if(P!=null) {
+			varname = P.translate(varname);
+		}
 
 		// recupero vecchio componente
 		Component OC = null;
 		//System.out.println("VARNAME "+ctx.varname());
 		if(ctx.varname()!=null)
-			OC = O.getComponent( ctx.varname().getText() );
+			OC = O.getComponent( varname );
+		//TODO verifichiamo i dataset nelle procedure.
 		//System.out.println("VARMEMBER "+ctx.varmember() );
 		if(ctx.varmember()!=null) {
 			OC = O.getComponent( ctx.varmember().getText().replaceFirst("\\.", "_") );
@@ -2232,36 +2244,82 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 
 	@Override
 	public VTLObj visitNamedProcDef(NamedProcDefContext ctx) {
-		// TODO Auto-generated method stub
-		//return super.visitNamedProcDef(ctx);
 		
-		System.out.println("NAMED PROCEDURE [" + ctx.varname(0).getText() + "]");
+		Procedure P = new Procedure(ctx.varname(0).getText());
+		this.GLOBAL.put("f_build_procedure", P);
 		this.visit(ctx.procVarInList());
-		System.out.println("\tOUTPUT on " + ctx.varname(ctx.varname().size()-1).getText());
-		for(int i=0; i<ctx.assignment().size(); i++) {
-			System.out.println("\tBODY["+i+"]{ " + ctx.assignment(i).getText() + " }");
+		P = (Procedure) this.GLOBAL.get("f_build_procedure");
+		//aggiungi output
+		P.addParameter(P.getMapSize(), false, ctx.varname(ctx.varname().size()-1).getText(), ctx.datatype.getText());
+		//aggiungi le istruzioni interne
+		P.setExprs(ctx.assignment());
+		
+		//rimuovi flag
+		this.GLOBAL.remove("f_build_procedure");
+		//put procedura in memoria.
+		this.GLOBAL.put(P.getProcedureID(), P);
+		
+		//null?
+		return null;
+	}	
+	
+	@Override
+	public VTLObj visitProcVarInList(ProcVarInListContext ctx) {
+		
+		Procedure P = (Procedure) this.GLOBAL.get("f_build_procedure");
+		for(int i=0; i<ctx.singleVarIn().size(); i++) {
+			P.addParameter(
+					i,
+					true,
+					ctx.singleVarIn(i).varname().getText(),
+					ctx.singleVarIn(i).datatype.getText());
 		}
 		
 		return null;
 	}
-
 	
-	
-	@Override
-	public VTLObj visitProcVarInList(ProcVarInListContext ctx) {
-		// TODO Auto-generated method stub
-		//return super.visitProcVarIn(ctx);
-		
-		for(int i=0; i<ctx.singleVarIn().size(); i++)
-			this.visit(ctx.singleVarIn(i));
-				
-		return null;
-	}
-
 	@Override
 	public VTLObj visitSingleVarIn(SingleVarInContext ctx) {
-		// TODO Auto-generated method stub
+		// XXX eliminami?
 		System.out.println("\tINPUT on " + ctx.varname().getText() + " type " + ctx.datatype.getText());
+		
+		return null;
+	}
+	
+	@Override
+	public VTLObj visitCallProc(CallProcContext ctx) {
+		// TODO Auto-generated method stub
+		//return super.visitCallProcExpr(ctx);
+		
+		System.out.println("CALL PROC " + ctx.varname(0).getText());
+		
+		Procedure P = (Procedure) this.GLOBAL.get(ctx.varname(0).getText());
+		if(P==null)
+			throw new RuntimeException("Undefined procedure ["+ctx.varname(0).getText()+"]");
+		
+		if((ctx.varname().size()-1) != P.getMapSize())
+			throw new RuntimeException("Bad procedure signature for ["+ctx.varname(0).getText()+"]");
+		
+		//prendo le variabili che mi servono dalla memoria, le copio in una nuova memoria rinominate
+		//e sostituisco la memoria
+		HashMap<String,VTLObj> M = new HashMap<String, VTLObj>();
+		//la prima è l'id della procedura quindi la salto
+		for(int p=1; p<(ctx.varname().size()-1); p++) {
+			String TEST = ctx.varname(p).getText();
+			VTLObj TEST2 = this.MEMORY.get(TEST);
+			M.put(P.getWithIndex(p),
+					this.MEMORY.get(ctx.varname(p).getText())
+					);
+		}
+		stack.push(CLONER.deepClone(MEMORY));
+		this.MEMORY = CLONER.deepClone(M);
+		M = null;
+		
+		for(int a=0; a<P.getExprSize(); a++) {
+			this.visit(P.getExpr(a));
+		}
+		
+		this.MEMORY = stack.pop();
 		return null;
 	}
 
@@ -2360,6 +2418,38 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		// non faccio niente, nop appunto
 		LOG.fine("! NOP !");
 		return super.visitDBGnop(ctx);
+	}
+	
+	/**
+	 * Metodo helper per recuperare oggetti dalla memoria.
+	 * Nel caso in cui non esista nella memoria locale, si verifica
+	 * se ci troviamo in uno scope locale.
+	 * Se si, si fa lo stesso controllo sullo scope globale.
+	 * <br><br>
+	 * <b>Attenzione!</b> Questo metodo non è ricorsivo, non fa controlli sullo scope.
+	 * Verifica solo lo scope immediatamente superiore!
+	 * <br><br>
+	 * Quando si scrive uno script vtl, bisogna fare attenzione a questo aspetto,
+	 * che andrebbe ben documentato ed evidenziato.
+	 * @param ref String
+	 * @return {@link VTLObj}
+	 */
+	@SuppressWarnings("unused")
+	private VTLObj getFromMemory(String ref) {
+		if(ref!=null && !ref.isEmpty()) {
+			VTLObj ret = this.MEMORY.get(ref);
+			if(ret!=null)
+				return ret;
+			else {
+				if(this.stack.size()>0) {
+					ret = this.stack.peek().get(ret);
+					if(ret!=null)
+						return ret;
+				}
+			}
+		}
+		
+		throw new RuntimeException("["+ref+"] not exist in memory.");
 	}
 
 }

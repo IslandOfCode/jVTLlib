@@ -20,6 +20,7 @@ import it.islandofcode.jvtllib.newparser.error.UnderlineListener;
  *					"Alice in Wonderland", Lewis Carroll</pre>
  * 
  * @author Pier Riccardo Monzo
+ * @version 0.1.0-indev
  */
 public class JVTLlib {
 	
@@ -38,7 +39,7 @@ public class JVTLlib {
 	
 
 	/**
-	 * 
+	 * Costruttore vuoto.
 	 */
 	public JVTLlib() { }
 

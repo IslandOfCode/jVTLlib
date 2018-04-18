@@ -5,6 +5,7 @@ parse : statement+ EOF;
 //ogni riga può essere un assegnamento, una definizione, una put o, per il momento, istruzioni di debug personali.
 statement : putFunction 	#putData
 		  | define #definestatement//queste sono le istruzioni del VTL-DL
+		  | callProc	#callProcStat
 		  | assignment #assingstatement
 		  | debug #debugstatement//queste istruzioni sono mie e non fanno parte del VTL
 		  ;
@@ -155,7 +156,11 @@ condOperator: NVL LPAR varname COMMA expr RPAR							#nvlCondOp
 namedProcDef : DEFINE PROCEDURE varname LPAR procVarInList (COMMA OUTPUT varname AS datatype=(DATASET|STRINGTYPE)) RPAR LBRA assignment+ RBRA;
 procVarInList : singleVarIn (COMMA singleVarIn)*;
 singleVarIn : (INPUT varname AS datatype=(DATASET|STRINGTYPE));
+//call procedure
+callProc : varname LPAR varname (COMMA varname)* RPAR;
 /* NAMED FUNCTIONS */
+//callFun : CALL varname LPAR varname (COMMA varname)* RPAR;
+//oppure accorpare proc e fun e fare (CALL)?
 
 /*
  * Qui le istruzioni personali
