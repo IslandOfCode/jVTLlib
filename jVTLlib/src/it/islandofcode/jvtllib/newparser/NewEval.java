@@ -1605,7 +1605,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		Procedure P = null;
 		if(this.GLOBAL.containsKey("f_prcdr_body")) {
-			P = (Procedure) this.GLOBAL.get((String)this.GLOBAL.get("f_prcdr_body"));
+			P = (Procedure) this.GLOBAL.get("f_prcdr_body");
 		}
 		
 		String varname = ctx.varname().getText();
@@ -2267,6 +2267,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	public VTLObj visitProcVarInList(ProcVarInListContext ctx) {
 		
 		Procedure P = (Procedure) this.GLOBAL.get("f_build_procedure");
+		
 		for(int i=0; i<ctx.singleVarIn().size(); i++) {
 			P.addParameter(
 					i,
@@ -2286,11 +2287,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		return null;
 	}
 	
+	@SuppressWarnings("unused")
 	@Override
 	public VTLObj visitCallProc(CallProcContext ctx) {
-		// TODO Auto-generated method stub
-		//return super.visitCallProcExpr(ctx);
-		
 		System.out.println("CALL PROC " + ctx.varname(0).getText());
 		
 		Procedure P = (Procedure) this.GLOBAL.get(ctx.varname(0).getText());
@@ -2303,23 +2302,49 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		//prendo le variabili che mi servono dalla memoria, le copio in una nuova memoria rinominate
 		//e sostituisco la memoria
 		HashMap<String,VTLObj> M = new HashMap<String, VTLObj>();
+		VTLObj param = null;
 		//la prima è l'id della procedura quindi la salto
 		for(int p=1; p<(ctx.varname().size()-1); p++) {
 			String TEST = ctx.varname(p).getText();
-			VTLObj TEST2 = this.MEMORY.get(TEST);
-			M.put(P.getWithIndex(p),
+			//VTLObj TEST2 = this.MEMORY.get(TEST);
+			/*param = this.getFromMemory(ctx.varname(p).getText());
+			if(param.getObjType().equals(VTLObj.OBJTYPE.DataSet))
+				if(!P.checkParam(p, true, "dataset")) {
+					throw new RuntimeException("Mismatched param data type for procedure " + P.getProcedureID());
+				}*/
+				
+			M.put(P.getWithIndex(p-1),
 					this.MEMORY.get(ctx.varname(p).getText())
+					//this.getFromMemory(ctx.varname(p).getText())
 					);
+			P.addFastMapping(p-1, ctx.varname(p).getText());
+			
 		}
+		//aggiungo l'output
+		M.put(P.getWithIndex(ctx.varname().size()-2), null);
+		P.addFastMapping(P.getMapSize()-1, ctx.varname(ctx.varname().size()-1).getText() );
+		
 		stack.push(CLONER.deepClone(MEMORY));
 		this.MEMORY = CLONER.deepClone(M);
 		M = null;
+		
+		this.GLOBAL.put("f_prcdr_body", P);
 		
 		for(int a=0; a<P.getExprSize(); a++) {
 			this.visit(P.getExpr(a));
 		}
 		
+		VTLObj ret = this.getFromMemory(P.getOutputVarName());
+		
+		if(ret.getObjType().equals(VTLObj.OBJTYPE.DataSet)) {
+			if(!P.checkParam(P.getMapSize()-1, false, "dataset")) {
+				throw new RuntimeException("Return value type mismatch");
+			}
+		}
+		
+		this.GLOBAL.remove("f_prcdr_body");
 		this.MEMORY = stack.pop();
+		this.MEMORY.put(P.translate(P.getOutputVarName()), ret);
 		return null;
 	}
 
@@ -2328,10 +2353,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	public VTLObj visitGetFunction(GetFunctionContext ctx) {
 		if (this.connector == null)
 			throw new RuntimeException("Connector cant be null!");
-		// TODO è un pò debuluccia come implementazione. Andrebbero fatto mooolti
-		// controlli.
-		// per il momento ce la teniamo così
-		LOG.info("GET from [" + ctx.stringLiteral().getText() + "]");
+
+		LOG.info("GET from [" + ctx.stringLiteral().getText() + "]");		
+		
 		String[] keep = null;
 		if(ctx.varname().size()>0) {
 			keep = new String[ctx.varname().size()];
@@ -2339,7 +2363,10 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				keep[k] = ctx.varname(k).getText();
 			}
 		}
-		return this.connector.get(ctx.stringLiteral().getText().replace("\"", ""), keep);
+		DataSet ret = this.connector.get(ctx.stringLiteral().getText().replace("\"", ""), keep);
+		if(ret==null)
+			throw new RuntimeException("GET obtain a null DataSet.");
+		return ret;
 	}
 
 
@@ -2434,7 +2461,6 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	 * @param ref String
 	 * @return {@link VTLObj}
 	 */
-	@SuppressWarnings("unused")
 	private VTLObj getFromMemory(String ref) {
 		if(ref!=null && !ref.isEmpty()) {
 			VTLObj ret = this.MEMORY.get(ref);
@@ -2442,7 +2468,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				return ret;
 			else {
 				if(this.stack.size()>0) {
-					ret = this.stack.peek().get(ret);
+					ret = this.stack.peek().get(ref);
 					if(ret!=null)
 						return ret;
 				}
