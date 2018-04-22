@@ -4,8 +4,9 @@ parse : statement+ EOF;
 
 //ogni riga può essere un assegnamento, una definizione, una put o, per il momento, istruzioni di debug personali.
 statement : putFunction 	#putData
-		  | define #definestatement//queste sono le istruzioni del VTL-DL
-		  | callProc	#callProcStat
+		  | define #definestatement //queste sono le istruzioni del VTL-DL
+		  | callProc	#callProcStat //chiamata di procedura
+		  | namedFunDef #defFunction //definizione di funzione
 		  | assignment #assingstatement
 		  | debug #debugstatement//queste istruzioni sono mie e non fanno parte del VTL
 		  ;
@@ -53,6 +54,7 @@ expr : op=(NOT | PLUS | MINUS) right=expr						#unaryexpr
 	 | clausefun												#clauseExpr
 	 //funzioni su tabelle
 	 | setfun													#setExpr
+	 | callFun													#callFunExpr
 	 //le uniche funzioni di I/O
 	 | getFunction												#getData
 	 //le unità di base, le foglie dell'albero se vogliamo
@@ -159,8 +161,8 @@ singleVarIn : (INPUT varname AS datatype=(DATASET|STRINGTYPE));
 //call procedure
 callProc : varname LPAR varname (COMMA varname)* RPAR;
 /* NAMED FUNCTIONS */
-//callFun : CALL varname LPAR varname (COMMA varname)* RPAR;
-//oppure accorpare proc e fun e fare (CALL)?
+namedFunDef : CREATE FUNCTION varname LPAR varname (COMMA varname)* RPAR LBRA RETURN expr AS (scalartype|DATASET) RBRA;
+callFun : CALL varname LPAR varname (COMMA varname)* RPAR;
 
 /*
  * Qui le istruzioni personali
@@ -331,6 +333,12 @@ RULESET : 'ruleset';
 HIERARCHICAL : 'hierarchical';
 MAPPING : 'mapping';
 PROCEDURE : 'procedure';
+
+//function
+CREATE :'create';
+FUNCTION : 'function';
+CALL : 'call';
+RETURN : 'return';
 
 /* SCALAR TYPE */
 NULLTYPE : 'null';

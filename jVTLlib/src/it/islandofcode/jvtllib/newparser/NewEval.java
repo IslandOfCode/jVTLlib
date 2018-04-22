@@ -26,6 +26,17 @@ import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.*;
  */
 public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	
+	/* COSTANTI */
+	private static final String FLG_PRCDR_BUILD = "f_prcdr_build";
+	private static final String FLG_PRCDR_BODY = "f_prcdr_body";
+	private static final String FLG_FNCT_BUILD = "";
+	private static final String FLG_FNCT_BODY = "";
+	private static final String FLG_CALC_1_PASS = "f_calc_1pass";
+	
+	private static final String U_NXT_DATAPOINT = "nextDataPoint";
+	private static final String U_KEEP_MAPPING = "keepMapping";
+	
+	
 	private static final Logger LOG = Logger.getLogger( NewEval.class.getName() );
 
 	/**
@@ -33,7 +44,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	 * Problema <a href="https://gogs.islandofcode.it/gogsadmin/jVTLlib-parser-scratch/issues/4">Parser-scratch#4</a>
 	 */
 	Cloner CLONER;	
-	Stack<Map<String,VTLObj>> stack;
+	Stack<Map<String,VTLObj>> SCOPE;
+	Stack<String> FNCTCALL;
 	Map<String, VTLObj> MEMORY;
 	Map<String, Object> GLOBAL;
 	IConnector connector;
@@ -41,7 +53,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	public NewEval(IConnector con) {
 		this.connector = con;
 		CLONER = new Cloner();
-		stack = new Stack<>();
+		SCOPE = new Stack<>();
 		MEMORY = new HashMap<String, VTLObj>();
 		GLOBAL = new HashMap<String,Object>();
 		
@@ -1004,7 +1016,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			LDPR.add((DPRuleset) CLONER.deepClone( this.MEMORY.get(ctx.varname(i).getText())) );
 		}
 		
-		stack.push(CLONER.deepClone(MEMORY));
+		SCOPE.push(CLONER.deepClone(MEMORY));
 		this.MEMORY = new HashMap<String, VTLObj>();
 		this.MEMORY.clear();
 		
@@ -1087,7 +1099,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		}
 		
 		this.MEMORY = null;
-		this.MEMORY = this.stack.pop();
+		this.MEMORY = this.SCOPE.pop();
 		return ret;
 		//return super.visitCheckFunBase(ctx);
 	}
@@ -1104,9 +1116,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			LDPR.add((DPRuleset) CLONER.deepClone( this.MEMORY.get(ctx.varname(i).getText())) );
 		}
 		
-		stack.push(CLONER.deepClone(MEMORY));
-		Map<String, VTLObj> MEMORY = new HashMap<String, VTLObj>();
-		MEMORY.clear();
+		SCOPE.push(CLONER.deepClone(MEMORY));
+		this.MEMORY = new HashMap<String, VTLObj>();
+		this.MEMORY.clear();
 		
 		LOG.fine("Valutazione CHECKFUNWITHOPT ["+ctx.checkParamEnum().getText()+"]["+ctx.checkParamOpt().getText()+"]");
 
@@ -1206,7 +1218,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		}//fine for sulle righe
 		
 		this.MEMORY = null;
-		this.MEMORY = this.stack.pop();
+		this.MEMORY = this.SCOPE.pop();
 		return ret;
 		//return super.visitCheckFunWithOpt(ctx);
 	}
@@ -1234,7 +1246,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		if(ds==null)
 			throw new RuntimeException("Can't find [" + ctx.varname().getText() +"] in memory.");
 		
-		stack.push(CLONER.deepClone(MEMORY));
+		SCOPE.push(CLONER.deepClone(MEMORY));
 		this.MEMORY = new HashMap<String, VTLObj>();
 		this.MEMORY.clear();
 		this.MEMORY.put(ctx.varname().getText(), ds);
@@ -1259,7 +1271,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		}
 		
 		this.MEMORY = null;
-		this.MEMORY = this.stack.pop();
+		this.MEMORY = this.SCOPE.pop();
 		return tmp;
 	}
 	
@@ -1275,7 +1287,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		String refB = ((Scalar)this.MEMORY.get("refB")).asString()+"_";
 		String prefixEx = "("+refA+"|"+refB+")";
 		
-		stack.push(CLONER.deepClone(MEMORY));
+		SCOPE.push(CLONER.deepClone(MEMORY));
 		this.MEMORY = new HashMap<String, VTLObj>();
 		this.MEMORY.clear();
 		this.MEMORY.put(joined.getName(), joined);
@@ -1313,7 +1325,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		}
 		
 		this.MEMORY = null;
-		this.MEMORY = this.stack.pop();
+		this.MEMORY = this.SCOPE.pop();
 		return ret;
 	}
 
@@ -1341,7 +1353,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 
 		tmp = null;
 		
-		stack.push(CLONER.deepClone(MEMORY));
+		SCOPE.push(CLONER.deepClone(MEMORY));
 		this.MEMORY = new HashMap<String, VTLObj>();
 		this.MEMORY.clear();
 		
@@ -1412,7 +1424,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			
 		
 		this.MEMORY = null;
-		this.MEMORY = this.stack.pop();
+		this.MEMORY = this.SCOPE.pop();
 		this.MEMORY.put("refA", new Scalar(refA));
 		this.MEMORY.put("refB", new Scalar(refB));
 		
@@ -1454,7 +1466,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		this.MEMORY.put("newDSTR", new Scalar(ndstr.getName(), Scalar.SCALARTYPE.String));
 
 		//inizializzo una map per il mapping (appunto) tra vecchi nomi e nuovi
-		this.GLOBAL.put("keepMapping", new HashMap<String,String>());
+		this.GLOBAL.put(U_KEEP_MAPPING, new HashMap<String,String>());
 		
 		//ciclo per creare component e pusharli nel ndstr
 		for(int k=0; k<ctx.clausebodyparam().size(); k++) {
@@ -1463,7 +1475,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		
 		//recupero la mappa
-		HashMap<String,String> map = (HashMap<String,String>) this.GLOBAL.get("keepMapping");
+		HashMap<String,String> map = (HashMap<String,String>) this.GLOBAL.get(U_KEEP_MAPPING);
 		
 		//se è rename, devo aggiungere tutti i component rimanenti
 		if(ctx.op.getText().toLowerCase().equals("rename")) {
@@ -1510,7 +1522,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 
 
 		//ripulisco la globale
-		this.GLOBAL.remove("keepMapping");
+		this.GLOBAL.remove(U_KEEP_MAPPING);
 		return nds;
 	}
 	
@@ -1604,8 +1616,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		DataStructure N = (DataStructure) this.MEMORY.get(refn);
 		
 		Procedure P = null;
-		if(this.GLOBAL.containsKey("f_prcdr_body")) {
-			P = (Procedure) this.GLOBAL.get("f_prcdr_body");
+		if(this.GLOBAL.containsKey(NewEval.FLG_PRCDR_BODY)) {
+			P = (Procedure) this.GLOBAL.get(NewEval.FLG_PRCDR_BODY);
 		}
 		
 		String varname = ctx.varname().getText();
@@ -1643,9 +1655,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 
 		// aggiungo coppia alla variabile globale keepMapping
 		if (newid != null) { // se ho chiesto un AS
-			HashMap<String, String> map = (HashMap<String, String>) this.GLOBAL.get("keepMapping");
+			HashMap<String, String> map = (HashMap<String, String>) this.GLOBAL.get(U_KEEP_MAPPING);
 			map.put(OC.getId(), newid);
-			this.GLOBAL.put("keepMapping", map);
+			this.GLOBAL.put(U_KEEP_MAPPING, map);
 		}
 
 		// sovrascrivo dstr in memoria con quello aggiornato.
@@ -1686,7 +1698,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		 * Dopo, il flag viene impostato a false, così che clausebodycalc ignori la modellazione del dstr
 		 * e si concentri a popolare i datapoint da pushare nel nuovo ds.
 		 */
-		this.MEMORY.put("f_calc_1pass", Scalar.createBoolean(true));
+		this.GLOBAL.put(NewEval.FLG_CALC_1_PASS, Scalar.createBoolean(true));
 		
 		/* Metto in memoria tutte le var del primo rigo del vecchio dstr */
 		DataPoint dp = ds.getPoint(0);
@@ -1722,7 +1734,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		this.MEMORY.put(ndstr.getName(), ndstr);
 		
 		//inverto il flag
-		this.MEMORY.put("f_calc_1pass", Scalar.createBoolean(false));
+		this.GLOBAL.put(NewEval.FLG_CALC_1_PASS, Scalar.createBoolean(false));
 		
 		//qui creo il nuovo dataset
 		DataSet nds = null;
@@ -1738,13 +1750,13 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					this.MEMORY.put(K, dp.getValue(K));
 				}
 				//carico in memoria globale in datapoint
-				this.GLOBAL.put("nextDataPoint", ndp);
+				this.GLOBAL.put(U_NXT_DATAPOINT, ndp);
 				//ciclo su tutti i body per popolare le nuove colonne
 				for(int c=0; c<ctx.clausebodycalc().size(); c++) {
 					this.visit(ctx.clausebodycalc(c));
 				}
 				//scarico dalla memoria globale
-				ndp = (DataPoint) this.GLOBAL.get("nextDataPoint");
+				ndp = (DataPoint) this.GLOBAL.get(U_NXT_DATAPOINT);
 				//qui copio i vecchi valori
 				for(String K: dstr.getKeys()) {
 					//utilizzo quel datastructure che contiene SOLO le nuove colonne.
@@ -1765,7 +1777,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	@Override
 	public VTLObj visitClausebodycalc(ClausebodycalcContext ctx) {
 		// recupero flag
-		boolean flag = ((Scalar) this.MEMORY.get("f_calc_1pass")).asBoolean();
+		boolean flag = ((Scalar) this.GLOBAL.get(NewEval.FLG_CALC_1_PASS)).asBoolean();
 
 		// recupero i riferimenti per accedere in memoria
 		String refn = ((Scalar) this.MEMORY.get("newDSTR")).asString();
@@ -1801,11 +1813,11 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			this.MEMORY.put(refn, N);
 		} else {
 			// devo riempire il datapoint
-			DataPoint ndp = (DataPoint) this.GLOBAL.get("nextDataPoint");
+			DataPoint ndp = (DataPoint) this.GLOBAL.get(U_NXT_DATAPOINT);
 			
 			ndp.setValue(column, s);
 			
-			this.GLOBAL.put("nextDataPoint", ndp);
+			this.GLOBAL.put(U_NXT_DATAPOINT, ndp);
 		}
 
 		return null;
@@ -2246,16 +2258,16 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	public VTLObj visitNamedProcDef(NamedProcDefContext ctx) {
 		
 		Procedure P = new Procedure(ctx.varname(0).getText());
-		this.GLOBAL.put("f_build_procedure", P);
+		this.GLOBAL.put(NewEval.FLG_PRCDR_BUILD, P);
 		this.visit(ctx.procVarInList());
-		P = (Procedure) this.GLOBAL.get("f_build_procedure");
+		P = (Procedure) this.GLOBAL.get(NewEval.FLG_PRCDR_BUILD);
 		//aggiungi output
 		P.addParameter(P.getMapSize(), false, ctx.varname(ctx.varname().size()-1).getText(), ctx.datatype.getText());
 		//aggiungi le istruzioni interne
 		P.setExprs(ctx.assignment());
 		
 		//rimuovi flag
-		this.GLOBAL.remove("f_build_procedure");
+		this.GLOBAL.remove(NewEval.FLG_PRCDR_BUILD);
 		//put procedura in memoria.
 		this.GLOBAL.put(P.getProcedureID(), P);
 		
@@ -2266,7 +2278,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	@Override
 	public VTLObj visitProcVarInList(ProcVarInListContext ctx) {
 		
-		Procedure P = (Procedure) this.GLOBAL.get("f_build_procedure");
+		Procedure P = (Procedure) this.GLOBAL.get(NewEval.FLG_PRCDR_BUILD);
 		
 		for(int i=0; i<ctx.singleVarIn().size(); i++) {
 			P.addParameter(
@@ -2324,11 +2336,11 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		M.put(P.getWithIndex(ctx.varname().size()-2), null);
 		P.addFastMapping(P.getMapSize()-1, ctx.varname(ctx.varname().size()-1).getText() );
 		
-		stack.push(CLONER.deepClone(MEMORY));
+		SCOPE.push(CLONER.deepClone(MEMORY));
 		this.MEMORY = CLONER.deepClone(M);
 		M = null;
 		
-		this.GLOBAL.put("f_prcdr_body", P);
+		this.GLOBAL.put(NewEval.FLG_PRCDR_BODY, P);
 		
 		for(int a=0; a<P.getExprSize(); a++) {
 			this.visit(P.getExpr(a));
@@ -2342,9 +2354,32 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			}
 		}
 		
-		this.GLOBAL.remove("f_prcdr_body");
-		this.MEMORY = stack.pop();
+		this.GLOBAL.remove(NewEval.FLG_PRCDR_BODY);
+		this.MEMORY = SCOPE.pop();
 		this.MEMORY.put(P.translate(P.getOutputVarName()), ret);
+		return null;
+	}
+
+
+	/* (non-Javadoc)
+	 * @see it.islandofcode.jvtllib.newparser.antlr.newVTLBaseVisitor#visitNamedFunDef(it.islandofcode.jvtllib.newparser.antlr.newVTLParser.NamedFunDefContext)
+	 */
+	@Override
+	public VTLObj visitNamedFunDef(NamedFunDefContext ctx) {
+		// TODO Auto-generated method stub
+		System.out.println("NAMED FUN DEFINITION");
+		//return super.visitNamedFunDef(ctx);
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see it.islandofcode.jvtllib.newparser.antlr.newVTLBaseVisitor#visitCallFunExpr(it.islandofcode.jvtllib.newparser.antlr.newVTLParser.CallFunExprContext)
+	 */
+	@Override
+	public VTLObj visitCallFunExpr(CallFunExprContext ctx) {
+		// TODO Auto-generated method stub
+		System.out.println("NAMED FUN CALLED");
+		//return super.visitCallFunExpr(ctx);
 		return null;
 	}
 
@@ -2467,8 +2502,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			if(ret!=null)
 				return ret;
 			else {
-				if(this.stack.size()>0) {
-					ret = this.stack.peek().get(ref);
+				if(this.SCOPE.size()>0) {
+					ret = this.SCOPE.peek().get(ref);
 					if(ret!=null)
 						return ret;
 				}

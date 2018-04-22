@@ -38,6 +38,13 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCallProcStat(newVTLParser.CallProcStatContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code defFunction}
+	 * labeled alternative in {@link newVTLParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDefFunction(newVTLParser.DefFunctionContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code assingstatement}
 	 * labeled alternative in {@link newVTLParser#statement}.
 	 * @param ctx the parse tree
@@ -169,6 +176,13 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitClauseExpr(newVTLParser.ClauseExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code callFunExpr}
+	 * labeled alternative in {@link newVTLParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCallFunExpr(newVTLParser.CallFunExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code InCondexpr}
 	 * labeled alternative in {@link newVTLParser#expr}.
@@ -416,6 +430,18 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCallProc(newVTLParser.CallProcContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link newVTLParser#namedFunDef}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNamedFunDef(newVTLParser.NamedFunDefContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link newVTLParser#callFun}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCallFun(newVTLParser.CallFunContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code DBGprintvar}
 	 * labeled alternative in {@link newVTLParser#debug}.
