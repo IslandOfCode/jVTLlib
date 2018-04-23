@@ -1,6 +1,8 @@
 package it.islandofcode.jvtllib;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -35,7 +37,7 @@ public class JVTLlib {
 	/**
 	 * Tempo di esecuzione dello script in millisecondi.
 	 */
-	private long lastExTime = -1;
+	private String lastExTime = "";
 	
 
 	/**
@@ -65,7 +67,8 @@ public class JVTLlib {
 	}
 	
 	public void parseOnly() throws ParseException, IOException{
-		long startTime = System.currentTimeMillis();
+		Instant start = Instant.now();
+		Instant end;
 		
 		newVTLLexer lexer = new newVTLLexer(new ANTLRFileStream(pathfile));
 		newVTLParser parser = new newVTLParser(new CommonTokenStream(lexer));
@@ -79,15 +82,19 @@ public class JVTLlib {
 		} catch(RuntimeException ex) {
 			//System.out.println("eccezione! " + ex.getMessage() + " @ " + ex.getClass().getSimpleName());
 			//retrow ex
-			this.lastExTime = (System.currentTimeMillis() - startTime);
+			end = Instant.now();
+			this.lastExTime = Duration.between(start, end).toString();
 			throw ex;
 		}
 		//se arrivo qui senza eccezioni, allora il codice è grammaticalmente corretto
-		this.lastExTime = (System.currentTimeMillis() - startTime);
+		
+		end = Instant.now();
+		this.lastExTime = Duration.between(start, end).toString();
 	}
 	
 	public boolean execute() throws RuntimeException, IOException{
-		long startTime = System.currentTimeMillis();
+		Instant start = Instant.now();
+		Instant end;
 		
 		newVTLLexer lexer = new newVTLLexer(new ANTLRFileStream(pathfile));
 		newVTLParser parser = new newVTLParser(new CommonTokenStream(lexer));
@@ -104,17 +111,19 @@ public class JVTLlib {
 		} catch(RuntimeException ex) {
 			//System.out.println("eccezione! " + ex.getMessage() + " @ " + ex.getClass().getSimpleName());
 			//retrow ex
-			this.lastExTime = (System.currentTimeMillis() - startTime);
+			end = Instant.now();
+			this.lastExTime = Duration.between(start, end).toString();
 			throw ex;
 		}
 		//se arrivo qui, significa che il codice è corretto ed è stato eseguito senza errori
 		//ovvio che questo non significa che il codice sia sintatticamente corretto.
-		this.lastExTime = (System.currentTimeMillis() - startTime);
+		end = Instant.now();
+		this.lastExTime = Duration.between(start, end).toString();
 		return true;
 	}
 	
 	
-	public long getTimeExecution() {
+	public String getTimeExecution() {
 		return this.lastExTime;
 	}
 }

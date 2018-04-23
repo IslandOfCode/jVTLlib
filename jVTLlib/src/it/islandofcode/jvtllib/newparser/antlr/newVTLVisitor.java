@@ -79,6 +79,13 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStringConcat(newVTLParser.StringConcatContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code condOpExpr}
+	 * labeled alternative in {@link newVTLParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCondOpExpr(newVTLParser.CondOpExprContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code literalexpr}
 	 * labeled alternative in {@link newVTLParser#expr}.
 	 * @param ctx the parse tree
@@ -468,6 +475,12 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitVarmember(newVTLParser.VarmemberContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link newVTLParser#dataType}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDataType(newVTLParser.DataTypeContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link newVTLParser#scalartype}.
 	 * @param ctx the parse tree

@@ -29,8 +29,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	/* COSTANTI */
 	private static final String FLG_PRCDR_BUILD = "f_prcdr_build";
 	private static final String FLG_PRCDR_BODY = "f_prcdr_body";
-	private static final String FLG_FNCT_BUILD = "";
-	private static final String FLG_FNCT_BODY = "";
+	//private static final String FLG_FNCT_BUILD = "f_fnct_build";
+	private static final String FLG_FNCT_BODY = "f_fnct_body";
 	private static final String FLG_CALC_1_PASS = "f_calc_1pass";
 	
 	private static final String U_NXT_DATAPOINT = "nextDataPoint";
@@ -43,35 +43,73 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	 * Effettua un deepclone di ogni oggetto.
 	 * Problema <a href="https://gogs.islandofcode.it/gogsadmin/jVTLlib-parser-scratch/issues/4">Parser-scratch#4</a>
 	 */
-	Cloner CLONER;	
+	Cloner CLONER;
+	
+	/**
+	 * Ogni volta che entriamo in un metodo che ha bisogno di essere isolato,
+	 * push di MEMORY nello stack e lo creiamo da zero.
+	 * Quando lo stack è vuoto siamo a lvl zero
+	 */
 	Stack<Map<String,VTLObj>> SCOPE;
+	
+	/**
+	 * Stack con i riferimenti alle funzioni/procedure che sono state chiamate.
+	 * Ad ogni nuova chiamata, viene fatto il push nello stack.
+	 */
 	Stack<String> FNCTCALL;
+	
+	/**
+	 * Mappa che contiene procedure e funzioni definite nello script.
+	 * TODO creare un'interfaccia per procedure e funzioni o separarle in due mappe.
+	 */
+	Map<String, Object> PRCFUNLIST;
+	
+	/**
+	 * Memoria locale, contiene oggetti di tipo VTLObj.
+	 */
 	Map<String, VTLObj> MEMORY;
+	
+	/**
+	 * Il nome è leggermente fuorviante. In realtà è una memoria di servizio dove poter
+	 * conservare variabili di FLAG o oggetti diversi da VTLObj.
+	 * ATTENZIONE! questa memoria non viene mai ripulita, quindi va gestita manualmente.
+	 */
 	Map<String, Object> GLOBAL;
+	
+	/**
+	 * Connettore che viene usato da get/set.
+	 * Non può essere nullo.
+	 */
 	IConnector connector;
+	
+	/* COSTRUTTORE */
 
 	public NewEval(IConnector con) {
+		/* INIT DATA STRUCT */
 		this.connector = con;
 		CLONER = new Cloner();
 		SCOPE = new Stack<>();
 		MEMORY = new HashMap<String, VTLObj>();
 		GLOBAL = new HashMap<String,Object>();
+		FNCTCALL = new Stack<>();
+		PRCFUNLIST = new HashMap<String,Object>();
 		
 		/*
 		 * CAMBIAMI PER OTTENERE UN DIVERSO LIVELLO DI LOGGING
 		 */
 		//LOG.setLevel(Level.FINEST);
 		Handler systemOut = new ConsoleHandler();
-		systemOut.setLevel( Level.OFF );
+		systemOut.setLevel( Level.ALL );
 		LOG.addHandler( systemOut );
-		LOG.setLevel( Level.OFF );
+		LOG.setLevel( Level.ALL );
 
 		// Prevent logs from processed by default Console handler.
 		LOG.setUseParentHandlers( false ); // Solution 1
 		//Logger.getLogger("").setLevel( Level.OFF ); // Solution 2
 	}
 	
-
+	/**************** OVERRIDE METODI VISITOR ****************/
+	
 	@Override
 	public VTLObj visitParse(ParseContext ctx) {
 		LOG.info("Avvio del parser");
@@ -2366,9 +2404,17 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	 */
 	@Override
 	public VTLObj visitNamedFunDef(NamedFunDefContext ctx) {
-		// TODO Auto-generated method stub
 		System.out.println("NAMED FUN DEFINITION");
-		//return super.visitNamedFunDef(ctx);
+		
+		Function F = new Function(ctx.varname(0).getText());
+		for(int p=1; p<ctx.varname().size(); p++) {
+			F.addParam(p-1, ctx.varname(p).getText());
+		}
+		F.addExpr(ctx.expr());
+		F.setRetType(ctx.dataType().getText());
+		
+		this.PRCFUNLIST.put(F.getFunctionID(), F);
+		
 		return null;
 	}
 
@@ -2376,11 +2422,47 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	 * @see it.islandofcode.jvtllib.newparser.antlr.newVTLBaseVisitor#visitCallFunExpr(it.islandofcode.jvtllib.newparser.antlr.newVTLParser.CallFunExprContext)
 	 */
 	@Override
-	public VTLObj visitCallFunExpr(CallFunExprContext ctx) {
-		// TODO Auto-generated method stub
-		System.out.println("NAMED FUN CALLED");
-		//return super.visitCallFunExpr(ctx);
-		return null;
+	public VTLObj visitCallFun(CallFunContext ctx) {
+
+		System.out.println("NAMED FUN CALLED " + ctx.varname(0).getText());
+		Function F = (Function) this.PRCFUNLIST.get(ctx.varname(0).getText());
+		if(F==null)
+			throw new RuntimeException("Undefined function ["+ctx.varname(0).getText()+"]");
+		
+		if((ctx.varname().size()-1) != F.getVarMapSize())
+			throw new RuntimeException("Bad function signature for ["+ctx.varname(0).getText()+"]");
+		
+		HashMap<String,VTLObj> M = new HashMap<String, VTLObj>();
+		//la prima è l'id della funzione quindi la salto
+		for(int v=1; v<ctx.varname().size(); v++) {
+			F.setMapping(v-1, ctx.varname(v).getText());
+			M.put(F.getWithIndex(v-1),
+					this.MEMORY.get(F.translate(F.getWithIndex(v-1)))
+					);
+		}
+		
+		SCOPE.push(CLONER.deepClone(MEMORY));
+		this.MEMORY = CLONER.deepClone(M);
+		
+		this.GLOBAL.put(NewEval.FLG_FNCT_BODY, F);
+		
+		VTLObj ret = this.visit(F.getExpr());
+		
+		this.GLOBAL.remove(NewEval.FLG_FNCT_BODY);
+		this.MEMORY = SCOPE.pop();
+		
+		if( !(ret.getObjType().equals(VTLObj.OBJTYPE.DataSet) && F.getRetType().equals("dataset")) ) {
+			if(ret.getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
+				Scalar S = (Scalar) ret;
+				String dt = F.getRetType().substring(0, 1).toUpperCase() + F.getRetType().substring(1);
+				//TODO se sconosciuto, valueOf dovrebbe lanciare un'eccezione, mi pare IllegalArgument.
+				if(!S.getScalarType().equals(Scalar.SCALARTYPE.valueOf(dt))) {
+					throw new RuntimeException("Mismatched function return type");
+				}
+			}
+		}
+
+		return ret;
 	}
 
 

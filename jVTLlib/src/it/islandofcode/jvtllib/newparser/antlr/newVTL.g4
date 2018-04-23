@@ -25,7 +25,8 @@ assignment : varname ASSIGN expr;
  * Importante notare che expr è ricorsiva, e scende fino alle foglie, cioè literal o variabili.
  */
 expr : op=(NOT | PLUS | MINUS) right=expr						#unaryexpr
-	 |LPAR expr RPAR											#precedenceexpr
+	 | LPAR expr RPAR											#precedenceexpr
+	 | condOperator												#condOpExpr
 	 //espressioni matematiche
 	 | expr op=(PLUS | MINUS | MUL | DIV) expr					#mathexpr
 	 //separo round e ceil/floor perchè funzionano diversamente
@@ -161,7 +162,7 @@ singleVarIn : (INPUT varname AS datatype=(DATASET|STRINGTYPE));
 //call procedure
 callProc : varname LPAR varname (COMMA varname)* RPAR;
 /* NAMED FUNCTIONS */
-namedFunDef : CREATE FUNCTION varname LPAR varname (COMMA varname)* RPAR LBRA RETURN expr AS (scalartype|DATASET) RBRA;
+namedFunDef : CREATE FUNCTION varname LPAR varname (COMMA varname)* RPAR LBRA RETURN expr AS dataType RBRA;
 callFun : CALL varname LPAR varname (COMMA varname)* RPAR;
 
 /*
@@ -180,6 +181,8 @@ debug : 'printvar' varname 		#DBGprintvar //printvar deve stampare info sulla va
 varname : (REG_IDENTIFIER | ESCAPED_IDENTIFIER);
 //per indicare una colonna, del tipo ds_1.k1
 varmember : left=varname op=MEMBER right=varname ;
+
+dataType : scalartype | DATASET;
 
 //racchiude i nomi di tutti gli scalari
 scalartype : nulltype
