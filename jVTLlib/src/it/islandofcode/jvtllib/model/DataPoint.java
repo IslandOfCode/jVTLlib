@@ -123,7 +123,7 @@ public class DataPoint {
 				 * Prima verifica se il componente è un attributo.
 				 * Se ho scelto di non verificarlo, salto
 				 */
-				if((dstr.getComponent(K).getType().equals(DataStructure.type.Attribute) && !withAttr)) {
+				if((dstr.getComponent(K).getType().equals(DataStructure.ROLE.Attribute) && !withAttr)) {
 					continue;
 				}
 				
@@ -145,7 +145,7 @@ public class DataPoint {
 				if(dstr.getComponent(K)==null)
 					continue;
 				
-				if(dstr.getComponent(K).getType().equals(DataStructure.type.Attribute) && !withAttr) {
+				if(dstr.getComponent(K).getType().equals(DataStructure.ROLE.Attribute) && !withAttr) {
 					continue;
 				}
 				

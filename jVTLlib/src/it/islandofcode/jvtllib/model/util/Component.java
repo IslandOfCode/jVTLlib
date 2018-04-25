@@ -13,9 +13,9 @@ import it.islandofcode.jvtllib.model.VTLObj;
 public class Component {
 	private String id;
 	private VTLObj datatype;
-	private DataStructure.type type;
+	private DataStructure.ROLE type;
 	
-	public Component(String id, VTLObj datatype, DataStructure.type type) {
+	public Component(String id, VTLObj datatype, DataStructure.ROLE type) {
 		this.id = id;
 		this.datatype = datatype;
 		this.type = type;
@@ -36,7 +36,7 @@ public class Component {
 		return this.datatype;
 	}
 	
-	public DataStructure.type getType(){
+	public DataStructure.ROLE getType(){
 		return this.type;
 	}
 }

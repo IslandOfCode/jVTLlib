@@ -29,6 +29,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	/* COSTANTI */
 	private static final String FLG_PRCDR_BUILD = "f_prcdr_build";
 	private static final String FLG_PRCDR_BODY = "f_prcdr_body";
+	//la procedura per la funzione non ha passaggi intermedi.
 	//private static final String FLG_FNCT_BUILD = "f_fnct_build";
 	private static final String FLG_FNCT_BODY = "f_fnct_body";
 	private static final String FLG_CALC_1_PASS = "f_calc_1pass";
@@ -135,6 +136,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	 */
 	@Override
 	public VTLObj visitPrecedenceexpr(PrecedenceexprContext ctx) {
+		//XXX rimuovimi
 		return this.visit(ctx.expr());
 	}
 
@@ -1065,9 +1067,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		LOG.fine("Valutazione CHECKFUNBASE");
 		//recupero datastructure e aggiungo colonna errormessage
 		DataStructure dstr = ds.getDataStructure();
-		dstr.putComponent("ERRORMESSAGE", new Scalar(Scalar.SCALARTYPE.String), DataStructure.type.Attribute);
-		dstr.putComponent("CONDITION", new Scalar(Scalar.SCALARTYPE.Boolean), DataStructure.type.Measure);
-		dstr.putComponent("RULE_ID", new Scalar(Scalar.SCALARTYPE.String), DataStructure.type.Attribute);
+		dstr.putComponent("ERRORMESSAGE", new Scalar(Scalar.SCALARTYPE.String), DataStructure.ROLE.Attribute);
+		dstr.putComponent("CONDITION", new Scalar(Scalar.SCALARTYPE.Boolean), DataStructure.ROLE.Measure);
+		dstr.putComponent("RULE_ID", new Scalar(Scalar.SCALARTYPE.String), DataStructure.ROLE.Attribute);
 		
 		DataSet ret = null;
 			ret = new DataSet(
@@ -1173,11 +1175,11 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		//recupero datastructure e aggiungo colonna errormessage
 		DataStructure dstr = ds.getDataStructure();
-		dstr.putComponent("ERRORMESSAGE", new Scalar(Scalar.SCALARTYPE.String), DataStructure.type.Attribute);
+		dstr.putComponent("ERRORMESSAGE", new Scalar(Scalar.SCALARTYPE.String), DataStructure.ROLE.Attribute);
 		if(ctx.checkParamOpt().CONDITION() != null) {
-			dstr.putComponent("CONDITION", new Scalar(Scalar.SCALARTYPE.Boolean), DataStructure.type.Measure);
+			dstr.putComponent("CONDITION", new Scalar(Scalar.SCALARTYPE.Boolean), DataStructure.ROLE.Measure);
 		}
-		dstr.putComponent("RULE_ID", new Scalar(Scalar.SCALARTYPE.String), DataStructure.type.Attribute);
+		dstr.putComponent("RULE_ID", new Scalar(Scalar.SCALARTYPE.String), DataStructure.ROLE.Attribute);
 		
 		DataSet ret = null;
 			ret = new DataSet(
@@ -1975,7 +1977,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		//creamo un nuovo datastructure senza attributi
 		DataStructure ndstr = new DataStructure("uniondstr");
 		for(String C : tdstr.getKeys()) {
-			if(tdstr.getComponent(C).getType().equals(DataStructure.type.Attribute))
+			if(tdstr.getComponent(C).getType().equals(DataStructure.ROLE.Attribute))
 				continue; //skip!
 			ndstr.putComponent(
 					tdstr.getComponent(C).getId(),
@@ -2080,7 +2082,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		//creamo un nuovo datastructure senza attributi
 		DataStructure ndstr = new DataStructure("uniondstr");
 		for(String C : tdstr.getKeys()) {
-			if(tdstr.getComponent(C).getType().equals(DataStructure.type.Attribute))
+			if(tdstr.getComponent(C).getType().equals(DataStructure.ROLE.Attribute))
 				continue; //skip!
 			ndstr.putComponent(
 					tdstr.getComponent(C).getId(),
@@ -2218,7 +2220,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		DataStructure dstr = ds.getDataStructure();
 		for(String K : dstr.getKeys()) {
 			//ho trovato un campo measure
-			if(dstr.getComponent(K).getType().equals(DataStructure.type.Measure)) {
+			if(dstr.getComponent(K).getType().equals(DataStructure.ROLE.Measure)) {
 				//confronto il tipo della misura con lo scalare in input
 				if( !((Scalar)dstr.getComponent(K).getDataType()).getScalarType().equals(s.getScalarType()) ) {
 					throw new RuntimeException("DataSet need to have all field Measure of the same type of the Scalar parameter.");
@@ -2233,7 +2235,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			for(int p=0; p<ds.getSize(); p++) {
 				dp = ds.getPoint(p);
 				for(String K : dstr.getKeys()) {
-					if(dstr.getComponent(K).getType().equals(DataStructure.type.Measure)) {
+					if(dstr.getComponent(K).getType().equals(DataStructure.ROLE.Measure)) {
 						dp.setValue(K, s);
 					}
 					//skip!
@@ -2297,7 +2299,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		Procedure P = new Procedure(ctx.varname(0).getText());
 		this.GLOBAL.put(NewEval.FLG_PRCDR_BUILD, P);
+		
 		this.visit(ctx.procVarInList());
+		
 		P = (Procedure) this.GLOBAL.get(NewEval.FLG_PRCDR_BUILD);
 		//aggiungi output
 		P.addParameter(P.getMapSize(), false, ctx.varname(ctx.varname().size()-1).getText(), ctx.datatype.getText());
@@ -2307,7 +2311,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		//rimuovi flag
 		this.GLOBAL.remove(NewEval.FLG_PRCDR_BUILD);
 		//put procedura in memoria.
-		this.GLOBAL.put(P.getProcedureID(), P);
+		this.PRCFUNLIST.put(P.getProcedureID(), P);
 		
 		//null?
 		return null;
@@ -2330,19 +2334,10 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	}
 	
 	@Override
-	public VTLObj visitSingleVarIn(SingleVarInContext ctx) {
-		// XXX eliminami?
-		System.out.println("\tINPUT on " + ctx.varname().getText() + " type " + ctx.datatype.getText());
-		
-		return null;
-	}
-	
-	@SuppressWarnings("unused")
-	@Override
 	public VTLObj visitCallProc(CallProcContext ctx) {
 		System.out.println("CALL PROC " + ctx.varname(0).getText());
 		
-		Procedure P = (Procedure) this.GLOBAL.get(ctx.varname(0).getText());
+		Procedure P = (Procedure) this.PRCFUNLIST.get(ctx.varname(0).getText());
 		if(P==null)
 			throw new RuntimeException("Undefined procedure ["+ctx.varname(0).getText()+"]");
 		
@@ -2352,17 +2347,10 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		//prendo le variabili che mi servono dalla memoria, le copio in una nuova memoria rinominate
 		//e sostituisco la memoria
 		HashMap<String,VTLObj> M = new HashMap<String, VTLObj>();
-		VTLObj param = null;
+		
 		//la prima è l'id della procedura quindi la salto
 		for(int p=1; p<(ctx.varname().size()-1); p++) {
-			String TEST = ctx.varname(p).getText();
-			//VTLObj TEST2 = this.MEMORY.get(TEST);
-			/*param = this.getFromMemory(ctx.varname(p).getText());
-			if(param.getObjType().equals(VTLObj.OBJTYPE.DataSet))
-				if(!P.checkParam(p, true, "dataset")) {
-					throw new RuntimeException("Mismatched param data type for procedure " + P.getProcedureID());
-				}*/
-				
+			
 			M.put(P.getWithIndex(p-1),
 					this.MEMORY.get(ctx.varname(p).getText())
 					//this.getFromMemory(ctx.varname(p).getText())
@@ -2378,6 +2366,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		this.MEMORY = CLONER.deepClone(M);
 		M = null;
 		
+		//metto in globale la procedura modificata
 		this.GLOBAL.put(NewEval.FLG_PRCDR_BODY, P);
 		
 		for(int a=0; a<P.getExprSize(); a++) {

@@ -66,9 +66,9 @@ public class DummyConnect implements IConnector {
 		String tmp;
 		
 		struct = new DataStructure("dstr1");
-		struct.putComponent("ID", new Scalar(Scalar.SCALARTYPE.String), DataStructure.type.Identifier);
-		struct.putComponent("NAME", new Scalar(Scalar.SCALARTYPE.String), DataStructure.type.Identifier);
-		struct.putComponent("AGE", new Scalar(Scalar.SCALARTYPE.Integer), DataStructure.type.Measure);
+		struct.putComponent("ID", new Scalar(Scalar.SCALARTYPE.String), DataStructure.ROLE.Identifier);
+		struct.putComponent("NAME", new Scalar(Scalar.SCALARTYPE.String), DataStructure.ROLE.Identifier);
+		struct.putComponent("AGE", new Scalar(Scalar.SCALARTYPE.Integer), DataStructure.ROLE.Measure);
 		
 		this.ds = new DataSet("ds1", "descrizione",struct, false);
 		

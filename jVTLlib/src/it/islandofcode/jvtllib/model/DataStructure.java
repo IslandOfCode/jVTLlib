@@ -12,7 +12,7 @@ import it.islandofcode.jvtllib.model.util.Component;
  */
 public class DataStructure implements VTLObj {
 	
-	public static enum type{
+	public static enum ROLE{
 		Identifier,
 		Measure,
 		Attribute;
@@ -20,9 +20,22 @@ public class DataStructure implements VTLObj {
 	
 	private String name;
 	private String description;
+	/**
+	 * Indica se un DataSet è stato scritto o letto dalla memoria.
+	 * Se false, il DataSet è derivato da trasformazioni.
+	 */
 	private boolean isCollected;
+	/**
+	 * Se il DataStructure è dotato di almeno un ID e una MEAS, allora
+	 * è considerato completo ed è possibile eseguire tutte le operazioni su di esso.
+	 * In caso contrario, alcune operazioni non sono ammesse.
+	 */
 	private boolean isComplete;
-	//0 id, 1 measure.
+	/**
+	 * Piccola struttura d'appoggio per verificare se questo DataStructure è completo
+	 * oppure no. Il primo campo è popolato al primo inserimento di un Identifier, il
+	 * secondo al primo inserimento di una misura.
+	 */
 	private boolean[] constraint = {false,false};
 	
 	private HashMap<String, Component> component;
@@ -85,6 +98,9 @@ public class DataStructure implements VTLObj {
 	 * @deprecated Solo per testing.<br>
 	 * Elimina un componente indicando un nome.
 	 * Ritorna True se il componente esiste ed è stato eliminato, False altrimenti.
+	 * <br>
+	 * Non dovrebbe esistere perchè {@link DataStructure}, come tutte le strutture che
+	 * estendono {@link VTLObj}, dovrebbe essere immutabile.
 	 * @param compname nome componente
 	 * @return boolean
 	 */
@@ -115,7 +131,7 @@ public class DataStructure implements VTLObj {
 	 * @param compattribute
 	 * @return boolean
 	 */
-	public boolean putComponent(String compname, VTLObj comptype, DataStructure.type compattribute) {
+	public boolean putComponent(String compname, VTLObj comptype, DataStructure.ROLE compattribute) {
 		
 		if(this.component.containsKey(compname))
 			return false;
@@ -123,9 +139,9 @@ public class DataStructure implements VTLObj {
 		this.component.put(compname, new Component(compname,comptype,compattribute));
 		
 		if(!this.isComplete) {//se rispetta i constraint, skip!
-			if(compattribute.equals(DataStructure.type.Identifier)) //sto inserendo un ID
+			if(compattribute.equals(DataStructure.ROLE.Identifier)) //sto inserendo un ID
 				this.constraint[0]=true;
-			if(compattribute.equals(DataStructure.type.Measure)) //sto inserendo una misura
+			if(compattribute.equals(DataStructure.ROLE.Measure)) //sto inserendo una misura
 				this.constraint[1]=true;
 			if(this.constraint[0] && this.constraint[1]) //ho sia misura che id, quindi la struttura è ok
 				this.isComplete = true;
@@ -192,7 +208,7 @@ public class DataStructure implements VTLObj {
 		if(dstr.getKeys().size()>=this.component.size()) {  //dstr è è più grande
 			for(String K : dstr.getKeys()) {
 				C = dstr.getComponent(K);
-				if(C.getType().equals(type.Attribute))
+				if(C.getType().equals(ROLE.Attribute))
 					continue; //gli attributi vanno ignorati
 				//è ident o meas, ciclo sull'altro per trovarlo
 				if(this.component.containsKey(K)) {
@@ -214,7 +230,7 @@ public class DataStructure implements VTLObj {
 				for(String O : this.component.keySet()) {
 					if(passed.contains(O))
 						continue; //skip
-					if(!this.component.get(O).getType().equals(DataStructure.type.Attribute))
+					if(!this.component.get(O).getType().equals(DataStructure.ROLE.Attribute))
 						return false; //ho trovato un componente ident/meas non controllato!
 				}
 			}
@@ -223,7 +239,7 @@ public class DataStructure implements VTLObj {
 		} else {		//this è più grande
 			for(String K : this.component.keySet()) {
 				C = this.component.get(K);
-				if(C.getType().equals(type.Attribute))
+				if(C.getType().equals(ROLE.Attribute))
 					continue; //gli attributi vanno ignorati
 				//è ident o meas, ciclo sull'altro per trovarlo
 				if(dstr.containtComponent(K)) {
@@ -243,7 +259,7 @@ public class DataStructure implements VTLObj {
 				for(String O : dstr.getKeys()) {
 					if(passed.contains(O))
 						continue; //skip
-					if(!dstr.getComponent(O).getType().equals(DataStructure.type.Attribute))
+					if(!dstr.getComponent(O).getType().equals(DataStructure.ROLE.Attribute))
 						return false; //ho trovato un componente ident/meas non controllato!
 				}
 			}
@@ -253,16 +269,16 @@ public class DataStructure implements VTLObj {
 	}
 	
 	
-	public static type string2type(String in) {
-		switch(in) {
+	public static ROLE string2type(String in) {
+		switch(in.toLowerCase()) {
 		case("identifier"):{
-			return type.Identifier;
+			return ROLE.Identifier;
 		}
 		case("measure"):{
-			return type.Measure;
+			return ROLE.Measure;
 		}
 		case("attribute"):{
-			return type.Attribute;
+			return ROLE.Attribute;
 		}
 		default:
 			return null;

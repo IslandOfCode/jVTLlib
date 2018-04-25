@@ -146,7 +146,7 @@ public class MongoBasic implements IConnector {
 			p.beginParsing(new InputStreamReader(this.getClass().getResourceAsStream("/BIRDmap.csv"), "UTF-8"));
 			String[] row;
 			VTLObj obtype = null;
-			DataStructure.type attr;
+			DataStructure.ROLE attr;
 			while ((row = p.parseNext()) != null) {
 				if(!row[0].equals(key)) {
 					continue;
