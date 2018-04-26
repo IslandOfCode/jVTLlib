@@ -1,5 +1,7 @@
 package it.islandofcode.jvtllib.model;
 
+import java.math.BigDecimal;
+
 import it.islandofcode.jvtllib.model.util.SimpleDate;
 
 public class Scalar implements VTLObj {
@@ -126,11 +128,11 @@ public class Scalar implements VTLObj {
 	 * @return
 	 */
 	public int asInteger() {
-		return ((!this.scalar.isEmpty()) ? Integer.parseInt(this.scalar) : 0);
+		return ((!this.scalar.isEmpty()) ? (new BigDecimal(this.scalar)).intValue(): 0);
 	}
 
 	public float asFloat() {
-		return ((!this.scalar.isEmpty()) ? Float.parseFloat(this.scalar) : 0f);
+		return ((!this.scalar.isEmpty()) ? (new BigDecimal(this.scalar)).floatValue(): 0f);
 	}
 
 	public boolean asBoolean() {
@@ -149,31 +151,6 @@ public class Scalar implements VTLObj {
 		return ((!this.scalar.isEmpty()) ? new SimpleDate(this.scalar) : new SimpleDate());
 	}
 
-	// TODO bellissimo, mi sputo in faccia da solo proprio
-	public Object asNull() {
-		return "";
-	}
-
-	/**
-	 * Sostituire con getScalar() che fa la stesa cosa ma più semplicemente
-	 * @deprecated
-	 */
-	public String asStringDebug() {
-		if (what.equals(SCALARTYPE.Null)) {
-			return "NULL";
-		}
-		if (what.equals(SCALARTYPE.Boolean))
-			return "" + this.asBoolean();
-		if (what.equals(SCALARTYPE.Date))
-			return "" + this.asDate().getDateString();
-		if (what.equals(SCALARTYPE.Float))
-			return "" + this.asFloat();
-		if (what.equals(SCALARTYPE.Integer))
-			return "" + this.asInteger();
-		if (what.equals(SCALARTYPE.String))
-			return this.asString();
-		return "BOH?!";
-	}
 
 	/**
 	 * Ritorna il numero come double, per operazioni matematiche generiche
@@ -182,7 +159,7 @@ public class Scalar implements VTLObj {
 	 */
 	public double asDouble() {
 		if (this.what == SCALARTYPE.Integer || this.what == SCALARTYPE.Float)
-			return Double.parseDouble(this.scalar);
+			return (new BigDecimal(this.scalar)).doubleValue();
 		else
 			return 0; // ritorna un valore di default
 	}

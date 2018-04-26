@@ -28,7 +28,10 @@ expr : op=(NOT | PLUS | MINUS) right=expr						#unaryexpr
 	 | LPAR expr RPAR											#precedenceexpr
 	 | condOperator												#condOpExpr
 	 //espressioni matematiche
-	 | expr op=(PLUS | MINUS | MUL | DIV) expr					#mathexpr
+	 //le divido perchè +,* non bisogna scambiare gli operandi
+	 | expr op=(PLUS | MUL) expr								#AddMulExpr
+	 //qui invece la posizione conta.
+	 | expr op=(MINUS | DIV) expr								#MinDivExpr
 	 //separo round e ceil/floor perchè funzionano diversamente
 	 | ROUND LPAR varname COMMA integerLiteral RPAR				#roundexpr
 	 | op=(CEIL|FLOOR) LPAR varname RPAR						#CeilFloorexpr

@@ -23,9 +23,6 @@ public class ValueDomain implements VTLObj {
 	 * Indagare, perchè è possibile che vogliano invece che dal formato <i>01/01/18</i> otteniamo <i>01/01/2018</i>.
 	 */
 	public static enum RESTRICT{
-		YYYY,		//considera solo l'anno in 4 cifre per la data (18 no, 2018 si)
-		MM,			//considera solo il mese in doppia cifra (9->09 ad es.)
-		DD,			//come sopra ma per il giorno
 		YYYY_MM,	//considera la data nel formato YYYY-MM, tipo 2018-03
 		maxLength,	//stringa di lunghezza massima n
 		regexp,		//espressione regolare
@@ -66,7 +63,7 @@ public class ValueDomain implements VTLObj {
 		this.datatype = type;
 		this.op = op;
 		
-		if(op.equals(RESTRICT.YYYY) || op.equals(RESTRICT.MM) || op.equals(RESTRICT.DD) || op.equals(RESTRICT.YYYY_MM)) {
+		if(op.equals(RESTRICT.YYYY_MM)) {
 			this.d = a.asDate();
 		} else if(op.equals(RESTRICT.regexp)) {
 			this.regexp = a.asString();
@@ -106,24 +103,6 @@ public class ValueDomain implements VTLObj {
 			if(tmp.getScalarType().equals(Scalar.SCALARTYPE.Date)) { //data, YYYY, MM, DD, YYYY-MM
 				this.d = tmp.asDate();
 				switch(this.op) {
-					case YYYY:{
-						if(d.getFormat().equals(SimpleDate.DATEFORMAT[SimpleDate.DATE_FORMAT_YEARONLY]))
-							return true;
-						else
-							return false;
-					}
-					case MM:{
-						if(d.getFormat().equals(SimpleDate.DATEFORMAT[SimpleDate.DATE_FORMAT_MONTHONLY]))
-							return true;
-						else
-							return false;
-					}
-					case DD:{
-						if(d.getFormat().equals(SimpleDate.DATEFORMAT[SimpleDate.DATE_FORMAT_DAYONLY]))
-							return true;
-						else
-							return false;
-					}
 					case YYYY_MM:{
 						if(d.getFormat().equals(SimpleDate.DATEFORMAT[SimpleDate.DATE_FORMAT_YEARMONTH]))
 							return true;

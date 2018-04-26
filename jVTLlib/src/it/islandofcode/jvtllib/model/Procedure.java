@@ -142,6 +142,12 @@ public class Procedure {
 		return false;
 	}
 	
+	/**
+	 * Ritorna il nome della variabile passata alla chiamata della procedura,
+	 * a partire dalla variabile dichiarata.
+	 * @param declare
+	 * @return
+	 */
 	public String translate(String declare) {
 		for(ProcVarComp PVC : this.mapParam) {
 			if(PVC.getName().equals(declare))

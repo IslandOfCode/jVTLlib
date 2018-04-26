@@ -1,5 +1,6 @@
 package it.islandofcode.jvtllib.newparser;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -18,6 +19,7 @@ import it.islandofcode.jvtllib.connector.IConnector;
 import it.islandofcode.jvtllib.model.*;
 import it.islandofcode.jvtllib.model.VTLObj.OBJTYPE;
 import it.islandofcode.jvtllib.model.util.Component;
+import it.islandofcode.jvtllib.model.util.Number;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLBaseVisitor;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.*;
@@ -181,9 +183,53 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		//return super.visitUnaryexpr(ctx);
 	}
+	
+	
+	@Override
+	public VTLObj visitAddMulExpr(AddMulExprContext ctx) {
+		VTLObj left = this.visit(ctx.expr(0));
+		VTLObj right = this.visit(ctx.expr(1));
 
+		if (left == null || right == null)
+			throw new RuntimeException("Math operand cannot be null: left[" + left + "] OP right[" + right + "]");
 
-	@SuppressWarnings("deprecation")
+		// caso solo scalari, il più semplice
+		if (left.getObjType().equals(VTLObj.OBJTYPE.Scalar) && right.getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
+			if(ctx.op.getType()==newVTLParser.PLUS) {
+				return Number.add((Scalar) left, (Scalar) right);
+			} else {
+				return Number.mul((Scalar) left, (Scalar) right);
+			}
+		}
+		
+		
+
+		throw new RuntimeException("Can't compute math operation on this VTLObject.");
+	}
+
+	@Override
+	public VTLObj visitMinDivExpr(MinDivExprContext ctx) {
+		VTLObj left = this.visit(ctx.expr(0));
+		VTLObj right = this.visit(ctx.expr(1));
+
+		if (left == null || right == null)
+			throw new RuntimeException("Math operand cannot be null: left[" + left + "] OP right[" + right + "]");
+
+		// caso solo scalari, il più semplice
+		if (left.getObjType().equals(VTLObj.OBJTYPE.Scalar) && right.getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
+			if(ctx.op.getType()==newVTLParser.MUL) {
+				return Number.sub((Scalar) left, (Scalar) right);
+			} else {
+				return Number.div((Scalar) left, (Scalar) right);
+			}
+		}
+		
+		
+
+		throw new RuntimeException("Can't compute math operation on this VTLObject.");
+	}
+
+	/*@SuppressWarnings("deprecation")
 	@Override
 	public VTLObj visitMathexpr(MathexprContext ctx) {
 		VTLObj left = this.visit(ctx.expr(0));
@@ -191,14 +237,6 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 
 		if (left == null || right == null)
 			throw new RuntimeException("Math operand cannot be null: left[" + left + "] OP right[" + right + "]");
-
-		/*
-		 * Passi da eseguire: A) inizializza variabili per i 4 casi (due scalari, due
-		 * dataset) B) verifica in quale caso stiamo, con una serie di if: -solo scalari
-		 * (caso 0) -scalare e colonna (caso 1) -colonna e scalare (caso 2) C)
-		 * switch/case, esegue le operazioni sulle variabili del passo (A) D) ritorna la
-		 * variabile risultante (da fare nello switch/case)
-		 */
 
 		Scalar a = null, b = null;
 		DataSet dsa = null, dsb = null;
@@ -370,7 +408,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		}
 		}
 		// return super.visitMathexpr(ctx);
-	}
+	}*/
 	
 	
 	//MATH FUNCTION
@@ -557,8 +595,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		if (left.getObjType().equals(VTLObj.OBJTYPE.Scalar) && right.getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
 			a = (Scalar) left;
 			b = (Scalar) right;
-			if (!a.getScalarType().equals(b.getScalarType()))
+			if (!a.getScalarType().equals(b.getScalarType())) {
 				throw new RuntimeException("Relational op are possible ONLY if both operand have the same scalar type");
+			}
 		}
 		
 
@@ -574,7 +613,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					/*
 					 * Converte la data in stringa, usando un formato a caso, e fa una comparazione
 					 */
-					return (a.asDate().getDateString(2).equals(b.asDate().getDateString(2))) ? scatrue : scafalse;
+					return (a.asDate().getDateString().equals(b.asDate().getDateString())) ? scatrue : scafalse;
 				} else if (a.isNumber()) {
 					return (a.asDouble() == b.asDouble()) ? scatrue : scafalse;
 				} else { // può essere solo una stringa
@@ -588,7 +627,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					/*
 					 * Converte la data in stringa, usando un formato a caso, e fa una comparazione
 					 */
-					return (!a.asDate().getDateString(2).equals(b.asDate().getDateString(2))) ? scatrue : scafalse;
+					return (!a.asDate().getDateString().equals(b.asDate().getDateString())) ? scatrue : scafalse;
 				} else if (a.isNumber()) {
 					return (a.asDouble() != b.asDouble()) ? scatrue : scafalse;
 				} else { // può essere solo una stringa
@@ -599,7 +638,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				if (a.getScalarType().equals(Scalar.SCALARTYPE.Boolean)) {
 					throw new RuntimeException("Relational op [LesserThan] not applicable with Boolean type");
 				} else if (a.getScalarType().equals(Scalar.SCALARTYPE.Date)) {
-					return (a.asDate().getDate().before(b.asDate().getDate())) ? scatrue : scafalse;
+					return (a.asDate().getDate().isBefore(b.asDate().getDate())) ? scatrue : scafalse;
 				} else if (a.isNumber()) {
 					return (a.asDouble() < b.asDouble()) ? scatrue : scafalse;
 				} else { // può essere solo una stringa
@@ -610,7 +649,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				if (a.getScalarType().equals(Scalar.SCALARTYPE.Boolean)) {
 					throw new RuntimeException("Relational op [GreaterThan] not applicable with Boolean type");
 				} else if (a.getScalarType().equals(Scalar.SCALARTYPE.Date)) {
-					return (a.asDate().getDate().after(b.asDate().getDate())) ? scatrue : scafalse;
+					return (a.asDate().getDate().isAfter(b.asDate().getDate())) ? scatrue : scafalse;
 				} else if (a.isNumber()) {
 					return (a.asDouble() > b.asDouble()) ? scatrue : scafalse;
 				} else { // può essere solo una stringa
@@ -621,8 +660,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				if (a.getScalarType().equals(Scalar.SCALARTYPE.Boolean)) {
 					throw new RuntimeException("Conditional op [LesserEquals] not applicable with Boolean type");
 				} else if (a.getScalarType().equals(Scalar.SCALARTYPE.Date)) {
-					return (a.asDate().getDate().before(b.asDate().getDate())
-							|| a.asDate().getDateString(2).equals(b.asDate().getDateString(2))) ? scatrue : scafalse;
+					return (a.asDate().getDate().isBefore(b.asDate().getDate())
+							|| a.asDate().getDateString().equals(b.asDate().getDateString())) ? scatrue : scafalse;
 				} else if (a.isNumber()) {
 					return (a.asDouble() <= b.asDouble()) ? scatrue : scafalse;
 				} else { // può essere solo una stringa
@@ -633,8 +672,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				if (a.getScalarType().equals(Scalar.SCALARTYPE.Boolean)) {
 					throw new RuntimeException("Relational op [GreaterEquals] not applicable with Boolean type");
 				} else if (a.getScalarType().equals(Scalar.SCALARTYPE.Date)) {
-					return (a.asDate().getDate().after(b.asDate().getDate())
-							|| a.asDate().getDateString(2).equals(b.asDate().getDateString(2))) ? scatrue : scafalse;
+					return (a.asDate().getDate().isAfter(b.asDate().getDate())
+							|| a.asDate().getDateString().equals(b.asDate().getDateString())) ? scatrue : scafalse;
 				} else if (a.isNumber()) {
 					return (a.asDouble() >= b.asDouble()) ? scatrue : scafalse;
 				} else { // può essere solo una stringa
@@ -794,12 +833,19 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	@Override
 	public VTLObj visitVarname(VarnameContext ctx) {
 		LOG.finest("Found VARIABLE " + ctx.getText());
+		try {
+			return getFromMemory(ctx.getText());
+		} catch (RuntimeException ex) {
+			return null;
+		}
+		
+		/*
 		if (MEMORY.containsKey(ctx.getText())) { // se la variabile esiste in memoria
 			return CLONER.deepClone( MEMORY.get(ctx.getText()) ); // ritorna l'oggetto associato
 		} else {
 			return null;
 			//throw new RuntimeException("No variable found with this name! ");
-		}
+		}*/
 		// return super.visitVarname(ctx);
 	}
 
@@ -1662,8 +1708,11 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		String varname = ctx.varname().getText();
 		
-		if(P!=null) {
-			varname = P.translate(varname);
+		if(!O.containtComponent(varname)) {
+			if(P!=null) {
+				varname = P.translate(varname);
+			}
+			throw new RuntimeException("Can't find ["+varname+"] field");
 		}
 
 		// recupero vecchio componente

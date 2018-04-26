@@ -114,12 +114,19 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVarexpr(newVTLParser.VarexprContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code mathexpr}
+	 * Visit a parse tree produced by the {@code AddMulExpr}
 	 * labeled alternative in {@link newVTLParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitMathexpr(newVTLParser.MathexprContext ctx);
+	T visitAddMulExpr(newVTLParser.AddMulExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code MinDivExpr}
+	 * labeled alternative in {@link newVTLParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMinDivExpr(newVTLParser.MinDivExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code IsNullCondexpr}
 	 * labeled alternative in {@link newVTLParser#expr}.

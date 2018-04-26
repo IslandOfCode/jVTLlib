@@ -4,6 +4,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 
 /**
@@ -12,23 +14,17 @@ import java.util.Date;
 public class SimpleDate {
 	
 	public static final String[] DATEFORMAT = {
-			"yyyy-MM-dd'T'HH:mm:ss",
-			"dd/MM/yyyy",
-			"dd/MM/yyyy HH:mm:ss",
-			"yyyy",
-			"MM",
-			"DD",
-			"yyyy-MM"
+			"dd/MM/uuuu",
+			"uuuu-MM-dd kk:mm:ss.SSS",
+			"uuuu-MM-dd",
+			"uuuu-MM"
 	};
 	
+	//XXX
 	public static final String[] REGEXFORMAT = {
-			//TODO  non considera timezone e ore, si ferma al primo apostrofo prima di T
-			"^[0-9]{4}-[0-9]{2}-[0-9]{2}'",
 			"^[0-9]{2}\\/[0-9]{2}\\/[0-9]{4}$",
-			"^[0-9]{2}\\/[0-9]{2}\\/[0-9]{4} [0-9]{2}:[0-9]{2}:[0-9]{2}$",
-			"^[0-9]{4}$",
-			"^[0-9]{2}$",
-			"^[0-9]{2}$",
+			"^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}$",
+			"^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
 			"^[0-9]{4}-[0-9]{2}$"
 	};
 	
@@ -37,16 +33,14 @@ public class SimpleDate {
 	 */
 	public static final String DEFAULTJAVADATEFORMAT = "dow mon dd hh:mm:ss zzz yyyy";
 	
-	public static final int DATE_ISO_8601 = 0;
-	public static final int DATE_FORMAT_DATEONLY = 1;
-	public static final int DATE_FORMAT_W_HOUR = 2;
-	public static final int DATE_FORMAT_YEARONLY = 3;
-	public static final int DATE_FORMAT_MONTHONLY = 4;
-	public static final int DATE_FORMAT_DAYONLY = 5;
-	public static final int DATE_FORMAT_YEARMONTH = 6;
+	public static final int DATE_FORMAT_PRETTY = 0;
+	public static final int DATE_FORMAT_DATETIME = 1;
+	public static final int DATE_ISO_8601  = 2;
+	public static final int DATE_FORMAT_YEARMONTH = 3;
 	
-	private Date mydate = null;
-	private String myformat = "";
+	
+	private LocalDate myDate = null;
+	private int myformat = -1;
 	
 	private Boolean isDefault = false;
 
@@ -55,8 +49,8 @@ public class SimpleDate {
 	 * Usa la data corrente.
 	 */
 	public SimpleDate() {
-		this.mydate = new Date();
-		this.myformat = DEFAULTJAVADATEFORMAT;
+		this.myDate = LocalDate.now();
+		this.myformat = SimpleDate.DATE_ISO_8601;
 		this.isDefault = true;
 	}
 
@@ -66,8 +60,8 @@ public class SimpleDate {
 	 * @param arg0 long
 	 */
 	public SimpleDate(long arg0) {
-		this.mydate = new Date(arg0);
-		this.myformat = DEFAULTJAVADATEFORMAT;
+		this.myDate = LocalDate.ofEpochDay(arg0);
+		this.myformat = SimpleDate.DATE_ISO_8601;
 		this.isDefault = true;
 	}
 	
@@ -75,37 +69,45 @@ public class SimpleDate {
 	 * Accetta una data in input come stringa e crea un oggetto data.<br>
 	 * La data è accettata nel formato
 	 * <ul>
-	 * 	<li><b>dd/MM/YYYY hh:mm:ss</b> (data più orario)
-	 * 	<li><b>dd/MM/YYYY</b> (solo data)
-	 * 	<li><b>yyyy-MM-dd'T'HH:mm:ss</b> (ISO 8601, formato internazionale)
+	 * 	<li>TODO</li>
 	 * </ul>
-	 * Il costruttore tenterà di capire quale dei tre formati sia quello giusto, altrimenti
+	 * Il costruttore tenterà di capire quale dei vari formati sia quello giusto, altrimenti
 	 * lancerà un {@link ParseException}.
 	 * <br> 
 	 * @param date
 	 * @throws ParseException
 	 */
 	public SimpleDate(String date) /*throws ParseException*/ {
-		for(int i=0; i<DATEFORMAT.length; i++) {
-			this.mydate = SimpleDate.ToDateObj(SimpleDate.DATEFORMAT[i], SimpleDate.REGEXFORMAT[i]);
-			this.myformat = SimpleDate.DATEFORMAT[i];
-			if(this.mydate != null)
-				break;
+		for(int f=0; f<DATEFORMAT.length; f++) {
+			try {
+				this.myDate = LocalDate.parse(date, DateTimeFormatter.ofPattern(DATEFORMAT[f]));
+				this.myformat = f;
+			} catch (DateTimeParseException e) {
+				continue;
+			}
 		}
-
-		//TODO scegliere cosa fare se il formato non è riconosciuto.
-		if(this.mydate == null) {
-			this.mydate = new Date();
-			this.myformat = DEFAULTJAVADATEFORMAT;
+		
+		if(this.myformat<0) {
+			this.myDate = LocalDate.now();
+			this.myformat = SimpleDate.DATE_ISO_8601;
 			this.isDefault = true;
-			//throw new ParseException("Nessun formato riconosciuto",0);
 		}
 	}
 	
+	/**
+	 * Ritorna true se la data è una data generata e non parsata.
+	 * @return
+	 */
 	public boolean isDefaultDate() {
 		return this.isDefault;
 	}
 	
+	/**
+	 * XXX
+	 * @param format
+	 * @param value
+	 * @return
+	 */
 	public static Date ToDateObj(String format, String value) {
         Date date = null;
         try {
@@ -123,95 +125,16 @@ public class SimpleDate {
     }
 	
 	public String getDateString() {
-		return this.mydate.toString();
-	}
-	
-	//TODO valutare alternativa a switch/case, forse un ciclo while?
-	public String getDateString(int format) {
-		SimpleDateFormat sdf;
-		switch(format) {
-		case 0: {
-			sdf = new SimpleDateFormat(SimpleDate.DATEFORMAT[0]);
-			break;
-		}
-		case 1: {
-			sdf = new SimpleDateFormat(SimpleDate.DATEFORMAT[1]);
-			break;
-		}
-		case 2: {
-			sdf = new SimpleDateFormat(SimpleDate.DATEFORMAT[2]);
-			break;
-		}
-		case 3: {
-			sdf = new SimpleDateFormat(SimpleDate.DATEFORMAT[3]);
-			break;
-		}
-		case 4: {
-			sdf = new SimpleDateFormat(SimpleDate.DATEFORMAT[4]);
-			break;
-		}
-		case 5: {
-			sdf = new SimpleDateFormat(SimpleDate.DATEFORMAT[5]);
-			break;
-		}
-		case 6: {
-			sdf = new SimpleDateFormat(SimpleDate.DATEFORMAT[6]);
-			break;
-		}
-		default: {
-			return getDateString();
-		}
-		}
-		return sdf.format(mydate);
-	}
-	
-	public String getDateString(String format) {
-		if(format==null || format.length()<=0)
-			return null;
-		SimpleDateFormat sdf = new SimpleDateFormat(format);
-		return sdf.format(mydate);
+		return this.myDate.format( DateTimeFormatter.ofPattern(DATEFORMAT[this.myformat]) );
 	}
 	
 	public String getFormat() {
-		return this.myformat;
+		return SimpleDate.DATEFORMAT[myformat];
 	}
 	
-	public Date getDate() {
-		return this.mydate;
+	public LocalDate getDate() {
+		return this.myDate;
 	}
-	
-	/**
-	 * Restituisce l'anno come YYYY.
-	 * @return String
-	 */
-	public String getYear() {
-		LocalDate ld = this.mydate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-		return ld.getYear()+"";
-	}
-	
-	/**
-	 * Restituisce il mese come MM.
-	 * @return String
-	 */
-	public String getMonth() {
-		LocalDate ld = this.mydate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-		if(ld.getMonthValue()<=9)
-			return "0"+ld.getMonthValue();
-		return ld.getMonthValue()+"";
-	}
-	
-	/**
-	 * Restituisce il giorno come DD.
-	 * @return String
-	 */
-	public String getDay() {
-		LocalDate ld = this.mydate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-		if(ld.getDayOfMonth()<=9)
-			return "0"+ld.getDayOfMonth();
-		return ld.getDayOfMonth()+"";
-	}
-	
-	
-	
+		
 
 }
