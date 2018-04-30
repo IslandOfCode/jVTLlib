@@ -213,8 +213,31 @@ public class DataStructure implements VTLObj {
 				//è ident o meas, ciclo sull'altro per trovarlo
 				if(this.component.containsKey(K)) {
 					//c'è un componente con la stessa chiave
+					
+					if(this.component.get(K).getDataType().getObjType().equals(VTLObj.OBJTYPE.Scalar)
+							&& dstr.getComponent(K).getDataType().getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
+						//Se i due componenti sono entrambi scalari
+						Scalar s1 = (Scalar) this.component.get(K).getDataType();
+						Scalar s2 = (Scalar) dstr.getComponent(K).getDataType();
+						//se i due scalari sono di tipo diverso, torna false
+						if(!s1.getScalarType().equals(s2.getScalarType()))
+							return false;
+					} else
+						return false;
+					
+					if(this.component.get(K).getDataType().getObjType().equals(VTLObj.OBJTYPE.ValueDomain)
+							&& dstr.getComponent(K).getDataType().getObjType().equals(VTLObj.OBJTYPE.ValueDomain)) {
+						//Se i due componenti sono entrambi ValueDomain
+						ValueDomain vd1 = (ValueDomain) this.component.get(K).getDataType();
+						ValueDomain vd2 = (ValueDomain) dstr.getComponent(K).getDataType();
+						//se i due scalari sono di tipo diverso, torna false
+						if(!vd1.equals(vd2))
+							return false;
+					} else
+						return false;
+					
 					if(!this.component.get(K).getType().equals(dstr.getComponent(K).getType())) {
-						//non hanno lo stesso tipo, errore!
+						//non hanno lo stesso ruolo, errore!
 						return false;
 					} else
 						passed.add(K);
@@ -244,8 +267,32 @@ public class DataStructure implements VTLObj {
 				//è ident o meas, ciclo sull'altro per trovarlo
 				if(dstr.containtComponent(K)) {
 					//c'è un componente con la stessa chiave
+					
+					if(this.component.get(K).getDataType().getObjType().equals(VTLObj.OBJTYPE.Scalar)
+							&& dstr.getComponent(K).getDataType().getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
+						//Se i due componenti sono entrambi scalari
+						Scalar s1 = (Scalar) this.component.get(K).getDataType();
+						Scalar s2 = (Scalar) dstr.getComponent(K).getDataType();
+						//se i due scalari sono di tipo diverso, torna false
+						if(!s1.getScalarType().equals(s2.getScalarType()))
+							return false;
+					} else
+						return false;
+					
+					if(this.component.get(K).getDataType().getObjType().equals(VTLObj.OBJTYPE.ValueDomain)
+							&& dstr.getComponent(K).getDataType().getObjType().equals(VTLObj.OBJTYPE.ValueDomain)) {
+						//Se i due componenti sono entrambi ValueDomain
+						ValueDomain vd1 = (ValueDomain) this.component.get(K).getDataType();
+						ValueDomain vd2 = (ValueDomain) dstr.getComponent(K).getDataType();
+						//se i due scalari sono di tipo diverso, torna false
+						if(!vd1.equals(vd2))
+							return false;
+					} else
+						return false;
+					
+					
 					if(!dstr.getComponent(K).getType().equals(this.component.get(K).getType())) {
-						//non hanno lo stesso tipo, errore!
+						//non hanno lo stesso ruolo, errore!
 						return false;
 					}
 				} else {

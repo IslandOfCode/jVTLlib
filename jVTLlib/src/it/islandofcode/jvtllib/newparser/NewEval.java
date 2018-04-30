@@ -19,7 +19,7 @@ import it.islandofcode.jvtllib.connector.IConnector;
 import it.islandofcode.jvtllib.model.*;
 import it.islandofcode.jvtllib.model.VTLObj.OBJTYPE;
 import it.islandofcode.jvtllib.model.util.Component;
-import it.islandofcode.jvtllib.model.util.Number;
+import it.islandofcode.jvtllib.model.util.NumberOp;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLBaseVisitor;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.*;
@@ -196,9 +196,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		// caso solo scalari, il più semplice
 		if (left.getObjType().equals(VTLObj.OBJTYPE.Scalar) && right.getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
 			if(ctx.op.getType()==newVTLParser.PLUS) {
-				return Number.add((Scalar) left, (Scalar) right);
+				return NumberOp.add((Scalar) left, (Scalar) right);
 			} else {
-				return Number.mul((Scalar) left, (Scalar) right);
+				return NumberOp.mul((Scalar) left, (Scalar) right);
 			}
 		}
 		
@@ -218,9 +218,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		// caso solo scalari, il più semplice
 		if (left.getObjType().equals(VTLObj.OBJTYPE.Scalar) && right.getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
 			if(ctx.op.getType()==newVTLParser.MUL) {
-				return Number.sub((Scalar) left, (Scalar) right);
+				return NumberOp.sub((Scalar) left, (Scalar) right);
 			} else {
-				return Number.div((Scalar) left, (Scalar) right);
+				return NumberOp.div((Scalar) left, (Scalar) right);
 			}
 		}
 		

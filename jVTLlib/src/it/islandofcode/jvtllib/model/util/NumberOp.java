@@ -1,19 +1,19 @@
 package it.islandofcode.jvtllib.model.util;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 
+import it.islandofcode.jvtllib.model.DataSet;
 import it.islandofcode.jvtllib.model.Scalar;
 
 /**
+ * Classe utility per le quattro operazioni.
  * @author Pier Riccardo Monzo
  */
-public class Number {
+public class NumberOp {
 	
 	/* SOLO SCALARI */
 	
 	public static Scalar add(Scalar a, Scalar b) {
-		Scalar ret = null;
 		if(a.isNumber() && b.isNumber()) {
 			if(a.getScalarType().equals(Scalar.SCALARTYPE.Float) || b.getScalarType().equals(Scalar.SCALARTYPE.Float)) {
 				return new Scalar(""+(a.asDouble()+b.asDouble()), Scalar.SCALARTYPE.Float);
@@ -24,7 +24,6 @@ public class Number {
 	}
 	
 	public static Scalar mul(Scalar a, Scalar b) {
-		Scalar ret = null;
 		if(a.isNumber() && b.isNumber()) {
 			if(a.getScalarType().equals(Scalar.SCALARTYPE.Float) || b.getScalarType().equals(Scalar.SCALARTYPE.Float)) {
 				return new Scalar(""+(a.asDouble()*b.asDouble()), Scalar.SCALARTYPE.Float);
@@ -35,7 +34,6 @@ public class Number {
 	}
 	
 	public static Scalar sub(Scalar a, Scalar b) {
-		Scalar ret = null;
 		if(a.isNumber() && b.isNumber()) {
 			if(a.getScalarType().equals(Scalar.SCALARTYPE.Float) || b.getScalarType().equals(Scalar.SCALARTYPE.Float)) {
 				return new Scalar(""+(a.asDouble()-b.asDouble()), Scalar.SCALARTYPE.Float);
@@ -48,7 +46,6 @@ public class Number {
 	}
 	
 	public static Scalar div(Scalar a, Scalar b) {
-		Scalar ret = null;
 		if(a.isNumber() && b.isNumber()) {
 			if(b.asDouble()==0) {
 				throw new RuntimeException("Division by zero!");
@@ -66,6 +63,14 @@ public class Number {
 	
 	/* DATASET DATASET */
 	
+	public static Scalar add(DataSet a, DataSet b) {
+		if(!a.getDataStructure().equals(b.getDataStructure()))
+			throw new IllegalArgumentException("Can't SUM DataSet with different DataStructure (Attributes are ignored).");
+		
+		
+		
+		throw new IllegalArgumentException("SUM of non numerical value.");
+	}
 	
 
 }
