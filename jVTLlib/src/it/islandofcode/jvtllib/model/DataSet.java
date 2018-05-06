@@ -62,17 +62,30 @@ public class DataSet implements VTLObj {
 	}
 	
 	/**
-	 * Questo metodo aggiunge un {@link DataPoint} al  {@link DataSet}.<br>
-	 * Prima di essere inserito, però, il metodo controlla che ci sia corrispondenza
-	 * tra {@link DataPoint} e il {@link DataStructure} associato.
-	 * Nel caso non ci sia corrispondenza di una colonna, questa viene scartata ma
-	 * il {@link DataPoint} viene comunque aggiunto (meno la colonna).<br>
-	 * Se invece il {@link DataPoint} non ha una colonna del {@link DataStructure} (ne basta una),
-	 * tutto il {@link DataPoint} viene scartato.
-	 * 
+	 * Vedi {@link #setPoint(int, DataPoint)}. <br>
+	 * Questa variante inserisce sempre in coda il nuovo {@link DataPoint}.
 	 * @param newpoint {@link DataPoint}
 	 */
 	public boolean setPoint(DataPoint newpoint) {
+		return setPoint(-1,newpoint);
+	}
+	
+	/**
+	 * Questo metodo aggiunge un {@link DataPoint} al {@link DataSet} nella posizione indicata da <i>index</i>.<br>
+	 * Prima di essere inserito, però, il metodo controlla che ci sia corrispondenza
+	 * tra {@link DataPoint} e il {@link DataStructure} associato.
+	 * Nel caso in cui il {@link DataPoint} abbia una colonna non presente nel {@link DataStructure},
+	 * questa viene scartata ma il {@link DataPoint} viene comunque aggiunto.<br>
+	 * Se invece il {@link DataPoint} non ha una colonna del {@link DataStructure} (ne basta una),
+	 * tutto il {@link DataPoint} viene scartato.
+	 * <br><br>
+	 * Se <i>index</i> si trova al di fuori dell'intervallo (<i>index</i>&LT0 || <i>index</i>&GTsize),
+	 * allora l'inserimento avviene sempre in coda.
+	 * @param index integer
+	 * @param newpoint {@link DataPoint}
+	 */
+	public boolean setPoint(int index, DataPoint newpoint) {
+		
 		/*
 		 * verifica che ogni componente di newpoint rispetti datastructure
 		 * e sia dello stesso tipo.
@@ -118,16 +131,14 @@ public class DataSet implements VTLObj {
 			checked.setValue(S, newvalue);
 		}
 		//finito controllo per tutte le colonne, aggiungo al dataset e termino
-		return this.rows.add(checked);
-	}
-	
-	/**
-	 * @deprecated Questo metodo va modificato per rispecchiare il setpoint di sopra!
-	 * @param index
-	 * @param newpoint
-	 */
-	public void setPoint(int index, DataPoint newpoint) {
-		this.rows.set(index, newpoint);
+		if(index<0 || index>=getSize()) {
+			//aggiungo in coda, ritornerà sempre true
+			return this.rows.add(checked);
+		} else {
+			//nel caso in cui index sia corretto
+			this.rows.set(index, newpoint);
+			return true;
+		}
 	}
 	
 	public boolean isCollected() {

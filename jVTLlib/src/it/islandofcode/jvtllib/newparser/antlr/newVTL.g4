@@ -1,6 +1,7 @@
 grammar newVTL;
 //regola iniziale, in main si chiama questo per avviare l'esecuzione
-parse : statement+ EOF;
+//aggiunta parte di regola per accettare il punto-e-virgola alla fine di una istruzione.
+parse : (statement (SCOL)?)+ EOF;
 
 //ogni riga può essere un assegnamento, una definizione, una put o, per il momento, istruzioni di debug personali.
 statement : putFunction 	#putData
@@ -52,10 +53,13 @@ expr : op=(NOT | PLUS | MINUS) right=expr						#unaryexpr
 	 //funzioni di gestione stringhe
 	 | a=expr CONCAT b=expr														#StringConcat
 	 | SUBSTR LPAR expr (COMMA integerLiteral)? (COMMA integerLiteral)? RPAR	#StringFunSubstr
+	 | REPLACE LPAR varname COMMA stringLiteral COMMA stringLiteral RPAR		#StringFunReplace
 	 //funzioni di validazione (check)
 	 | checkfunction											#checkExpr
 	 //funzioni di manipolazione delle colonne
 	 | clausefun												#clauseExpr
+	 //funzioni statistiche
+	 | aggregationFun											#aggrFunExpr
 	 //funzioni su tabelle
 	 | setfun													#setExpr
 	 | callFun													#callFunExpr
@@ -157,6 +161,9 @@ condOperator: NVL LPAR varname COMMA expr RPAR							#nvlCondOp
 			| IF expr THEN expr (ELSEIF expr THEN expr)* ELSE expr		#IfThenElseCondOp
 			;
 
+/* STATISTICAL FUNCTION */
+//funzione di aggregazione
+aggregationFun : aggregationOp LPAR variable (COMMA stringLiteral)? RPAR GROPUBY LPAR varname (COMMA varname)* RPAR;
 
 /* NAMED PROCEDURES */
 namedProcDef : DEFINE PROCEDURE varname LPAR procVarInList (COMMA OUTPUT varname AS datatype=(DATASET|STRINGTYPE)) RPAR LBRA assignment+ RBRA;
@@ -171,7 +178,7 @@ callFun : CALL varname LPAR varname (COMMA varname)* RPAR;
 /*
  * Qui le istruzioni personali
  */
-debug : 'printvar' varname 		#DBGprintvar //printvar deve stampare info sulla variabile
+debug : 'printvar' varname 		#DBGprintvar //printvar deve stampare info sulla variabile e/o la variabile stessa
 	  | 'nop'					#DBGnop		 //No Operation, serve per il debug, per poter mettere dei breakpoint nel codice vtl.
 	  ;
 
@@ -184,6 +191,8 @@ debug : 'printvar' varname 		#DBGprintvar //printvar deve stampare info sulla va
 varname : (REG_IDENTIFIER | ESCAPED_IDENTIFIER);
 //per indicare una colonna, del tipo ds_1.k1
 varmember : left=varname op=MEMBER right=varname ;
+//nel caso in cui accetti entrambi
+variable : varname | varmember;
 
 dataType : scalartype | DATASET;
 
@@ -222,6 +231,9 @@ floatLiteral    : FLOAT_LITERAL ;
 stringLiteral   : STRING_LITERAL ;
 
 componentRole : role=(IDENTIFIER | MEASURE | ATTRIBUTE);
+
+//operazioni di aggregazione
+aggregationOp : MIN | MAX | SUM | AVG;
 
 /* OPERATORS */
 ASSIGN : ':=';
@@ -319,8 +331,16 @@ NROOT : 'nroot';
 MOD : 'mod';
 TRUNC : 'trunc';
 
+//aggregation
+MIN: 'min';
+MAX: 'max';
+SUM: 'sum';
+AVG: 'avg';
+GROPUBY: 'group by';
+
 //string
 SUBSTR : 'substr';
+REPLACE : 'replace';
 
 /* IDENTIFICATORI */
 ROLE : 'role';
@@ -344,7 +364,7 @@ PROCEDURE : 'procedure';
 CREATE :'create';
 FUNCTION : 'function';
 CALL : 'call';
-RETURN : 'return';
+RETURN : 'returns';
 
 /* SCALAR TYPE */
 NULLTYPE : 'null';

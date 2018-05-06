@@ -72,40 +72,12 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitUnaryexpr(newVTLParser.UnaryexprContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code StringConcat}
-	 * labeled alternative in {@link newVTLParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitStringConcat(newVTLParser.StringConcatContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code condOpExpr}
-	 * labeled alternative in {@link newVTLParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCondOpExpr(newVTLParser.CondOpExprContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code literalexpr}
 	 * labeled alternative in {@link newVTLParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitLiteralexpr(newVTLParser.LiteralexprContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code checkExpr}
-	 * labeled alternative in {@link newVTLParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCheckExpr(newVTLParser.CheckExprContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code StringFunSubstr}
-	 * labeled alternative in {@link newVTLParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitStringFunSubstr(newVTLParser.StringFunSubstrContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code varexpr}
 	 * labeled alternative in {@link newVTLParser#expr}.
@@ -128,19 +100,12 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMinDivExpr(newVTLParser.MinDivExprContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code IsNullCondexpr}
+	 * Visit a parse tree produced by the {@code aggrFunExpr}
 	 * labeled alternative in {@link newVTLParser#expr}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitIsNullCondexpr(newVTLParser.IsNullCondexprContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code precedenceexpr}
-	 * labeled alternative in {@link newVTLParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPrecedenceexpr(newVTLParser.PrecedenceexprContext ctx);
+	T visitAggrFunExpr(newVTLParser.AggrFunExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code CeilFloorexpr}
 	 * labeled alternative in {@link newVTLParser#expr}.
@@ -155,6 +120,83 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitLogicalexpr(newVTLParser.LogicalexprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code singleparamMathfun}
+	 * labeled alternative in {@link newVTLParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSingleparamMathfun(newVTLParser.SingleparamMathfunContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code getData}
+	 * labeled alternative in {@link newVTLParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGetData(newVTLParser.GetDataContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code logexpr}
+	 * labeled alternative in {@link newVTLParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLogexpr(newVTLParser.LogexprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code RelationalCond}
+	 * labeled alternative in {@link newVTLParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRelationalCond(newVTLParser.RelationalCondContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code StringConcat}
+	 * labeled alternative in {@link newVTLParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStringConcat(newVTLParser.StringConcatContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code condOpExpr}
+	 * labeled alternative in {@link newVTLParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCondOpExpr(newVTLParser.CondOpExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code StringFunReplace}
+	 * labeled alternative in {@link newVTLParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStringFunReplace(newVTLParser.StringFunReplaceContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code checkExpr}
+	 * labeled alternative in {@link newVTLParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCheckExpr(newVTLParser.CheckExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code StringFunSubstr}
+	 * labeled alternative in {@link newVTLParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStringFunSubstr(newVTLParser.StringFunSubstrContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code IsNullCondexpr}
+	 * labeled alternative in {@link newVTLParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIsNullCondexpr(newVTLParser.IsNullCondexprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code precedenceexpr}
+	 * labeled alternative in {@link newVTLParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrecedenceexpr(newVTLParser.PrecedenceexprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code doubleparamMathfun}
 	 * labeled alternative in {@link newVTLParser#expr}.
@@ -176,13 +218,6 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitRoundexpr(newVTLParser.RoundexprContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code singleparamMathfun}
-	 * labeled alternative in {@link newVTLParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSingleparamMathfun(newVTLParser.SingleparamMathfunContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code clauseExpr}
 	 * labeled alternative in {@link newVTLParser#expr}.
@@ -211,27 +246,6 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitSetExpr(newVTLParser.SetExprContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code getData}
-	 * labeled alternative in {@link newVTLParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitGetData(newVTLParser.GetDataContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code logexpr}
-	 * labeled alternative in {@link newVTLParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLogexpr(newVTLParser.LogexprContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code RelationalCond}
-	 * labeled alternative in {@link newVTLParser#expr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitRelationalCond(newVTLParser.RelationalCondContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code checkFunBase}
 	 * labeled alternative in {@link newVTLParser#checkfunction}.
@@ -421,6 +435,18 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitIfThenElseCondOp(newVTLParser.IfThenElseCondOpContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link newVTLParser#aggregationFun}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAggregationFun(newVTLParser.AggregationFunContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link newVTLParser#variable}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVariable(newVTLParser.VariableContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link newVTLParser#namedProcDef}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -578,4 +604,10 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitComponentRole(newVTLParser.ComponentRoleContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link newVTLParser#aggregationOp}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAggregationOp(newVTLParser.AggregationOpContext ctx);
 }

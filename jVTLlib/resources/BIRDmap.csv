@@ -8,3 +8,6 @@ TSTCLMN1,A,STRNG,,string,,
 TSTCLMN2,A,RL,,float,,
 TSTCLMN3,A,BLN,,boolean,,
 TSTCLMN4,A,DT,,date,,
+NAME,D,STRNG,,string,,"campo test aggregazione"
+POSITION,D,STRNG,,string,,"campo test aggregazione"
+SALARY,O,RL,,float,,"campo test aggregazione"

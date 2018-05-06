@@ -1,4 +1,4 @@
-package it.islandofcode.jvtllib.model.util;
+package it.islandofcode.jvtllib.newparser;
 
 import java.time.Duration;
 

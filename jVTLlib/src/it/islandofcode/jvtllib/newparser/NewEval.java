@@ -18,8 +18,8 @@ import com.rits.cloning.Cloner;
 import it.islandofcode.jvtllib.connector.IConnector;
 import it.islandofcode.jvtllib.model.*;
 import it.islandofcode.jvtllib.model.VTLObj.OBJTYPE;
+import it.islandofcode.jvtllib.model.util.Aggregation;
 import it.islandofcode.jvtllib.model.util.Component;
-import it.islandofcode.jvtllib.model.util.NumberOp;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLBaseVisitor;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.*;
@@ -787,10 +787,12 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					return new Scalar(Scalar.SCALARTYPE.Boolean);
 				}
 				
-			} if(!left.isNull() && !left.asBoolean()) { //X FALSE
+			}
+			if(!left.isNull() && !left.asBoolean()) { //X FALSE
 				return Scalar.createBoolean(false);
 				
-			} else if(left.isNull()) { //X NULL
+			}
+			if(left.isNull()) { //X NULL
 				if(!right.asBoolean()) { //Y FALSE
 					return Scalar.createBoolean(false);
 				} else { //Y TRUE E NULL
@@ -801,7 +803,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		case(newVTLParser.OR):{
 			if(!left.isNull() && left.asBoolean()) { //X TRUE
 				return Scalar.createBoolean(true);
-			} if(!left.isNull() && !left.asBoolean()) { //X FALSE
+			}
+			if(!left.isNull() && !left.asBoolean()) { //X FALSE
 				if(!right.isNull() && right.asBoolean()) { //Y TRUE
 					return Scalar.createBoolean(true);
 				} else if (!right.isNull() && !right.asBoolean()) { //Y FALSE
@@ -809,7 +812,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				} else if(right.isNull()) { //Y NULL
 					return new Scalar(Scalar.SCALARTYPE.Boolean);
 				}
-			} else if(left.isNull()) { //X NULL
+			} 
+			if(left.isNull()) { //X NULL
 				if(right.asBoolean()) { //Y TRUE
 					return Scalar.createBoolean(false);
 				} else { //Y FALSE E NULL
@@ -968,6 +972,28 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		}
 
 		//return super.visitStringFunSubstr(ctx);
+	}
+	
+	/* (non-Javadoc)
+	 * @see it.islandofcode.jvtllib.newparser.antlr.newVTLBaseVisitor#visitStringFunReplace(it.islandofcode.jvtllib.newparser.antlr.newVTLParser.StringFunReplaceContext)
+	 */
+	@Override
+	public VTLObj visitStringFunReplace(StringFunReplaceContext ctx) {
+		VTLObj expr = this.visit(ctx.varname());
+		Scalar str = null;
+		
+		if( !(expr instanceof Scalar) )
+			throw new RuntimeException("REPLACE accept only Scalar.");
+		
+		if( ((Scalar)expr).getScalarType().equals(Scalar.SCALARTYPE.String) )
+			str = (Scalar)expr;
+		else 
+			throw new RuntimeException("REPLACE accept only String");
+		
+		String oldchar = ((Scalar)this.visit(ctx.stringLiteral(0))).asString();
+		String newchar = ((Scalar)this.visit(ctx.stringLiteral(1))).asString();
+		
+		return new Scalar(str.asString().replaceAll(oldchar, newchar), Scalar.SCALARTYPE.String);
 	}
 
 	/* (non-Javadoc)
@@ -2342,6 +2368,87 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		return this.visit(ctx.expr(ctx.expr().size()-1));
 	}
 	
+	/* (non-Javadoc)
+	 * @see it.islandofcode.jvtllib.newparser.antlr.newVTLBaseVisitor#visitAggregationFun(it.islandofcode.jvtllib.newparser.antlr.newVTLParser.AggregationFunContext)
+	 */
+	@Override
+	public VTLObj visitAggregationFun(AggregationFunContext ctx) {
+		
+		/*
+		 * 1) verifichiamo che l'input sia DataSet o dataSetColumn
+		 * 2) verifichiamo che
+		 * 		se dataset: abbia un unico campo measure
+		 * 		se column: che sia una measure
+		 * 3) verifichiamo che i vari idComp facciano parte del DataSet
+		 * 		e che siano tutti Identifier.
+		 * 4)creare un oggetto aggregation
+		 * 5)popoliamo l'oggetto
+		 * 6)eseguiamo?
+		 */
+		
+		VTLObj in = this.visit(ctx.variable());
+		DataSet ds;
+		DataStructure dstr;
+		String target = null;
+		String aggrOp = ctx.aggregationOp().getText();
+		
+		if(in instanceof DataSet) {
+			ds = (DataSet) in;
+			dstr = ds.getDataStructure();
+			int count = 0;
+			for(String k : dstr.getKeys()) {
+				if(dstr.getComponent(k).getType().equals(DataStructure.ROLE.Measure)) {
+					count++;
+					target = k;
+				}
+			}
+			if(count!=1) {
+				throw new RuntimeException("AGGREGATE accept only DataSet with exactly one Measure.");
+			}
+			
+		} else if(in instanceof DataSetColumn) {
+			
+			DataSetColumn dsc = (DataSetColumn) in;
+			
+			ds = (DataSet) this.MEMORY.get(dsc.getDataSetName());
+			dstr = ds.getDataStructure();
+			
+			if(!dstr.getComponent(dsc.getColumnName()).getType().equals(DataStructure.ROLE.Measure)) {
+				throw new RuntimeException("AGGREGATE: the column specified isn't a valid Measure component.");
+			}
+			target = dsc.getColumnName();
+			
+		} else {
+			throw new RuntimeException("AGGREGATE accept only DataSet or Membership.");
+		}
+		
+		//DataSet, la sua struttura e la colonna Measure verificati
+		//verifichiamo e creiamo nuovo DataStructure
+		DataStructure ndstr = new DataStructure("dstr_aggregate");
+		
+		for(VarnameContext V : ctx.varname()) {
+			if(!dstr.containtComponent(V.getText()))
+				throw new RuntimeException("AGGREGATE: the Identifiers specified doesn't exist.");
+			if(!dstr.getComponent(V.getText()).getType().equals(DataStructure.ROLE.Identifier))
+				throw new RuntimeException("AGGREGATE: the Identifiers specified aren't valid.");
+			
+			Component I = dstr.getComponent(V.getText());
+			ndstr.putComponent(I.getId(), I.getDataType(), I.getType());
+		}
+		Component M = dstr.getComponent(target);
+		ndstr.putComponent(M.getId(), M.getDataType(),M.getType());
+		
+		//datastructure costruito
+		//costruiamo Aggregation
+		Aggregation A = new Aggregation(ndstr,Aggregation.AGGROP.valueOf(aggrOp.toUpperCase())); //toUpper perchè nell'enum è tutto caps
+		
+		for(int p=0; p<ds.getSize(); p++) {
+			A.aggregateNext(ds.getPoint(p));
+		}
+		
+		return new DataSet(ds.getName()+"Aggr","Aggregation "+aggrOp.toUpperCase(),ndstr,A.retrive(),false);
+
+	}
 
 	@Override
 	public VTLObj visitNamedProcDef(NamedProcDefContext ctx) {

@@ -5,7 +5,6 @@ import it.islandofcode.jvtllib.model.DataPoint;
 import it.islandofcode.jvtllib.model.DataSet;
 import it.islandofcode.jvtllib.model.DataStructure;
 import it.islandofcode.jvtllib.model.Scalar;
-import it.islandofcode.jvtllib.model.exception.DataStructureNotComplete;
 
 /**
  * Classe dummy per fornire dati per testing.
