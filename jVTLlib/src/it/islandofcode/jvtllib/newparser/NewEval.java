@@ -195,14 +195,22 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 
 		// caso solo scalari, il più semplice
 		if (left.getObjType().equals(VTLObj.OBJTYPE.Scalar) && right.getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
-			if(ctx.op.getType()==newVTLParser.PLUS) {
+			if (ctx.op.getType() == newVTLParser.PLUS) {
 				return NumberOp.add((Scalar) left, (Scalar) right);
 			} else {
 				return NumberOp.mul((Scalar) left, (Scalar) right);
 			}
 		}
-		
-		
+
+		// caso solo scalari, il più semplice
+		if (left.getObjType().equals(VTLObj.OBJTYPE.DataSet) && right.getObjType().equals(VTLObj.OBJTYPE.DataSet)) {
+			if (ctx.op.getType() == newVTLParser.PLUS) {
+				return NumberOp.add((DataSet) left, (DataSet) right);
+			} else {
+				//TODO
+				return null;//NumberOp.mul((Scalar) left, (Scalar) right);
+			}
+		}
 
 		throw new RuntimeException("Can't compute math operation on this VTLObject.");
 	}
@@ -1749,8 +1757,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		//TODO verifichiamo i dataset nelle procedure.
 		//System.out.println("VARMEMBER "+ctx.varmember() );
 		if(ctx.varmember()!=null) {
-			OC = O.getComponent( ctx.varmember().getText().replaceFirst("\\.", "_") );
-			System.out.println("COMPONENT " + ctx.varmember().getText().replaceFirst("\\.", "_"));
+			OC = O.getComponent( ctx.varmember().getText().replaceFirst(ctx.varmember().MEMBER().getText(), "_") );
+			System.out.println("COMPONENT " + ctx.varmember().getText().replaceFirst(ctx.varmember().MEMBER().getText(), "_"));
 		}
 		//throw new RuntimeException("Bad key reference for clausebodyparam.");
 		

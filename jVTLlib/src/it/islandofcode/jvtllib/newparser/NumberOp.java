@@ -60,10 +60,27 @@ public class NumberOp {
 	
 	/* COLONNA SCALARI */
 	
+	public static DataSet add(DataSet a, Scalar b) {
+		throw new RuntimeException("Not implemented yet");
+	}
+	
+	public static DataSet mul(DataSet a, Scalar b) {
+		throw new RuntimeException("Not implemented yet");
+	}
+	
 	
 	/* DATASET DATASET */
 	
 	public static Scalar add(DataSet a, DataSet b) {
+		if(!a.getDataStructure().equals(b.getDataStructure()))
+			throw new IllegalArgumentException("Can't SUM DataSet with different DataStructure (Attributes are ignored).");
+		
+		
+		
+		throw new IllegalArgumentException("SUM of non numerical value.");
+	}
+	
+	public static Scalar mul(DataSet a, DataSet b) {
 		if(!a.getDataStructure().equals(b.getDataStructure()))
 			throw new IllegalArgumentException("Can't SUM DataSet with different DataStructure (Attributes are ignored).");
 		
