@@ -107,18 +107,18 @@ public class DataSet implements VTLObj {
 					//controllo che sia dello stesso tipo del DP
 					Scalar sca = (Scalar)obj;
 					if(!newvalue.getScalarType().equals(sca.getScalarType())) {
-						//Se fallisce, la colonna è null.
+						return false;
 						//continue;
-						newvalue = new Scalar(newvalue.getScalarType());
+						//newvalue = new Scalar(newvalue.getScalarType());
 					}
 					
 				} else if(obj.getObjType().equals(VTLObj.OBJTYPE.ValueDomain)) { //se invece è un VDomain
 					//faccio un check
 					ValueDomain vd = (ValueDomain)obj;
 					if(!vd.checkDomain(newpoint,S)) {
-						//se fallisce scarta colonna
-						//continue;
-						newvalue = new Scalar(newvalue.getScalarType());
+						return false;
+						//se fallisce, mette a null la colonna.
+						//newvalue = new Scalar(newvalue.getScalarType());
 					}
 				}
 				

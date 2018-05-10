@@ -1,87 +1,46 @@
 package it.islandofcode.jvtllib.model;
 
-import it.islandofcode.jvtllib.model.util.SimpleDate;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * @author Pier Riccardo Monzo
  */
 public class ValueDomain implements VTLObj {
 	
-	//define ValueDomain TimeYears (“Time values”, date restrict YYYY)
-	// TimeYears name
-	// “Time values” description
-	// date VTLObject
-	// restrict è parola chiave
-	// YYYY tipo di restrizione:
-	//		restrict [YYYY | MM | DD | YYYY-MM | maxLength n | regexp regexp | between a and b | > b | < n | <= n | >= n]
+	private String name;
+	private VTLObj datatype;
 	
+	private String regexp;
+	private List<String> codelist;
+
 	/**
-	 * Enum delle operazioni di restrizione sui dati che sono attualmente supportati.<br>
-	 * Si fa notare che le restrizioni sulle date non sono chiarissime poichè, così come sono scritte,<br>
-	 * sembrano altamente distruttive. Poniamo ad es.<br><code>restric YYYY</code><br>
-	 * Se abbiamo la data nel formato <i>01/01/2018</i>, questa diventerà solo <i>2018</i>, perdendo giorno e mese.<br><br>
-	 * Indagare, perchè è possibile che vogliano invece che dal formato <i>01/01/18</i> otteniamo <i>01/01/2018</i>.
+	 * Accetta una espressione regolare come definizione del dominio.
+	 * Lancia una {@link PatternSyntaxException} se l'espressione
+	 * regolare non è sintatticamente valida.
+	 * @param name
+	 * @param rg
+	 * @param type
+	 * @throws PatternSyntaxException
 	 */
-	public static enum RESTRICT{
-		YYYY_MM,	//considera la data nel formato YYYY-MM, tipo 2018-03
-		maxLength,	//stringa di lunghezza massima n
-		regexp,		//espressione regolare
-		betweenand,	//compreso tra a e b
-		GT,			//maggiore di
-		LT,			//minore di
-		GTE,		//maggiore uguale di
-		LTE			//minore uguale di
+	public ValueDomain(String name, String rg, VTLObj type) throws PatternSyntaxException{
+		this.name = name;
+		this.datatype = type;
+		this.codelist = null;
+		this.regexp = rg;
+		Pattern.compile(rg);
 	}
 	
-	
-	private String name;
-	private String description;
-	private VTLObj datatype;
-	private RESTRICT op;
-	
-	//queste variabili sono d'appoggio, solo per contenere i valori per eseguire la RESTRICTOP.
-	private double a,b;
-	private String regexp;
-	private SimpleDate d;
-	
-	/**
-	 * Costruttore per la classe ValueDomain.<br>
-	 * Il costruttore è generico per tutte le operazioni di restrizione possibili.<br>
-	 * Gli scalari in input a e b vanno popolati in base al tipo di operazione.<br>
-	 * Ad es. se vogliamo YYYY, dobbiamo inserire solo a, mentre b va messo a null (verrà comunque ignorato.<br>
-	 * L'op between ha bisogno di due valori, quindi vanno popolati entrambi, o l'operazione fallirà.
-	 * @param name String
-	 * @param description String
-	 * @param type {@link VTLObj}
-	 * @param op {@link RESTRICT}
-	 * @param a {@link Scalar}
-	 * @param b {@link Scalar}
-	 */
-	public ValueDomain(String name, String description, VTLObj type, RESTRICT op, Scalar a, Scalar b) {
+	public ValueDomain(String name, List<String> list, VTLObj type) {
 		this.name = name;
-		this.description = description;
 		this.datatype = type;
-		this.op = op;
-		
-		if(op.equals(RESTRICT.YYYY_MM)) {
-			this.d = a.asDate();
-		} else if(op.equals(RESTRICT.regexp)) {
-			this.regexp = a.asString();
-		} else if(op.equals(RESTRICT.maxLength)) {
-			this.a = a.asInteger();
-		} else {
-			this.a = a.asDouble();
-			if(b != null)
-				this.b = b.asDouble();
-		}
+		this.regexp = null;
+		this.codelist = list;
 	}
 	
 	public String getName() {
 		return this.name;
-	}
-	
-	public String getDescription() {
-		return this.description;
 	}
 	
 	public VTLObj getDataType() {
@@ -89,68 +48,50 @@ public class ValueDomain implements VTLObj {
 	}
 	
 	/**
+	 * Il fatto di conservare un {@link VTLObj} per descrivere il tipo espresso dal dominio
+	 * deriva dalla primissima versione, in cui era contemplato l'uso di {@link ValueDomainSubset}.
+	 * Questa classe si è deciso di non implementarla (è ridondante), ma questo approccio è rimasto.
+	 * Dato che viene sempre passato uno {@link Scalar} come {@link #datatype}, questo metodo 
+	 * è consigliato rispetto al precedente, {@link #getDataType()}. 
+	 * @return {@link Scalar.SCALARTYPE}
+	 */
+	public Scalar.SCALARTYPE getScalarType(){
+		return ((Scalar) this.datatype).getScalarType();
+	}
+	
+	/**
 	 * Verifica se il {@link DataPoint} passato come parametro sia conforme al ValueDomain.<br>
-	 * Un'implementazione corretta dovrebbe scartare il {@link DataPoint} se il metodo ritorna False.
+	 * Un'implementazione corretta dovrebbe scartare il {@link DataPoint} se il metodo ritorna False.<br>
+	 * <br>
+	 * Attenzione! Se lo {@link Scalar} associato alla chiave è nullo, allora viene ritornato <i>true</i>,
+	 * senza controlli aggiuntivi, perchè si assume che <b>null</b> faccia sempre parte del dominio.
 	 * @param in {@link DataPoint}
 	 * @return boolean
 	 */
 	public boolean checkDomain(DataPoint in, String key) {
-		Scalar tmp;
-		//for(String K : in.getKeySet()) {
-		if(in.getValue(key)!=null) {
-			//tmp = in.getValue(K);
-			tmp = in.getValue(key);
-			if(tmp.getScalarType().equals(Scalar.SCALARTYPE.Date)) { //data, YYYY, MM, DD, YYYY-MM
-				this.d = tmp.asDate();
-				switch(this.op) {
-					case YYYY_MM:{
-						if(d.getFormat().equals(SimpleDate.DATEFORMAT[SimpleDate.DATE_FORMAT_YEARMONTH]))
-							return true;
-						else
-							return false;
-					}
-					//TODO anche between e <,>,=>,<= etc.
-				default:
-					return false;
+		//per "contratto", key è sempre non vuota.
+		Scalar tmp = in.getValue(key);
+		
+		//se lo scalare esiste ed è non nullo...
+		if(tmp!=null) {
+			
+			//se scalare nullo, ritorna true direttamente.
+			if(tmp.isNull())
+				return true;
+			
+			//se regexp è not null
+			if(this.regexp != null) {
+				return tmp.getScalar().matches(this.regexp);
+			} else { //altrimenti è una codelist
+				//ciclo sulla lista
+				for(String C : this.codelist) {
+					if(tmp.getScalar().equals(C))
+						return true;
 				}
-			}//fine if data
-			if(tmp.isNumber()) {
-				switch(this.op) {
-					case GT:{
-						return (tmp.asDouble() > this.a) ? true : false;
-					}
-					case LT:{
-						return (tmp.asDouble() < this.a) ? true : false;
-					}
-					case GTE:{
-						return (tmp.asDouble() >= this.a) ? true : false;
-					}
-					case LTE:{
-						return (tmp.asDouble() <= this.a) ? true : false;
-					}
-					case betweenand:{
-						return ( (tmp.asDouble()>=this.a) && (tmp.asDouble()<=this.b)) ? true : false;
-					}
-					default:{
-						return false;
-					}
-				}
-			}//fine if numerici
-			if(tmp.getScalarType().equals(Scalar.SCALARTYPE.String)) {
-				switch(this.op) {
-					case regexp:{
-						return tmp.asString().matches(this.regexp);
-					}
-					case maxLength:{
-						return (tmp.asString().length()==this.a) ? true : false;
-					}
-					default:{
-						return false;
-					}
-				}
-			}//fine if Stringhe
+			}
 		}
-		//} //fine for
+		
+		//quella chiave non esiste nel data point, oppure non è conforme al dominio
 		return false;
 	}
 	
