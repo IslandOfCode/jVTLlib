@@ -1,6 +1,5 @@
 package it.islandofcode.jvtllib.newparser;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -16,13 +15,73 @@ import java.util.logging.Logger;
 import com.rits.cloning.Cloner;
 
 import it.islandofcode.jvtllib.connector.IConnector;
-import it.islandofcode.jvtllib.model.*;
-import it.islandofcode.jvtllib.model.VTLObj.OBJTYPE;
+import it.islandofcode.jvtllib.model.DPRuleset;
+import it.islandofcode.jvtllib.model.DataPoint;
+import it.islandofcode.jvtllib.model.DataSet;
+import it.islandofcode.jvtllib.model.DataSetColumn;
+import it.islandofcode.jvtllib.model.DataStructure;
+import it.islandofcode.jvtllib.model.Function;
+import it.islandofcode.jvtllib.model.Procedure;
+import it.islandofcode.jvtllib.model.Scalar;
+import it.islandofcode.jvtllib.model.VTLObj;
 import it.islandofcode.jvtllib.model.util.Aggregation;
 import it.islandofcode.jvtllib.model.util.Component;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLBaseVisitor;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser;
-import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.*;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.AddMulExprContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.AggregationFunContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.AssignmentContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.CallFunContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.CallProcContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.CeilFloorexprContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.CheckFunBaseContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.CheckFunWithOptContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.ClauseFilterContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.ClauseKeepRenameContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.ClausebaseContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.ClausebodycalcContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.ClausebodyparamContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.ClausecalcContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.ClausedropContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.ClausejoinContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.DBGnopContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.DBGprintvarContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.DoubleparamMathfunContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.DprulesetContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.GetFunctionContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.IfThenElseCondOpContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.InCondexprContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.IntegerLiteralContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.IsNullCondexprContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.JoinblockInnerContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.JoinblockLeftContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.LiteralContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.LogexprContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.LogicalexprContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.MinDivExprContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.NamedFunDefContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.NamedProcDefContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.NvlCondOpContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.ParseContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.PrecedenceexprContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.ProcVarInListContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.PutDataContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.RelationalCondContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.RoundexprContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.SetIntersectContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.SetSetSymDiffContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.SetUnionContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.SingleparamMathfunContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.SingleruleBothContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.SingleruleConsequenceOnlyContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.SingleruleContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.StringConcatContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.StringFunReplaceContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.StringFunSubstrContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.StringLiteralContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.UnaryexprContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.VarmemberContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.VarnameContext;
 /**
  * @author Pier Riccardo Monzo
  */
@@ -603,7 +662,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		if (left.getObjType().equals(VTLObj.OBJTYPE.Scalar) && right.getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
 			a = (Scalar) left;
 			b = (Scalar) right;
-			if (!a.getScalarType().equals(b.getScalarType())) {
+			if ( !(a.isNumber() || b.isNumber()) && !a.getScalarType().equals(b.getScalarType())) {
 				throw new RuntimeException("Relational op are possible ONLY if both operand have the same scalar type");
 			}
 		}

@@ -10,7 +10,7 @@ import java.util.regex.PatternSyntaxException;
 public class ValueDomain implements VTLObj {
 	
 	private String name;
-	private VTLObj datatype;
+	private Scalar.SCALARTYPE datatype;
 	
 	private String regexp;
 	private List<String> codelist;
@@ -24,7 +24,7 @@ public class ValueDomain implements VTLObj {
 	 * @param type
 	 * @throws PatternSyntaxException
 	 */
-	public ValueDomain(String name, String rg, VTLObj type) throws PatternSyntaxException{
+	public ValueDomain(String name, String rg, Scalar.SCALARTYPE type) throws PatternSyntaxException{
 		this.name = name;
 		this.datatype = type;
 		this.codelist = null;
@@ -32,7 +32,7 @@ public class ValueDomain implements VTLObj {
 		Pattern.compile(rg);
 	}
 	
-	public ValueDomain(String name, List<String> list, VTLObj type) {
+	public ValueDomain(String name, List<String> list, Scalar.SCALARTYPE type) {
 		this.name = name;
 		this.datatype = type;
 		this.regexp = null;
@@ -41,10 +41,6 @@ public class ValueDomain implements VTLObj {
 	
 	public String getName() {
 		return this.name;
-	}
-	
-	public VTLObj getDataType() {
-		return this.datatype;
 	}
 	
 	/**
@@ -56,7 +52,7 @@ public class ValueDomain implements VTLObj {
 	 * @return {@link Scalar.SCALARTYPE}
 	 */
 	public Scalar.SCALARTYPE getScalarType(){
-		return ((Scalar) this.datatype).getScalarType();
+		return this.datatype;
 	}
 	
 	/**

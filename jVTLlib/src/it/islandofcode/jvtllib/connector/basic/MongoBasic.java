@@ -174,13 +174,13 @@ public class MongoBasic implements IConnector {
 				
 				switch(row[1]) {
 				case "D":
-					attr = DataStructure.string2type("identifier");
+					attr = DataStructure.ROLE.Identifier;
 					break;
 				case "O":
-					attr = DataStructure.string2type("measure");
+					attr = DataStructure.ROLE.Measure;
 					break;
 				case "A":
-					attr = DataStructure.string2type("attribute");
+					attr = DataStructure.ROLE.Attribute;
 					break;
 				default:
 					p.stopParsing();
