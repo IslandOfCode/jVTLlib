@@ -18,7 +18,7 @@ public class ValueDomain implements VTLObj {
 	/**
 	 * Accetta una espressione regolare come definizione del dominio.
 	 * Lancia una {@link PatternSyntaxException} se l'espressione
-	 * regolare non è sintatticamente valida.
+	 * regolare non ï¿½ sintatticamente valida.
 	 * @param name
 	 * @param rg
 	 * @param type
@@ -46,9 +46,9 @@ public class ValueDomain implements VTLObj {
 	/**
 	 * Il fatto di conservare un {@link VTLObj} per descrivere il tipo espresso dal dominio
 	 * deriva dalla primissima versione, in cui era contemplato l'uso di {@link ValueDomainSubset}.
-	 * Questa classe si è deciso di non implementarla (è ridondante), ma questo approccio è rimasto.
+	 * Questa classe si ï¿½ deciso di non implementarla (Ã¨ ridondante), ma questo approccio ï¿½ rimasto.
 	 * Dato che viene sempre passato uno {@link Scalar} come {@link #datatype}, questo metodo 
-	 * è consigliato rispetto al precedente, {@link #getDataType()}. 
+	 * ï¿½ consigliato rispetto al precedente, {@link #getDataType()}. 
 	 * @return {@link Scalar.SCALARTYPE}
 	 */
 	public Scalar.SCALARTYPE getScalarType(){
@@ -59,26 +59,26 @@ public class ValueDomain implements VTLObj {
 	 * Verifica se il {@link DataPoint} passato come parametro sia conforme al ValueDomain.<br>
 	 * Un'implementazione corretta dovrebbe scartare il {@link DataPoint} se il metodo ritorna False.<br>
 	 * <br>
-	 * Attenzione! Se lo {@link Scalar} associato alla chiave è nullo, allora viene ritornato <i>true</i>,
-	 * senza controlli aggiuntivi, perchè si assume che <b>null</b> faccia sempre parte del dominio.
+	 * Attenzione! Se lo {@link Scalar} associato alla chiave ï¿½ nullo, allora viene ritornato <i>true</i>,
+	 * senza controlli aggiuntivi, perchï¿½ si assume che <b>null</b> faccia sempre parte del dominio.
 	 * @param in {@link DataPoint}
 	 * @return boolean
 	 */
 	public boolean checkDomain(DataPoint in, String key) {
-		//per "contratto", key è sempre non vuota.
+		//per "contratto", key ï¿½ sempre non vuota.
 		Scalar tmp = in.getValue(key);
 		
-		//se lo scalare esiste ed è non nullo...
+		//se lo scalare esiste ed ï¿½ non nullo...
 		if(tmp!=null) {
 			
 			//se scalare nullo, ritorna true direttamente.
 			if(tmp.isNull())
 				return true;
 			
-			//se regexp è not null
+			//se regexp ï¿½ not null
 			if(this.regexp != null) {
 				return tmp.getScalar().matches(this.regexp);
-			} else { //altrimenti è una codelist
+			} else { //altrimenti ï¿½ una codelist
 				//ciclo sulla lista
 				for(String C : this.codelist) {
 					if(tmp.getScalar().equals(C))
@@ -87,7 +87,7 @@ public class ValueDomain implements VTLObj {
 			}
 		}
 		
-		//quella chiave non esiste nel data point, oppure non è conforme al dominio
+		//quella chiave non esiste nel data point, oppure non ï¿½ conforme al dominio
 		return false;
 	}
 	

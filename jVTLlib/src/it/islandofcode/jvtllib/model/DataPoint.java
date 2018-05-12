@@ -22,7 +22,7 @@ public class DataPoint {
 	}
 	
 	/**
-	 * Costruttore. Prende in input un hashmap già pronto.
+	 * Costruttore. Prende in input un hashmap giÃ  pronto.
 	 * @param in HashMap
 	 * @throws DataPointInvalidCostructor lancia un'eccezione quando viene passato null.
 	 */
@@ -106,7 +106,7 @@ public class DataPoint {
 	}
 	
 	/**
-	 * Verifica se il {@link DataPoint} passato come parametro è uguale a questo.
+	 * Verifica se il {@link DataPoint} passato come parametro Ã¨ uguale a questo.
 	 * <br>
 	 * Il parametro withAttr, booleano, serve per indicare se vogliamo considerare
 	 * anche gli attributi o scartarli.
@@ -120,7 +120,7 @@ public class DataPoint {
 		if(dp.getKeys().size()>=this.row.size()) {
 			for(String K : dp.getKeys()) {
 				/*
-				 * Prima verifica se il componente è un attributo.
+				 * Prima verifica se il componente ï¿½ un attributo.
 				 * Se ho scelto di non verificarlo, salto
 				 */
 				if((dstr.getComponent(K).getType().equals(DataStructure.ROLE.Attribute) && !withAttr)) {
@@ -139,7 +139,7 @@ public class DataPoint {
 		} else {
 			for(String K : this.row.keySet()) {
 				/*
-				 * Prima verifica se il componente è un attributo.
+				 * Prima verifica se il componente Ã¨ un attributo.
 				 * Se ho scelto di non verificarlo, salto
 				 */
 				if(dstr.getComponent(K)==null)
