@@ -28,13 +28,13 @@ public class Scalar implements VTLObj {
 
 		// this.scalar = ((String)this.scalar).trim().replace("\"", "");
 
-		//improbabile l'uso ma tant'Ë
+		//improbabile l'uso
 		if (sca.equals("null") || sca.equals("NULL")) {
 			this.scalar = "";
 			this.what = SCALARTYPE.Null;
 			this.isNull = true;
 		}
-		// c'Ë la possibilit‡ che non si tratti di una stringa ma di qualcos'altro
+		// se non √® la stringa, devo capire cosa √®
 		if (((String) sca).matches("^([+-]?\\d+)$")) {
 			//this.scalar = Integer.parseInt(sca);
 			this.what = SCALARTYPE.Integer;
@@ -53,7 +53,7 @@ public class Scalar implements VTLObj {
 			this.what = SCALARTYPE.Boolean;
 		}
 
-		// provo a capire se Ë una data
+		// provo a capire se √® una data
 		SimpleDate sd = new SimpleDate(sca);
 		if (!sd.isDefaultDate()) {
 			this.what = SCALARTYPE.Date;
@@ -62,7 +62,7 @@ public class Scalar implements VTLObj {
 	}
 
 	/**
-	 * Il costruttore pi˘ semplice, accetta sia il valore che il tipo.<br>
+	 * Il costruttore pi√π semplice, accetta sia il valore che il tipo.<br>
 	 * <b>ATTENZIONE!</b> nessun controllo viene effettuato sul tipo. Quindi assicuratevi
 	 * di inserire il tipo giusto con il giusto valore.
 	 * @param sca String
@@ -114,7 +114,7 @@ public class Scalar implements VTLObj {
 
 	/**
 	 * Wrapper di getScalar().<br>
-	 * Mantenuto per compatibilit‡.
+	 * Mantenuto per compatibilit√†.
 	 * @return
 	 */
 	public String asString() {
@@ -123,8 +123,8 @@ public class Scalar implements VTLObj {
 
 	/**
 	 * Ritorna lo scalare come intero.<br>
-	 * Nel caso in cui lo scalare era nullo, verr‡ ritornato 0.<br>
-	 * Verificare SEMPRE se lo scalare Ë nullo tramite il metodo apposito prima.
+	 * Nel caso in cui lo scalare era nullo, verr√† ritornato 0.<br>
+	 * Verificare SEMPRE se lo scalare √® nullo tramite il metodo apposito prima.
 	 * @return
 	 */
 	public int asInteger() {
@@ -143,7 +143,7 @@ public class Scalar implements VTLObj {
 				return false;
 			return Boolean.parseBoolean(this.scalar.toLowerCase());
 		}
-		//se Ë nullo, ritorna false, cosÏ come da specifiche VTL
+		//se √® nullo, ritorna false, cos√¨ come da specifiche VTL
 		return false;
 	}
 
@@ -165,7 +165,7 @@ public class Scalar implements VTLObj {
 	}
 
 	/**
-	 * Ritorna true se lo scalare Ë un numero
+	 * Ritorna true se lo scalare √® un numero
 	 * @return boolean
 	 */
 	public boolean isNumber() {
@@ -173,7 +173,7 @@ public class Scalar implements VTLObj {
 	}
 
 	/**
-	 * Ritorna true se lo scalare Ë nullo.
+	 * Ritorna true se lo scalare √® nullo.
 	 * @return Boolean
 	 */
 	public boolean isNull() {

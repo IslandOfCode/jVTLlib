@@ -110,7 +110,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	/**
 	 * Ogni volta che entriamo in un metodo che ha bisogno di essere isolato,
 	 * push di MEMORY nello stack e lo creiamo da zero.
-	 * Quando lo stack è vuoto siamo a lvl zero
+	 * Quando lo stack Ã¨ vuoto siamo a lvl zero
 	 */
 	Stack<Map<String,VTLObj>> SCOPE;
 	
@@ -132,7 +132,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	Map<String, VTLObj> MEMORY;
 	
 	/**
-	 * Il nome è leggermente fuorviante. In realtà è una memoria di servizio dove poter
+	 * Il nome Ã¨ leggermente fuorviante. In realtÃ  Ã¨ una memoria di servizio dove poter
 	 * conservare variabili di FLAG o oggetti diversi da VTLObj.
 	 * ATTENZIONE! questa memoria non viene mai ripulita, quindi va gestita manualmente.
 	 */
@@ -140,7 +140,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	
 	/**
 	 * Connettore che viene usato da get/set.
-	 * Non può essere nullo.
+	 * Non puÃ¹ essere nullo.
 	 */
 	IConnector connector;
 	
@@ -175,7 +175,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	@Override
 	public VTLObj visitParse(ParseContext ctx) {
 		LOG.info("Avvio del parser");
-		MEMORY.clear(); // non è necessario, giusto per.
+		
 		LOG.info("MEMORY inizializzato.");
 		return super.visitParse(ctx);
 	}
@@ -183,7 +183,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	@Override
 	public VTLObj visitAssignment(AssignmentContext ctx) {
 		String varname = ctx.varname().getText(); // nome della variabile da assegnare (Sinistra)
-		VTLObj value = this.visit(ctx.expr()); // questo è il valore dell'espressione.
+		VTLObj value = this.visit(ctx.expr()); // questo Ã¨ il valore dell'espressione.
 
 		LOG.finest("ASSIGN VAR[" + varname + "] WITH VALUE [" + value + "]");
 
@@ -225,7 +225,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				return Scalar.createBoolean(true);
 		}
 		case(newVTLParser.PLUS):{
-			//non serve praticamente a niente, quindi perchè lo considero?
+			//non serve praticamente a niente, quindi perchÃ¨ lo considero?
 			if( ((Scalar)val).getScalarType().equals(Scalar.SCALARTYPE.Boolean))
 				throw new RuntimeException("UNARY PLUS undefiened for boolean value.");
 			return val;
@@ -252,7 +252,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		if (left == null || right == null)
 			throw new RuntimeException("Math operand cannot be null: left[" + left + "] OP right[" + right + "]");
 
-		// caso solo scalari, il più semplice
+		// caso solo scalari, il piÃ¹ semplice
 		if (left.getObjType().equals(VTLObj.OBJTYPE.Scalar) && right.getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
 			if (ctx.op.getType() == newVTLParser.PLUS) {
 				return NumberOp.add((Scalar) left, (Scalar) right);
@@ -261,7 +261,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			}
 		}
 
-		// caso solo scalari, il più semplice
+		// caso solo scalari, il piÃ¹ semplice
 		if (left.getObjType().equals(VTLObj.OBJTYPE.DataSet) && right.getObjType().equals(VTLObj.OBJTYPE.DataSet)) {
 			if (ctx.op.getType() == newVTLParser.PLUS) {
 				return NumberOp.add((DataSet) left, (DataSet) right);
@@ -282,7 +282,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		if (left == null || right == null)
 			throw new RuntimeException("Math operand cannot be null: left[" + left + "] OP right[" + right + "]");
 
-		// caso solo scalari, il più semplice
+		// caso solo scalari, il piÃ¹ semplice
 		if (left.getObjType().equals(VTLObj.OBJTYPE.Scalar) && right.getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
 			if(ctx.op.getType()==newVTLParser.MUL) {
 				return NumberOp.sub((Scalar) left, (Scalar) right);
@@ -310,7 +310,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		String column = "";
 		int caso = 3; // caso sconosciuto, vai in default
 
-		// caso 0, solo scalari, il più semplice
+		// caso 0, solo scalari, il piÃ¹ semplice
 		if (left.getObjType().equals(VTLObj.OBJTYPE.Scalar) && right.getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
 			// se sono due numeri
 			if (((Scalar) left).isNumber() && ((Scalar) right).isNumber()) {
@@ -601,7 +601,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					//1.234 -> 234
 			String newdigit = value.asString().substring(value.asString().indexOf(".")+1);
 					
-			//se il numero di cifre dopo la virgola è <= di quanto richiesto, torno la cifra direttamente
+			//se il numero di cifre dopo la virgola Ã¨ <= di quanto richiesto, torno la cifra direttamente
 			if(digit>=newdigit.length())
 				return value;
 					
@@ -668,7 +668,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		}
 		
 
-			// me li preparo già da prima
+			// me li preparo giÃ  da prima
 			Scalar scatrue = Scalar.createBoolean(true);
 			Scalar scafalse = Scalar.createBoolean(false);
 
@@ -683,7 +683,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					return (a.asDate().getDateString().equals(b.asDate().getDateString())) ? scatrue : scafalse;
 				} else if (a.isNumber()) {
 					return (a.asDouble() == b.asDouble()) ? scatrue : scafalse;
-				} else { // può essere solo una stringa
+				} else { // puÃ² essere solo una stringa
 					return (a.asString().equals(b.asString())) ? scatrue : scafalse;
 				}
 			}
@@ -697,7 +697,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					return (!a.asDate().getDateString().equals(b.asDate().getDateString())) ? scatrue : scafalse;
 				} else if (a.isNumber()) {
 					return (a.asDouble() != b.asDouble()) ? scatrue : scafalse;
-				} else { // può essere solo una stringa
+				} else { // puÃ² essere solo una stringa
 					return (!a.asString().equals(b.asString())) ? scatrue : scafalse;
 				}
 			}
@@ -708,7 +708,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					return (a.asDate().getDate().isBefore(b.asDate().getDate())) ? scatrue : scafalse;
 				} else if (a.isNumber()) {
 					return (a.asDouble() < b.asDouble()) ? scatrue : scafalse;
-				} else { // può essere solo una stringa
+				} else { // puÃ² essere solo una stringa
 					return (a.asString().compareTo(b.asString()) < 0) ? scatrue : scafalse;
 				}
 			}
@@ -719,7 +719,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					return (a.asDate().getDate().isAfter(b.asDate().getDate())) ? scatrue : scafalse;
 				} else if (a.isNumber()) {
 					return (a.asDouble() > b.asDouble()) ? scatrue : scafalse;
-				} else { // può essere solo una stringa
+				} else { // puÃ² essere solo una stringa
 					return (a.asString().compareTo(b.asString()) > 0) ? scatrue : scafalse;
 				}
 			}
@@ -731,7 +731,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 							|| a.asDate().getDateString().equals(b.asDate().getDateString())) ? scatrue : scafalse;
 				} else if (a.isNumber()) {
 					return (a.asDouble() <= b.asDouble()) ? scatrue : scafalse;
-				} else { // può essere solo una stringa
+				} else { // puÃ² essere solo una stringa
 					return (a.asString().compareTo(b.asString()) <= 0) ? scatrue : scafalse;
 				}
 			}
@@ -743,7 +743,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 							|| a.asDate().getDateString().equals(b.asDate().getDateString())) ? scatrue : scafalse;
 				} else if (a.isNumber()) {
 					return (a.asDouble() >= b.asDouble()) ? scatrue : scafalse;
-				} else { // può essere solo una stringa
+				} else { // puÃ² essere solo una stringa
 					return (a.asString().compareTo(b.asString()) >= 0) ? scatrue : scafalse;
 				}
 			}
@@ -930,15 +930,15 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		if (MEMORY.get(ctx.left.getText()) == null) {
 			throw new RuntimeException("No DataSet found with this name in memory");
 		}
-		// se esiste una var con questo nome ma non è un dataset, eccezione
+		// se esiste una var con questo nome ma non Ã¨ un dataset, eccezione
 		if (!MEMORY.get(ctx.left.getText()).getObjType().equals(VTLObj.OBJTYPE.DataSet))
 			throw new RuntimeException("The parent of the member parameter isn't a DataSet");
 		// il dataset esiste
-		// verifica se c'è correlazione
+		// verifica se c'Ã¨ correlazione
 		if (!DataSetColumn.checkIfContain((DataSet) MEMORY.get(ctx.left.getText()), ctx.right.getText())) {
 			throw new RuntimeException("The member parameter isn't part of the parent DataSet");
 		}
-		// c'è correlazione, quindi ritorno l'oggetto relativo
+		// c'Ã¨ correlazione, quindi ritorno l'oggetto relativo
 		return new DataSetColumn(ctx.left.getText(), ctx.right.getText());
 
 		// return super.visitVarmember(ctx);
@@ -1081,7 +1081,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	//Ingresso della definizione della ruleset
 	@Override
 	public VTLObj visitDpruleset(DprulesetContext ctx) {
-		//ctx.varname(0).getText() questo è il nome del ruleset
+		//ctx.varname(0).getText() questo Ã¨ il nome del ruleset
 		//ctx.varname(i).getText() con 1<i<N sono i nomi di colonna
 		
 		//this.visit(ctx.dprulesetblock()); visita il blocco delle regole
@@ -1155,12 +1155,12 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			Scalar a = (Scalar)antexp;
 			Scalar c = (Scalar)conexp;
 			
-			if( ((Scalar) a).getScalarType().equals(Scalar.SCALARTYPE.Boolean) ) { //se ant è un bool
+			if( ((Scalar) a).getScalarType().equals(Scalar.SCALARTYPE.Boolean) ) { //se ant Ã¨ un bool
 				if( !a.asBoolean() ) { //precondizione fallita, ignoro la regola.
 					//this.MEMORY.put("ErrMsg", new Scalar(err,Scalar.SCALARTYPE.String));//ctx.errorCode().literal().getText(),Scalar.SCALARTYPE.String));
 					return Scalar.createBoolean(true);
 				} else { //se l'antecedente non ha ritornato false, verifico il conseguente
-					if( c.getScalarType().equals(Scalar.SCALARTYPE.Boolean) ) //se cons è un bool
+					if( c.getScalarType().equals(Scalar.SCALARTYPE.Boolean) ) //se cons Ã¨ un bool
 						if( !c.asBoolean() ) { //condizione fallita, torna errore
 							this.MEMORY.put("ErrMsg", new Scalar(err,Scalar.SCALARTYPE.String));//ctx.errorCode().literal().getText(),Scalar.SCALARTYPE.String));
 							return Scalar.createBoolean(false);
@@ -1190,7 +1190,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		//creo una lista di ruleset e li recupero dalla memoria
 		ArrayList<DPRuleset> LDPR = new ArrayList<>();
-		//parto da 1, perchè il primo è il dataset, OVVIO!
+		//parto da 1, perchÃ¨ il primo Ã¨ il dataset, OVVIO!
 		for(int i=1; i<ctx.varname().size(); i++) {
 			LDPR.add((DPRuleset) CLONER.deepClone( this.MEMORY.get(ctx.varname(i).getText())) );
 		}
@@ -1218,7 +1218,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					false
 					);
 		
-		//un datapoint vuoto che userò come var d'appoggio
+		//un datapoint vuoto che userÃ² come var d'appoggio
 		DataPoint dp = null;
 		int numFailed = 0;
 		Scalar ErrMsg, ErrID;
@@ -1262,7 +1262,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			 */
 			
 			ErrMsg = (Scalar) this.MEMORY.get("ErrMsg");
-			//se ho avuto uno o più fallimenti
+			//se ho avuto uno o piÃ¹ fallimenti
 			if(numFailed>0) {
 				dp = ds.getPoint(i); //recupero un datapoint
 				
@@ -1290,7 +1290,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		//creo una lista di ruleset e li recupero dalla memoria
 		ArrayList<DPRuleset> LDPR = new ArrayList<>();
-		//parto da 1, perchè il primo è il dataset, OVVIO!
+		//parto da 1, perchÃ¨ il primo Ã¨ il dataset, OVVIO!
 		for(int i=1; i<ctx.varname().size(); i++) {
 			LDPR.add((DPRuleset) CLONER.deepClone( this.MEMORY.get(ctx.varname(i).getText())) );
 		}
@@ -1301,8 +1301,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		LOG.fine("Valutazione CHECKFUNWITHOPT ["+ctx.checkParamEnum().getText()+"]["+ctx.checkParamOpt().getText()+"]");
 
-		//***********************verifico presenza e compatibilità opzioni
-		//questo if viene chiamato solo se uno dei due è assente
+		//***********************verifico presenza e compatibilitÃ  opzioni
+		//questo if viene chiamato solo se uno dei due Ã¨ assente
 		//se mancano entrambi, viene chiamato visitCheckFunBase.
 		if(ctx.checkParamEnum().getText().replace(",", "").isEmpty() || ctx.checkParamOpt().getText().replace(",", "").isEmpty()) {
 			throw new RuntimeException("Check() need both option specified.");
@@ -1328,7 +1328,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					false
 					);
 		
-		//un datapoint vuoto che userò come var d'appoggio
+		//un datapoint vuoto che userÃ² come var d'appoggio
 		DataPoint dp = null;
 		int numFailed = 0;
 		Scalar ErrMsg, ErrID;
@@ -1365,7 +1365,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			dp.setValue("RULE_ID", ErrID);
 			
 			ErrMsg = (Scalar) this.MEMORY.get("ErrMsg");
-			//se ho avuto uno o più hit
+			//se ho avuto uno o piÃ¹ hit
 			if(numFailed>0) {
 				
 				if(numFailed>1) //messaggio generico
@@ -1430,9 +1430,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		this.MEMORY.clear();
 		this.MEMORY.put(ctx.varname().getText(), ds);
 		/* questa var contiene il nome del data set.
-		 * Si rende necessario perchè altrimenti dovremmo scorrere tutte le var per trovare il dataset.
-		 * Ma se facciamo più di un clausebody, potremmo avere più di un dataset.
-		 * Se invece usiamo JOIN, all'interno forziamo solo varmember e quindi non abbiamo più la necessità
+		 * Si rende necessario perchÃ¨ altrimenti dovremmo scorrere tutte le var per trovare il dataset.
+		 * Ma se facciamo piÃ¹ di un clausebody, potremmo avere piÃ¹ di un dataset.
+		 * Se invece usiamo JOIN, all'interno forziamo solo varmember e quindi non abbiamo piÃ¹ la necessitÃ 
 		 * di questa variabile.
 		 */
 		
@@ -1656,9 +1656,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		//recupero la mappa
 		HashMap<String,String> map = (HashMap<String,String>) this.GLOBAL.get(U_KEEP_MAPPING);
 		
-		//se è rename, devo aggiungere tutti i component rimanenti
+		//se Ã¨ rename, devo aggiungere tutti i component rimanenti
 		if(ctx.op.getText().toLowerCase().equals("rename")) {
-			//prima di tutto controllo se la dimensione è inferiore
+			//prima di tutto controllo se la dimensione Ã¨ inferiore
 			if(dstr.getKeys().size() > ndstr.getKeys().size()) {
 				//mi mancano componenti
 				for(String OK : dstr.getKeys()) {
@@ -1671,11 +1671,11 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 									dstr.getComponent(OK).getType()
 									);
 						}
-						//non c'è nella mappa ma è presente nel nuovo dstr
-					//è presente nella mappa, unitile andare oltre
+						//non c'Ã¨ nella mappa ma Ã¨ presente nel nuovo dstr
+					//Ã¨ presente nella mappa, unitile andare oltre
 				}//fine for
 			}
-			//la dimensione è la stessa, quindi potenzialmente ho tutti i componenti
+			//la dimensione Ã¨ la stessa, quindi potenzialmente ho tutti i componenti
 		}
 		
 		
@@ -1727,7 +1727,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				DataPoint dp = ds.getPoint(r);
 				
 				/* Qui devo prendere i valori di ogni riga e metterli in memoria
-				 * come se fossero singoli scalari. Così expr può accedervi facilmente.
+				 * come se fossero singoli scalari. CosÃ¬ expr pu accedervi facilmente.
 				 * Ad ogni iterazione, memory.put sovrascrive i vecchi valori.
 				 * 
 				 * non ho trovato un'altro modo. L'alternativa era quello di salvarsi i
@@ -1741,20 +1741,20 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				//visito tutte le espressioni con i dati correnti
 				for(int e=0;e<ctx.expr().size();e++) {
 					VTLObj ret = this.visit(ctx.expr(e));
-					/* null è considerato alla pari di false
+					/* null Ã¨ considerato alla pari di false
 					 * quindi in questo caso scarto la riga e vado avanti
-					 * purtroppo non ho modo di sapere perchè è tornato null
+					 * purtroppo non ho modo di sapere perch  tornato null
 					 * e in ogni caso non dovrebbe mai tornare null se non in caso di errore.
-					 * Lo metto per il momento, poi si vedrà.
+					 * Lo metto per il momento, poi si vedr.
 					 * TODO
 					 */
 					if(ret==null)
 						continue;
 					
-					if(ret instanceof Scalar) { //se è uno scalare
+					if(ret instanceof Scalar) { //se  uno scalare
 						Scalar s = (Scalar)ret;
-						if(s.getScalarType().equals(Scalar.SCALARTYPE.Boolean)) { //se è un booleano
-							if(s.asBoolean()) {//è true
+						if(s.getScalarType().equals(Scalar.SCALARTYPE.Boolean)) { //se  un booleano
+							if(s.asBoolean()) {// true
 								//salva dp nel nuovo dataset nds
 								nds.setPoint(dp);
 							}
@@ -1763,7 +1763,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 						} 
 					}
 					
-					//non è uno scalare o non è un booleano, eccezione!
+					//non  uno scalare o non  un booleano, eccezione!
 					throw new RuntimeException("FILTER need a boolean result for the expression.");
 				}//fine for expr
 				
@@ -1825,11 +1825,11 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		String newid = (ctx.stringLiteral() != null) ? ctx.stringLiteral().getText().replace("\"", "") : null;
 		String newrole = (ctx.componentRole() != null) ? ctx.componentRole().role.getText().toLowerCase() : null;
 		
-		//se l'operazione è rename, allora devo avere almeno uno tra AS e ROLE
+		//se l'operazione  rename, allora devo avere almeno uno tra AS e ROLE
 		if(opref.equals("rename"))
 				if(newid==null && newrole==null)
 					throw new RuntimeException("RENAME clause need at least one parameter: AS, ROLE or both");
-		//altrimenti è keep, quindi posso andare avanti
+		//altrimenti  keep, quindi posso andare avanti
 		
 		// inserisco nuovo componente
 		N.putComponent((newid != null) ? newid : OC.getId(), OC.getDataType(),
@@ -1875,9 +1875,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		this.MEMORY.put("newDSTR", new Scalar(ndstr.getName(), Scalar.SCALARTYPE.String));
 		
 		/* Variabile di flag
-		 * Quando è true, devo calcolare expr solo per ottenere il tipo, ma il risultato viene scartato
-		 * Alla fine del primo passaggio, avrò il datastructure completo e quindi potrò creare il dataset.
-		 * Dopo, il flag viene impostato a false, così che clausebodycalc ignori la modellazione del dstr
+		 * Quando  true, devo calcolare expr solo per ottenere il tipo, ma il risultato viene scartato
+		 * Alla fine del primo passaggio, avr il datastructure completo e quindi potr creare il dataset.
+		 * Dopo, il flag viene impostato a false, cos che clausebodycalc ignori la modellazione del dstr
 		 * e si concentri a popolare i datapoint da pushare nel nuovo ds.
 		 */
 		this.GLOBAL.put(NewEval.FLG_CALC_1_PASS, Scalar.createBoolean(true));
@@ -1897,7 +1897,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				));
 		/* 
 		 * Questa copia del dstr mi serve come mapping.
-		 * In pratica contiene solo le nuove colonne, e mi servirà in fase di popolamento
+		 * In pratica contiene solo le nuove colonne, e mi servir in fase di popolamento
 		 * dei datapoint per capire quali colonne sono vuote e quali no. 
 		 */
 		DataStructure tmpdstr = CLONER.deepClone(ndstr);
@@ -2029,7 +2029,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					break;
 				}
 			}
-			if(find<0) {//se non è nella lista da scartare, aggiungo
+			if(find<0) {//se non  nella lista da scartare, aggiungo
 				ndstr.putComponent(
 						dstr.getComponent(K).getId(),
 						dstr.getComponent(K).getDataType(),
@@ -2069,7 +2069,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			VTLObj tds = this.visit(ctx.varname(i));
 			DataStructure tdstr = null;
 			if(tds.getObjType().equals(VTLObj.OBJTYPE.DataSet)) {
-				//è un dataset
+				// un dataset
 				LDS.add(i,(DataSet)tds);
 				//mi salvo il dstr per verificare che sia uguale al precedente
 				tdstr = ((DataSet)tds).getDataStructure();
@@ -2087,33 +2087,33 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		}//fine for controllo tipo e dstr
 		
 		/*
-		 * Adesso c'è la parte più difficile: devo ciclare su tutti i dataset per verificare
+		 * Adesso c' la parte pi difficile: devo ciclare su tutti i dataset per verificare
 		 * se ci siano duplicati.
 		 * 
-		 * Questo è l'approccio migliore che mi è venuto in mente.
-		 * Altri approcci, forse più performanti, prevedevano però l'ordinare gli elementi
+		 * Questo  l'approccio migliore che mi  venuto in mente.
+		 * Altri approcci, forse pi performanti, prevedevano per l'ordinare gli elementi
 		 * prima di verificare.
 		 * 
 		 * Avevo pensato di ordinare le tabelle per numero di elementi, ma comunque devo ciclare su ogni
-		 * elemento delle tabelle, quindi con un O(N^m), dove m è il numero delle tabelle.
+		 * elemento delle tabelle, quindi con un O(N^m), dove m  il numero delle tabelle.
 		 * 
-		 * -copio la prima tabella. Questa sarà quella di partenza
+		 * -copio la prima tabella. Questa sar quella di partenza
 		 * -ciclo sulle altre tabelle
 		 * 		-ciclo su gli elementi della tabella attuale
 		 * 			-ciclo sugli elementi della tabella di ritorno
-		 * 				se l'elemento della tabella attuale è presente,
+		 * 				se l'elemento della tabella attuale  presente,
 		 * 					spezzo il ciclo con booleano settato a true
 		 * 			se booleano==false
 		 * 				aggiungo l'elemento attuale nella tabella di ritorno.
-		 * 		elimino riferimento alla tabella attuale, cosicchè il GC possa alleggerire la memoria
+		 * 		elimino riferimento alla tabella attuale, cosicch il GC possa alleggerire la memoria
 		 * ritorno la tabella finale
 		 * 
-		 * Ovviamente, ad ogni elemento aggiunto alla tabella di ritorno, il ciclo più interno aumenta.
-		 * Più elementi duplicati ci sono, più lentamente la tabella cresce. Meno duplicati si trovano
-		 * più velocemente la tabella aumenta di dimensione e quindi aumenta il tempo di computazione.
+		 * Ovviamente, ad ogni elemento aggiunto alla tabella di ritorno, il ciclo pi interno aumenta.
+		 * Pi elementi duplicati ci sono, pi lentamente la tabella cresce. Meno duplicati si trovano
+		 * pi velocemente la tabella aumenta di dimensione e quindi aumenta il tempo di computazione.
 		 */
 		
-		//il primo elemento è la mia nuova tabella
+		//il primo elemento  la mia nuova tabella
 		DataSet ret = null, tds = LDS.remove(0);
 		DataStructure tdstr = tds.getDataStructure();
 		//creamo un nuovo datastructure senza attributi
@@ -2145,7 +2145,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				for(int r=0; r<ret.getSize(); r++) { //r come return
 					LOG.finest("\t\tRETURN iteration "+(r+1)+" of " + ret.getSize());
 					if(LDS.get(g).getPoint(a).equals(ret.getPoint(r), ret.getDataStructure(), false)) {
-						//se l'elemento actual è presente in ret
+						//se l'elemento actual  presente in ret
 						dup = true;
 						//aggiungo il punto
 					}
@@ -2179,7 +2179,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			VTLObj tds = this.visit(ctx.varname(i));
 			DataStructure tdstr = null;
 			if(tds.getObjType().equals(VTLObj.OBJTYPE.DataSet)) {
-				//è un dataset
+				// un dataset
 				LDS.add(i,(DataSet)tds);
 				//mi salvo il dstr per verificare che sia uguale al precedente
 				tdstr = ((DataSet)tds).getDataStructure();
@@ -2197,10 +2197,10 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		}//fine for controllo tipo e dstr
 		
 		/*
-		 * Qui ordino l'array. Perchè nel peggiore dei casi l'intersezione
-		 * di più insiemi avrà cardinalità pari a quella dell'insieme più piccolo.
-		 * quindi ordinando in maniera crescente, il codice è più semplice da scrivere
-		 * e più veloce nell'esecuzione.
+		 * Qui ordino l'array. Perch nel peggiore dei casi l'intersezione
+		 * di pi insiemi avr cardinalit pari a quella dell'insieme pi piccolo.
+		 * quindi ordinando in maniera crescente, il codice  pi semplice da scrivere
+		 * e pi veloce nell'esecuzione.
 		 */
 		Collections.sort(LDS, new Comparator<DataSet>() {
 				public int compare(DataSet ds1, DataSet ds2) {
@@ -2218,7 +2218,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		);
 		
 		
-		//il primo elemento è la mia nuova tabella
+		//il primo elemento  la mia nuova tabella
 		DataSet ret = null, tds = LDS.get(0);
 		DataStructure tdstr = tds.getDataStructure();
 		//creamo un nuovo datastructure senza attributi
@@ -2253,18 +2253,18 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				for(int a=0; a<LDS.get(o).getSize(); a++) {
 					/*
 					 * come dsrt gli passo quello del ds attuale, altrimenti equals va in eccezione
-					 * perchè il ds di ret potrebbe non avere gli ATTR che dstr actual ha.
-					 * Quindi andando a fare la verifica (nell'equal) se è un ATTR, questo controllo
+					 * perch il ds di ret potrebbe non avere gli ATTR che dstr actual ha.
+					 * Quindi andando a fare la verifica (nell'equal) se  un ATTR, questo controllo
 					 * 	if((dstr.getComponent(K).getType().equals(DataStructure.type.Attribute) && !withAttr))
-					 * va in eccezione NullPointer perchè getComponent ritornerebbe null.
+					 * va in eccezione NullPointer perch getComponent ritornerebbe null.
 					 * Usando invece il dstr della tabella attuale, questi problemi non si dovrebbero porre,
-					 * perchè abbiamo già verificato che hanno gli stessi campi IDENT, MEAS.
-					 * Quelli in più saranno sicuramente ATTR, che vengono ignorati.
+					 * perch abbiamo gi verificato che hanno gli stessi campi IDENT, MEAS.
+					 * Quelli in pi saranno sicuramente ATTR, che vengono ignorati.
 					 */
 					if(dp.equals(LDS.get(o).getPoint(a), LDS.get(o).getDataStructure(), false)) {
 						//incremento contatore
 						many++;
-						//spezzo perchè idealmente non ci dovrebbero essere duplicati per ds
+						//spezzo perch idealmente non ci dovrebbero essere duplicati per ds
 						break;
 					}
 				}//fine a
@@ -2272,7 +2272,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			if(many==(LDS.size()-1)) {
 				ret.setPoint(dp);
 			}
-			//altrimenti significa che la riga non è presente in tutti i ds
+			//altrimenti significa che la riga non  presente in tutti i ds
 		}//fine g
 		
 		return ret;
@@ -2321,7 +2321,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				ret.setPoint(ds1.getPoint(i));
 			}
 		}
-		//se è symdiff, ciclo da ds2 su ret per inserire altri nodi
+		//se  symdiff, ciclo da ds2 su ret per inserire altri nodi
 		if(ctx.op.getType() == newVTLParser.SYMDIFF) {
 			//ciclo da ret a ds2 e creo la seconda parte di ret
 			for(int i=0; i<ds2.getSize(); i++) {
@@ -2394,23 +2394,23 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		// IF expr THEN expr (ELIF expr THEN expr)* ELSE expr
 		/*
 		 * Questo implica che ci devono essere tante expr quanti i token presenti.
-		 * Inoltre, il primo expr è booleano
-		 * il secondo è sicuramente Scalare o DS
-		 * 		Se ci sono 3 expr, allora il terzo è Scalare/DS
+		 * Inoltre, il primo expr  booleano
+		 * il secondo  sicuramente Scalare o DS
+		 * 		Se ci sono 3 expr, allora il terzo  Scalare/DS
 		 * Altrimenti
 		 * 		Cicla a due a due,
-		 * 			il primo è booleano,
-		 * 			il secondo è Scalare/DS
-		 * Bisogna fare un fino lavoro di indici, perchè la struttura è controllata
+		 * 			il primo  booleano,
+		 * 			il secondo  Scalare/DS
+		 * Bisogna fare un fino lavoro di indici, perch la struttura  controllata
 		 * a livello di Grammatica.
 		 * 
 		 * Per quanto riguarda il controllo dei tipi, penso si debba fare aprioristicamente
 		 * oppure si potrebbe pensare di farli man mano che si avanza nella struttura.
-		 * Però questo implicherebbe che un eventuale errore verrebbe scoperto solo
+		 * Per questo implicherebbe che un eventuale errore verrebbe scoperto solo
 		 * quando le condizioni sono tali da visitare quel specifico ramo.
 		 * 
-		 * Siccome però sono tutte expr, bisogna visitarle, e vistare un'expr significa fare una
-		 * una valutazione che può essere anche pesante dal punto di vista computazione.
+		 * Siccome per sono tutte expr, bisogna visitarle, e vistare un'expr significa fare una
+		 * una valutazione che pu essere anche pesante dal punto di vista computazione.
 		 * Per evitare di fare due volte la stessa cosa, seguiamo l'approccio di analisi
 		 * progressiva delle espressioni.
 		 * Ignoriamo le problematiche per il momento, affidandoci all'attenzione dell'utente.
@@ -2425,7 +2425,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				stmp = (Scalar)tmp;
 				if(stmp.getScalarType().equals(Scalar.SCALARTYPE.Boolean)) {
 					if(stmp.asBoolean()) {
-						//la condizione è true, quindi ritorno il then!
+						//la condizione  true, quindi ritorno il then!
 						return this.visit(ctx.expr(e+1));
 					}
 				}
@@ -2507,7 +2507,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		//datastructure costruito
 		//costruiamo Aggregation
-		Aggregation A = new Aggregation(ndstr,Aggregation.AGGROP.valueOf(aggrOp.toUpperCase())); //toUpper perchè nell'enum è tutto caps
+		Aggregation A = new Aggregation(ndstr,Aggregation.AGGROP.valueOf(aggrOp.toUpperCase())); //toUpper perch nell'enum  tutto caps
 		
 		for(int p=0; p<ds.getSize(); p++) {
 			A.aggregateNext(ds.getPoint(p));
@@ -2571,7 +2571,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		//e sostituisco la memoria
 		HashMap<String,VTLObj> M = new HashMap<String, VTLObj>();
 		
-		//la prima è l'id della procedura quindi la salto
+		//la prima  l'id della procedura quindi la salto
 		for(int p=1; p<(ctx.varname().size()-1); p++) {
 			
 			M.put(P.getWithIndex(p-1),
@@ -2645,7 +2645,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			throw new RuntimeException("Bad function signature for ["+ctx.varname(0).getText()+"]");
 		
 		HashMap<String,VTLObj> M = new HashMap<String, VTLObj>();
-		//la prima è l'id della funzione quindi la salto
+		//la prima  l'id della funzione quindi la salto
 		for(int v=1; v<ctx.varname().size(); v++) {
 			F.setMapping(v-1, ctx.varname(v).getText());
 			M.put(F.getWithIndex(v-1),
@@ -2782,7 +2782,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	 * se ci troviamo in uno scope locale.
 	 * Se si, si fa lo stesso controllo sullo scope globale.
 	 * <br><br>
-	 * <b>Attenzione!</b> Questo metodo non è ricorsivo, non fa controlli sullo scope.
+	 * <b>Attenzione!</b> Questo metodo non  ricorsivo, non fa controlli sullo scope.
 	 * Verifica solo lo scope immediatamente superiore!
 	 * <br><br>
 	 * Quando si scrive uno script vtl, bisogna fare attenzione a questo aspetto,

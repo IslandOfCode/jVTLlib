@@ -5,8 +5,8 @@ import it.islandofcode.jvtllib.model.VTLObj;
 
 /**
  * Componente per il {@link DataStructure}. Contiene nome, tipo di dato e tipo di componente.<br>
- * Il campo nome è ovviamente duplicato nel datastructure, poichè è contenuto nell'hashmap come campo chiave.<br>
- * Questa ridondanza è voluta, per poter accedere più velocemente ai dati durante l'elaborazione, senza dover fare cicli
+ * Il campo nome Ã¨ ovviamente duplicato nel datastructure, poichÃ¨ Ã¨ contenuto nell'hashmap come campo chiave.<br>
+ * Questa ridondanza Ã¨ voluta, per poter accedere piÃ¹ velocemente ai dati durante l'elaborazione, senza dover fare cicli
  * per cercare il valore corretto.
  * @author Pier Riccardo Monzo
  */

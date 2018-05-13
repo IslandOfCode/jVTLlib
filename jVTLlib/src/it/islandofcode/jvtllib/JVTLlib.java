@@ -86,7 +86,7 @@ public class JVTLlib {
 			this.lastExTime = Duration.between(start, end).toString();
 			throw ex;
 		}
-		//se arrivo qui senza eccezioni, allora il codice è grammaticalmente corretto
+		//se arrivo qui senza eccezioni, allora il codice Ã¨ grammaticalmente corretto
 		
 		end = Instant.now();
 		this.lastExTime = Duration.between(start, end).toString();
@@ -115,7 +115,7 @@ public class JVTLlib {
 			this.lastExTime = Duration.between(start, end).toString();
 			throw ex;
 		}
-		//se arrivo qui, significa che il codice è corretto ed è stato eseguito senza errori
+		//se arrivo qui, significa che il codice Ã¨ corretto ed Ã¨ stato eseguito senza errori
 		//ovvio che questo non significa che il codice sia sintatticamente corretto.
 		end = Instant.now();
 		this.lastExTime = Duration.between(start, end).toString();

@@ -21,19 +21,19 @@ public class DataStructure implements VTLObj {
 	private String name;
 	private String description;
 	/**
-	 * Indica se un DataSet Ë stato scritto o letto dalla memoria.
-	 * Se false, il DataSet Ë derivato da trasformazioni.
+	 * Indica se un DataSet √® stato scritto o letto dalla memoria.
+	 * Se false, il DataSet √® derivato da trasformazioni.
 	 */
 	private boolean isCollected;
 	/**
-	 * Se il DataStructure Ë dotato di almeno un ID e una MEAS, allora
-	 * Ë considerato completo ed Ë possibile eseguire tutte le operazioni su di esso.
+	 * Se il DataStructure √® dotato di almeno un ID e una MEAS, allora
+	 * √® considerato completo ed √® possibile eseguire tutte le operazioni su di esso.
 	 * In caso contrario, alcune operazioni non sono ammesse.
 	 */
 	private boolean isComplete;
 	/**
-	 * Piccola struttura d'appoggio per verificare se questo DataStructure Ë completo
-	 * oppure no. Il primo campo Ë popolato al primo inserimento di un Identifier, il
+	 * Piccola struttura d'appoggio per verificare se questo DataStructure √® completo
+	 * oppure no. Il primo campo √® popolato al primo inserimento di un Identifier, il
 	 * secondo al primo inserimento di una misura.
 	 */
 	private boolean[] constraint = {false,false};
@@ -79,7 +79,7 @@ public class DataStructure implements VTLObj {
 	/**
 	 * TODO cosa significa ne crea uno nuovo? Modificare per renderlo booleano o togliere l'if.<br>
 	 * Imposta il nome componente.<br>
-	 * Se non esiste, ne crea uno nuovo, altrimenti sovrascrive quello gi‡ esistente.
+	 * Se non esiste, ne crea uno nuovo, altrimenti sovrascrive quello gi√† esistente.
 	 * @param compname nome componente
 	 */
 	public boolean setComponentName(String oldname, String newname) {
@@ -97,9 +97,9 @@ public class DataStructure implements VTLObj {
 	/**
 	 * @deprecated Solo per testing.<br>
 	 * Elimina un componente indicando un nome.
-	 * Ritorna True se il componente esiste ed Ë stato eliminato, False altrimenti.
+	 * Ritorna True se il componente esiste ed √® stato eliminato, False altrimenti.
 	 * <br>
-	 * Non dovrebbe esistere perchË {@link DataStructure}, come tutte le strutture che
+	 * Non dovrebbe esistere perch√® {@link DataStructure}, come tutte le strutture che
 	 * estendono {@link VTLObj}, dovrebbe essere immutabile.
 	 * @param compname nome componente
 	 * @return boolean
@@ -124,7 +124,7 @@ public class DataStructure implements VTLObj {
 	
 	/**
 	 * Inserisci un nuovo componente.<br>
-	 * Se la chiave gi‡ esiste (quindi in teoria l'intero componente),<br>
+	 * Se la chiave gi√† esiste (quindi in teoria l'intero componente),<br>
 	 * ritorna False, altrimenti True.
 	 * @param compname
 	 * @param comptype
@@ -143,7 +143,7 @@ public class DataStructure implements VTLObj {
 				this.constraint[0]=true;
 			if(compattribute.equals(DataStructure.ROLE.Measure)) //sto inserendo una misura
 				this.constraint[1]=true;
-			if(this.constraint[0] && this.constraint[1]) //ho sia misura che id, quindi la struttura Ë ok
+			if(this.constraint[0] && this.constraint[1]) //ho sia misura che id, quindi la struttura √® ok
 				this.isComplete = true;
 		}
 		
@@ -169,8 +169,8 @@ public class DataStructure implements VTLObj {
 	}
 	
 	/**
-	 * Verifica se un componente Ë di un tipo specifico.
-	 * Nel caso in cui non voglia trovare uno scalare, il parametro scatype puÚ essere nullo,
+	 * Verifica se un componente √® di un tipo specifico.
+	 * Nel caso in cui non voglia trovare uno scalare, il parametro scatype pu√≤ essere nullo,
 	 * alternativamente bisogna settarlo a un valore diverso da null per evitare eccezioni indesiderate.
 	 * @param key String
 	 * @param objtype {@link VTLObj.OBJTYPE} enum
@@ -179,12 +179,12 @@ public class DataStructure implements VTLObj {
 	 */
 	public boolean isSameType(String key, VTLObj.OBJTYPE objtype, Scalar.SCALARTYPE scatype) {
 		VTLObj obj = this.getComponent(key).getDataType();
-		if(obj.getObjType().equals(objtype) && scatype==null) //se non sto esaminando uno scalare, allora scatype Ë vuoto.
+		if(obj.getObjType().equals(objtype) && scatype==null) //se non sto esaminando uno scalare, allora scatype √® vuoto.
 			return true;
 		if(scatype!=null && obj.getObjType().equals(VTLObj.OBJTYPE.Scalar)) //voglio esaminare uno scalare
 			if( ((Scalar)obj).getScalarType().equals(scatype) ) //casto a scalare e confronto i tipi
 				return true;
-		//se l'oggetto non Ë dello stesso tipo o dello stesso scalare, torno false
+		//se l'oggetto non √® dello stesso tipo o dello stesso scalare, torno false
 		return false;
 	}
 	
@@ -192,7 +192,7 @@ public class DataStructure implements VTLObj {
 
 	@Override
 	/**
-	 * Ciclo sul datastructure pi˘ grande, per ogni elemento che non Ë attributo,
+	 * Ciclo sul datastructure pi√π grande, per ogni elemento che non √® attributo,
 	 * verifico che si trovi (con nome e tipo uguale) nell'altro datastructure.
 	 * Se un ident o un meas manca, ritorna false.
 	 */
@@ -205,14 +205,14 @@ public class DataStructure implements VTLObj {
 		
 		DataStructure dstr = (DataStructure) arg0;
 		Component C = null;
-		if(dstr.getKeys().size()>=this.component.size()) {  //dstr Ë Ë pi˘ grande
+		if(dstr.getKeys().size()>=this.component.size()) {  //dstr √® pi√π grande
 			for(String K : dstr.getKeys()) {
 				C = dstr.getComponent(K);
 				if(C.getType().equals(ROLE.Attribute))
 					continue; //gli attributi vanno ignorati
-				//Ë ident o meas, ciclo sull'altro per trovarlo
+				//√® ident o meas, ciclo sull'altro per trovarlo
 				if(this.component.containsKey(K)) {
-					//c'Ë un componente con la stessa chiave
+					//c'√® un componente con la stessa chiave
 					
 					if(this.component.get(K).getDataType().getObjType().equals(VTLObj.OBJTYPE.Scalar)
 							&& dstr.getComponent(K).getDataType().getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
@@ -242,7 +242,7 @@ public class DataStructure implements VTLObj {
 					} else
 						passed.add(K);
 				} else {
-					//non c'Ë quel componente, errore!
+					//non c'√® quel componente, errore!
 					return false;
 				}
 			}
@@ -259,14 +259,14 @@ public class DataStructure implements VTLObj {
 			}
 			return true; //tutte le verifiche effettuate, sono uguali!
 			
-		} else {		//this Ë pi˘ grande
+		} else {		//this √® pi√π grande
 			for(String K : this.component.keySet()) {
 				C = this.component.get(K);
 				if(C.getType().equals(ROLE.Attribute))
 					continue; //gli attributi vanno ignorati
-				//Ë ident o meas, ciclo sull'altro per trovarlo
+				//√® ident o meas, ciclo sull'altro per trovarlo
 				if(dstr.containtComponent(K)) {
-					//c'Ë un componente con la stessa chiave
+					//c'√® un componente con la stessa chiave
 					
 					if(this.component.get(K).getDataType().getObjType().equals(VTLObj.OBJTYPE.Scalar)
 							&& dstr.getComponent(K).getDataType().getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
@@ -296,7 +296,7 @@ public class DataStructure implements VTLObj {
 						return false;
 					}
 				} else {
-					//non c'Ë quel componente, errore!
+					//non c'√® quel componente, errore!
 					return false;
 				}
 			}

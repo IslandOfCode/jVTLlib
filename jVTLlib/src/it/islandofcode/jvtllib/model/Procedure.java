@@ -35,7 +35,7 @@ public class Procedure {
 	
 	/**
 	 * Quando si dichara una nuova procedura, aggiunge un nuovo parametro,
-	 * specificando la sua posizione, il nome, il tipo e se è un parametro inputo o di output.
+	 * specificando la sua posizione, il nome, il tipo e se Ã¨ un parametro input o output.
 	 * @param i int
 	 * @param input boolean
 	 * @param name String
@@ -124,7 +124,7 @@ public class Procedure {
 	}
 	
 	/**
-	 * Verifica se c'è corrispondenza tra parametri.
+	 * Verifica se c'Ã¨ corrispondenza tra i parametri.
 	 * @param index
 	 * @param input
 	 * @param dt
@@ -200,7 +200,7 @@ public class Procedure {
 		}
 		
 		/**
-		 * Ritorna true se il parametro è di input.
+		 * Ritorna true se il parametro Ã¨ di input.
 		 * @return boolean
 		 */
 		public boolean isInput() {
@@ -224,7 +224,7 @@ public class Procedure {
 		}
 		
 		/**
-		 * Ritorna true se il tipo del parametro è dataset.
+		 * Ritorna true se il tipo del parametro Ã¨ dataset.
 		 * @return boolean
 		 */
 		public boolean isDataset() {

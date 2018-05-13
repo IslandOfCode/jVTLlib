@@ -8,15 +8,15 @@ import org.antlr.v4.runtime.Token;
 
 /**
  * Questo listener estende {@link BaseErrorListener} e implementa un nuovo
- * tipo di segnalazione d'errore, più semplice da interpretare,
+ * tipo di segnalazione d'errore, piÃ¹ semplice da interpretare,
  * con la sottolineatura della posizione dell'errore.
  * <br><br>
- * Per come è stato strutturato, quando ci si imbatte in un errore, lancia un'eccezione
+ * Per come Ã¨ stato strutturato, quando ci si imbatte in un errore, lancia un'eccezione
  * {@link ParseException}.
  * <br><br>
  * Notare che, estendendo {@link RuntimeException}, l'eccezione supera tutto il flusso
  * di controllo di ANTLR e finisce nel main, dove bisogna catturarlo.
- * Questo comporta che il parser esce al primo errore individuato, anche se è presente più di un errore,
+ * Questo comporta che il parser esce al primo errore individuato, anche se Ã¨ presente piÃ¹ di un errore,
  * cosa che permette di evitare l'esecuzione del codice.
  * <br><br>
  * <b>Attenzione!</b> Dato che usa spazi e non tabs, la sottolineatura potrebbe essere leggermente

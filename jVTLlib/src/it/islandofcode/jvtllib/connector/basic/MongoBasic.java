@@ -5,7 +5,8 @@ import java.io.UnsupportedEncodingException;
 
 import org.bson.Document;
 
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.univocity.parsers.csv.CsvParser;
@@ -39,7 +40,10 @@ public class MongoBasic implements IConnector {
 		if(port<=0 || port>65535)
 			port=27017;
 		
-		MC = new MongoClient(IP,port);
+		//mongodb://host1:27017
+		
+		MC = MongoClients.create("mongodb://"+IP+":"+port);
+		//MC = new MongoClient(IP,port);
 		this.database = db;
 	}
 

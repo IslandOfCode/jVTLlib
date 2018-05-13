@@ -22,7 +22,7 @@ public class DummyConnect implements IConnector {
 	public DataSet get(String location, String[] keep) {
 
 		this.location = location;
-		//questo controllo a che serve? Tanto non sar‡ mai nullo...
+		//questo controllo a che serve? Tanto non sar√† mai nullo...
 		if(!this.checkStatus())
 			return null;
 		

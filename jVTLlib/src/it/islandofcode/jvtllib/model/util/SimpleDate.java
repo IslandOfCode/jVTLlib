@@ -53,26 +53,15 @@ public class SimpleDate {
 		this.myformat = SimpleDate.DATE_ISO_8601;
 		this.isDefault = true;
 	}
-
-	/**
-	 * Crea data specificando i millisecondi passati da "the epoch".<br>
-	 * Non verrà mai usato, suppongo.
-	 * @param arg0 long
-	 */
-	public SimpleDate(long arg0) {
-		this.myDate = LocalDate.ofEpochDay(arg0);
-		this.myformat = SimpleDate.DATE_ISO_8601;
-		this.isDefault = true;
-	}
 	
 	/**
 	 * Accetta una data in input come stringa e crea un oggetto data.<br>
-	 * La data è accettata nel formato
+	 * La data Ã¨ accettata nel formato
 	 * <ul>
 	 * 	<li>TODO</li>
 	 * </ul>
-	 * Il costruttore tenterà di capire quale dei vari formati sia quello giusto, altrimenti
-	 * lancerà un {@link ParseException}.
+	 * Il costruttore tenterÃ  di capire quale dei vari formati sia quello giusto, altrimenti
+	 * lancerï¿½ un {@link ParseException}.
 	 * <br> 
 	 * @param date
 	 * @throws ParseException
@@ -95,7 +84,7 @@ public class SimpleDate {
 	}
 	
 	/**
-	 * Ritorna true se la data è una data generata e non parsata.
+	 * Ritorna true se la data Ã¨ una data generata e non parsata.
 	 * @return
 	 */
 	public boolean isDefaultDate() {
