@@ -61,6 +61,7 @@ import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.LogicalexprContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.MinDivExprContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.NamedFunDefContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.NamedProcDefContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.NullLiteralContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.NvlCondOpContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.ParseContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.PrecedenceexprContext;
@@ -965,6 +966,16 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		return sca;
 	}
 	
+
+	@Override
+	public VTLObj visitNullLiteral(NullLiteralContext ctx) {
+		Scalar sca = new Scalar(Scalar.SCALARTYPE.Null);
+
+		LOG.finest("Found NULL LITERAL " + ctx.getText() + " type[" + sca.getScalarType() + "]");
+		// return super.visitLiteral(ctx);
+		return sca;
+	}
+	
 	
 	/* FUNZIONI STRINGHE */
 	
@@ -979,7 +990,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		// return super.visitLiteral(ctx);
 		return sca;
 	}
-
+	
 
 	/* (non-Javadoc)
 	 * @see it.islandofcode.jvtllib.newparser.newVTLBaseVisitor#visitStringFunSubstr(it.islandofcode.jvtllib.newparser.newVTLParser.StringFunSubstrContext)
