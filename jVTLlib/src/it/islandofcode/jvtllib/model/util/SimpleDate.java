@@ -3,7 +3,6 @@ package it.islandofcode.jvtllib.model.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
@@ -97,7 +96,7 @@ public class SimpleDate {
 	 * @param value
 	 * @return
 	 */
-	public static Date ToDateObj(String format, String value) {
+	public static Date toDateObj(String format, String value) {
         Date date = null;
         try {
             SimpleDateFormat sdf = new SimpleDateFormat(format);

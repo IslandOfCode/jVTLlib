@@ -38,12 +38,6 @@ public class JVTLlib {
 	 * Tempo di esecuzione dello script in millisecondi.
 	 */
 	private String lastExTime = "";
-	
-
-	/**
-	 * Costruttore vuoto.
-	 */
-	public JVTLlib() { }
 
 	/**
 	 * Aggiunge un connettore. Obbligatorio.

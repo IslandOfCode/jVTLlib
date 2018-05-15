@@ -62,9 +62,6 @@ public class DataPoint {
 	 * @return {@link Scalar}
 	 */
 	public Scalar getValue(String key) {
-		if(key==null || key.isEmpty()) {
-			//do nothing, for now...
-		}
 		return this.row.get(key);
 	}
 	
@@ -75,9 +72,6 @@ public class DataPoint {
 	 * @param value
 	 */
 	public void setValue(String key, Scalar value) {
-		if(key==null || key.isEmpty()) {
-			//do nothing, for now...
-		}
 		this.row.put(key, value);
 	}
 	

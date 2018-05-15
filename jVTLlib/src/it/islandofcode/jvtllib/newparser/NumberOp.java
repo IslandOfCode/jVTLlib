@@ -48,7 +48,7 @@ public class NumberOp {
 	public static Scalar div(Scalar a, Scalar b) {
 		if(a.isNumber() && b.isNumber()) {
 			if(b.asDouble()==0) {
-				throw new RuntimeException("Division by zero!");
+				throw new ArithmeticException("Division by zero!");
 			}
 			if(a.getScalarType().equals(Scalar.SCALARTYPE.Float) || b.getScalarType().equals(Scalar.SCALARTYPE.Float)) {
 				return new Scalar(""+(a.asDouble()*b.asDouble()), Scalar.SCALARTYPE.Float);
@@ -61,11 +61,11 @@ public class NumberOp {
 	/* COLONNA SCALARI */
 	
 	public static DataSet add(DataSet a, Scalar b) {
-		throw new RuntimeException("Not implemented yet");
+		throw new ArithmeticException("Not implemented yet");
 	}
 	
 	public static DataSet mul(DataSet a, Scalar b) {
-		throw new RuntimeException("Not implemented yet");
+		throw new ArithmeticException("Not implemented yet");
 	}
 	
 	

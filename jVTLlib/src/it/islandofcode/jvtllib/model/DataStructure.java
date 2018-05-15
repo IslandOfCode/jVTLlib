@@ -94,24 +94,6 @@ public class DataStructure implements VTLObj {
 		}		
 	}
 	
-	/**
-	 * @deprecated Solo per testing.<br>
-	 * Elimina un componente indicando un nome.
-	 * Ritorna True se il componente esiste ed è stato eliminato, False altrimenti.
-	 * <br>
-	 * Non dovrebbe esistere perchè {@link DataStructure}, come tutte le strutture che
-	 * estendono {@link VTLObj}, dovrebbe essere immutabile.
-	 * @param compname nome componente
-	 * @return boolean
-	 */
-	public boolean removeComponent(String compname) {
-		if(this.component.containsKey(compname)) {
-			this.component.remove(compname);
-			return true;
-		} else {
-			return false;
-		}
-	}
 	
 	/**
 	 * Verifica se esiste un componente con questo nome.
@@ -181,9 +163,11 @@ public class DataStructure implements VTLObj {
 		VTLObj obj = this.getComponent(key).getDataType();
 		if(obj.getObjType().equals(objtype) && scatype==null) //se non sto esaminando uno scalare, allora scatype è vuoto.
 			return true;
-		if(scatype!=null && obj.getObjType().equals(VTLObj.OBJTYPE.Scalar)) //voglio esaminare uno scalare
-			if( ((Scalar)obj).getScalarType().equals(scatype) ) //casto a scalare e confronto i tipi
-				return true;
+		if(
+				(scatype!=null && obj.getObjType().equals(VTLObj.OBJTYPE.Scalar)) &&
+				((Scalar)obj).getScalarType().equals(scatype)
+				) //voglio esaminare uno scalare, casto a scalare e confronto i tipi
+			return true;
 		//se l'oggetto non è dello stesso tipo o dello stesso scalare, torno false
 		return false;
 	}

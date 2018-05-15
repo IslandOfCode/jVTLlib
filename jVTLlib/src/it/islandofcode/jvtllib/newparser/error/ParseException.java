@@ -7,7 +7,7 @@ package it.islandofcode.jvtllib.newparser.error;
 public class ParseException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
-	int line;
+	private int line;
 
 	/**
 	 * @param msg
@@ -37,6 +37,10 @@ public class ParseException extends RuntimeException {
 	 */
 	public ParseException(String msg, Throwable thw, boolean arg2, boolean arg3) {
 		super(msg, thw, arg2, arg3);
+	}
+	
+	public int getErrorLine() {
+		return this.line;
 	}
 
 }

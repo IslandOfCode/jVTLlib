@@ -20,16 +20,15 @@ public class Scalar implements VTLObj {
 	 * @param sca String
 	 */
 	public Scalar(String sca) {
-
-		sca = sca.replace("\"", "");
-		this.scalar = sca;
+		
+		this.scalar = sca.replace("\"", "");
 		this.what = SCALARTYPE.String;
 		this.isNull = false;
 
 		// this.scalar = ((String)this.scalar).trim().replace("\"", "");
 
 		//improbabile l'uso
-		if (sca.equals("null") || sca.equals("NULL")) {
+		if ("null".equals(sca) || "NULL".equals(sca)) {
 			this.scalar = "";
 			this.what = SCALARTYPE.Null;
 			this.isNull = true;
@@ -69,8 +68,8 @@ public class Scalar implements VTLObj {
 	 * @param what {@link SCALARTYPE}
 	 */
 	public Scalar(String sca, SCALARTYPE what) {
-		sca = sca.replace("\"", "");
-		this.scalar = sca;
+		
+		this.scalar = sca.replace("\"", "");
 		this.what = what;
 		
 		//questi controlli servono semplicemente per riformattare i numeri al loro tipo (0 int, 0.0 float)
@@ -199,9 +198,11 @@ public class Scalar implements VTLObj {
 		
 		Scalar s = (Scalar)obj;
 		
-		if(s.getScalarType()==this.what)
-			if(s.asString().equals(this.scalar))
-				return true;
+		if(
+				(s.getScalarType()==this.what) &&
+				s.asString().equals(this.scalar)
+				)
+			return true;
 		
 		return false;
 	}

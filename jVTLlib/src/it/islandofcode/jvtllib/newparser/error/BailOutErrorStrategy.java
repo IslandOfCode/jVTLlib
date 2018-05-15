@@ -16,12 +16,12 @@ public class BailOutErrorStrategy extends DefaultErrorStrategy {
 
 	@Override
 	public void recover(Parser recognizer, RecognitionException e) {
-		throw new RuntimeException(e);
+		throw e;
 	}
 
 	@Override
 	public Token recoverInline(Parser recognizer) throws RecognitionException {
-		throw new RuntimeException(new InputMismatchException(recognizer));
+		throw new InputMismatchException(recognizer);
 	}
 
 	@Override

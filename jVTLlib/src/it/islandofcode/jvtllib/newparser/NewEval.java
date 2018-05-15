@@ -106,44 +106,44 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	 * Effettua un deepclone di ogni oggetto.
 	 * Problema <a href="https://gogs.islandofcode.it/gogsadmin/jVTLlib-parser-scratch/issues/4">Parser-scratch#4</a>
 	 */
-	Cloner CLONER;
+	private Cloner CLONER;
 	
 	/**
 	 * Ogni volta che entriamo in un metodo che ha bisogno di essere isolato,
 	 * push di MEMORY nello stack e lo creiamo da zero.
 	 * Quando lo stack è vuoto siamo a lvl zero
 	 */
-	Stack<Map<String,VTLObj>> SCOPE;
+	private Stack<Map<String,VTLObj>> SCOPE;
 	
 	/**
 	 * Stack con i riferimenti alle funzioni/procedure che sono state chiamate.
 	 * Ad ogni nuova chiamata, viene fatto il push nello stack.
 	 */
-	Stack<String> FNCTCALL;
+	//private Stack<String> FNCTCALL;
 	
 	/**
 	 * Mappa che contiene procedure e funzioni definite nello script.
 	 * TODO creare un'interfaccia per procedure e funzioni o separarle in due mappe.
 	 */
-	Map<String, Object> PRCFUNLIST;
+	private Map<String, Object> PRCFUNLIST;
 	
 	/**
 	 * Memoria locale, contiene oggetti di tipo VTLObj.
 	 */
-	Map<String, VTLObj> MEMORY;
+	private Map<String, VTLObj> MEMORY;
 	
 	/**
 	 * Il nome è leggermente fuorviante. In realtà è una memoria di servizio dove poter
 	 * conservare variabili di FLAG o oggetti diversi da VTLObj.
 	 * ATTENZIONE! questa memoria non viene mai ripulita, quindi va gestita manualmente.
 	 */
-	Map<String, Object> GLOBAL;
+	private Map<String, Object> GLOBAL;
 	
 	/**
 	 * Connettore che viene usato da get/set.
 	 * Non puù essere nullo.
 	 */
-	IConnector connector;
+	private IConnector connector;
 	
 	/* COSTRUTTORE */
 
@@ -154,7 +154,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		SCOPE = new Stack<>();
 		MEMORY = new HashMap<String, VTLObj>();
 		GLOBAL = new HashMap<String,Object>();
-		FNCTCALL = new Stack<>();
+		//FNCTCALL = new Stack<>();
 		PRCFUNLIST = new HashMap<String,Object>();
 		
 		/*
@@ -306,7 +306,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		if (left == null || right == null)
 			throw new RuntimeException("Math operand cannot be null: left[" + left + "] OP right[" + right + "]");
 
-		Scalar a = null, b = null;
+		Scalar a = null; 
+		Scalar b = null;
 		DataSet dsa = null, dsb = null;
 		String column = "";
 		int caso = 3; // caso sconosciuto, vai in default
@@ -655,7 +656,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		VTLObj left = this.visit(ctx.expr(0));
 		VTLObj right = this.visit(ctx.expr(1));
 
-		Scalar a = null, b = null;
+		Scalar a = null;
+		Scalar b = null;
 
 		if (left == null || right == null)
 			throw new RuntimeException("Relational operand cannot be null: left[" + left + "] OP right[" + right + "]");
@@ -788,7 +790,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		VTLObj R = this.visit(ctx.varname());
 		List<LiteralContext> LL = ctx.literal();
 		boolean not = (ctx.NOT()!=null)?true:false;
-		Scalar column,tmp;
+		Scalar column;
+		Scalar tmp;
 		if(R instanceof Scalar) {
 			column = (Scalar)R;
 			for(LiteralContext I : LL) {
@@ -1008,7 +1011,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		else 
 			throw new RuntimeException("SUBSTR accept only String");
 		
-		int start = -1, len = -1;
+		int start = -1;
+		int len = -1;
 		
 		//ho indicato solo un parametro integerliteral
 		if(ctx.integerLiteral().size()>0) {

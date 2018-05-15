@@ -24,9 +24,9 @@ import it.islandofcode.jvtllib.model.util.Component;
  * @author Pier Riccardo Monzo
  */
 public class MongoBasic implements IConnector {
-	MongoClient MC;
-	String database;
-	String table;
+	private MongoClient MC;
+	private String database;
+	private String table;
 	
 	/*
 	 * Si usa uniVocity per il parsing da csv
@@ -34,15 +34,21 @@ public class MongoBasic implements IConnector {
 	 */
 	
 	public MongoBasic(String IP, int port, String db) {
+		String URI = "mongodb://";
 		//se IP/porta non specificato o fuori specifica, vai di default
 		if(IP==null || IP.isEmpty())
-			IP="127.0.0.1";
+			URI += "127.0.0.1";
+		else
+			URI += IP;
+		URI += ":";
 		if(port<=0 || port>65535)
-			port=27017;
+			URI+=27017;
+		else
+			URI+=port;
 		
 		//mongodb://host1:27017
 		
-		MC = MongoClients.create("mongodb://"+IP+":"+port);
+		MC = MongoClients.create(URI);
 		//MC = new MongoClient(IP,port);
 		this.database = db;
 	}
@@ -63,7 +69,7 @@ public class MongoBasic implements IConnector {
 			Document first = table.find().first();
 			DataStructure dstr = new DataStructure(location+"_dstr");
 			for(String K : first.keySet()) {
-				if(K.equals("_id"))
+				if("_id".equals(K))
 					continue;
 				if(keep!=null) {
 					for(int i=0; i<keep.length; i++) {
@@ -98,7 +104,7 @@ public class MongoBasic implements IConnector {
 			for(Document D : table.find()) {
 				DataPoint dp = new DataPoint();
 				for(String I : D.keySet()) {
-					if(I.equals("_id"))
+					if("_id".equals(I))
 						continue;
 					dp.setValue(I, new Scalar(""+D.get(I)) );
 				}
