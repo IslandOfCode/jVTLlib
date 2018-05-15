@@ -1,0 +1,7 @@
+language: java
+
+script: 
+  - cd jVTLlib
+
+after_success:
+- echo "after success!"
