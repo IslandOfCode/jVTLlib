@@ -79,7 +79,13 @@ public class Scalar implements VTLObj {
 		if (what.equals(SCALARTYPE.Float)) {
 			this.scalar = ""+((sca!=null && !sca.isEmpty()) ? Float.parseFloat(sca) : 0.0);
 		}
-		
+		if (what.equals(SCALARTYPE.Date)) {
+			SimpleDate d = new SimpleDate(sca);
+			if(!d.isDefaultDate()) {
+				this.isNull = true;
+				this.scalar = d.getDateString();
+			}
+		}
 		if (what.equals(SCALARTYPE.Null))
 			this.isNull = true;
 	}

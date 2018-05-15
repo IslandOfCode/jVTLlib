@@ -13,29 +13,22 @@ import java.util.Date;
 public class SimpleDate {
 	
 	public static final String[] DATEFORMAT = {
+			"yyyy-MM-ddTHH:mm:ssZ",
 			"dd/MM/uuuu",
 			"uuuu-MM-dd kk:mm:ss.SSS",
 			"uuuu-MM-dd",
 			"uuuu-MM"
 	};
 	
-	//XXX
-	public static final String[] REGEXFORMAT = {
-			"^[0-9]{2}\\/[0-9]{2}\\/[0-9]{4}$",
-			"^[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}$",
-			"^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
-			"^[0-9]{4}-[0-9]{2}$"
-	};
-	
 	/**
 	 * Questo sembra essere il formato di default delle data di Java
 	 */
-	public static final String DEFAULTJAVADATEFORMAT = "dow mon dd hh:mm:ss zzz yyyy";
-	
-	public static final int DATE_FORMAT_PRETTY = 0;
-	public static final int DATE_FORMAT_DATETIME = 1;
-	public static final int DATE_ISO_8601  = 2;
-	public static final int DATE_FORMAT_YEARMONTH = 3;
+	//public static final String DEFAULTJAVADATEFORMAT = "dow mon dd hh:mm:ss zzz yyyy";
+	public static final int DATE_FORMAT_UTC = 0;
+	public static final int DATE_FORMAT_PRETTY = 1;
+	public static final int DATE_FORMAT_DATETIME = 2;
+	public static final int DATE_ISO_8601  = 3;
+	public static final int DATE_FORMAT_YEARMONTH = 4;
 	
 	
 	private LocalDate myDate = null;
@@ -45,10 +38,10 @@ public class SimpleDate {
 
 	/**
 	 * Costruttore vuoto.
-	 * Usa la data corrente.
+	 * Usa una data molto nel passato, da usare come valore nullo.
 	 */
 	public SimpleDate() {
-		this.myDate = LocalDate.now();
+		this.myDate = LocalDate.MIN;
 		this.myformat = SimpleDate.DATE_ISO_8601;
 		this.isDefault = true;
 	}
@@ -76,7 +69,7 @@ public class SimpleDate {
 		}
 		
 		if(this.myformat<0) {
-			this.myDate = LocalDate.now();
+			this.myDate = LocalDate.MIN;
 			this.myformat = SimpleDate.DATE_ISO_8601;
 			this.isDefault = true;
 		}

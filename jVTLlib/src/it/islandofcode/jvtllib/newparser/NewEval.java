@@ -665,6 +665,11 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		if (left.getObjType().equals(VTLObj.OBJTYPE.Scalar) && right.getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
 			a = (Scalar) left;
 			b = (Scalar) right;
+			
+			//se b è NULL, lo stostituisco con uno scalare del tipo di A, ma nullo
+			if(b.getScalarType().equals(Scalar.SCALARTYPE.Null))
+				b = new Scalar(a.getScalarType());
+			
 			if ( !(a.isNumber() || b.isNumber()) && !a.getScalarType().equals(b.getScalarType())) {
 				throw new RuntimeException("Relational op are possible ONLY if both operand have the same scalar type");
 			}
