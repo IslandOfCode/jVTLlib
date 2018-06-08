@@ -3,7 +3,7 @@ grammar newVTL;
 //aggiunta parte di regola per accettare il punto-e-virgola alla fine di una istruzione.
 parse : (statement (SCOL)?)+ EOF;
 
-//ogni riga può essere un assegnamento, una definizione, una put o, per il momento, istruzioni di debug personali.
+//ogni riga puï¿½ essere un assegnamento, una definizione, una put o, per il momento, istruzioni di debug personali.
 statement : putFunction 	#putData
 		  | define #definestatement //queste sono le istruzioni del VTL-DL
 		  | callProc	#callProcStat //chiamata di procedura
@@ -13,27 +13,27 @@ statement : putFunction 	#putData
 		  ;
 
 /*
- * L'assegnamento è composto da:
- *	varname: il nome della variabile che ospiterà i risultati.
+ * L'assegnamento ï¿½ composto da:
+ *	varname: il nome della variabile che ospiterï¿½ i risultati.
  *	ASSIGN: il simbolo per l'operazione di assegnamento (:=)
  *	expr: un'espressione che genera un risultato da salvare nella variabile
  */
 assignment : varname ASSIGN expr;
 
 /*
- * Questa è una delle parti più importanti: l'espressione
- * Per ogni riga c'è una possibile espressione divisa in base alle operazioni.
- * Importante notare che expr è ricorsiva, e scende fino alle foglie, cioè literal o variabili.
+ * Questa ï¿½ una delle parti piï¿½ importanti: l'espressione
+ * Per ogni riga c'ï¿½ una possibile espressione divisa in base alle operazioni.
+ * Importante notare che expr ï¿½ ricorsiva, e scende fino alle foglie, cioï¿½ literal o variabili.
  */
 expr : op=(NOT | PLUS | MINUS) right=expr						#unaryexpr
 	 | LPAR expr RPAR											#precedenceexpr
 	 | condOperator												#condOpExpr
 	 //espressioni matematiche
-	 //le divido perchè +,* non bisogna scambiare gli operandi
+	 //le divido perchï¿½ +,* non bisogna scambiare gli operandi
 	 | expr op=(PLUS | MUL) expr								#AddMulExpr
 	 //qui invece la posizione conta.
 	 | expr op=(MINUS | DIV) expr								#MinDivExpr
-	 //separo round e ceil/floor perchè funzionano diversamente
+	 //separo round e ceil/floor perchï¿½ funzionano diversamente
 	 | ROUND LPAR varname COMMA integerLiteral RPAR				#roundexpr
 	 | op=(CEIL|FLOOR) LPAR varname RPAR						#CeilFloorexpr
 	 //funzioni matematiche
@@ -43,10 +43,10 @@ expr : op=(NOT | PLUS | MINUS) right=expr						#unaryexpr
 	 | LOG LPAR integerLiteral COMMA varname RPAR						#logexpr
 	 //espressioni condizionali
 	 | expr op=(EQ | NE | LE | LT | GE | GT) expr				#RelationalCond
-	 //il NOT? è necessario perchè NOT expr non viene mai riconosciuto
+	 //il NOT? ï¿½ necessario perchï¿½ NOT expr non viene mai riconosciuto
 	 | varname (NOT)? IN LPAR literal (COMMA literal)* RPAR			#InCondexpr
-	 /* (NOT)* è un hack, visto che (NOT)? non viene assolutamente
-	  * considerato. Quindi nel codice devo usare ctx.NOT(0), perchè
+	 /* (NOT)* ï¿½ un hack, visto che (NOT)? non viene assolutamente
+	  * considerato. Quindi nel codice devo usare ctx.NOT(0), perchï¿½
 	  * pensa sia una lista e non un singolo. */
 	 | (NOT)* ISNULL LPAR expr RPAR									#IsNullCondexpr
 	 | left=expr op=(AND|OR) right=expr							#Logicalexpr
@@ -65,7 +65,7 @@ expr : op=(NOT | PLUS | MINUS) right=expr						#unaryexpr
 	 | callFun													#callFunExpr
 	 //le uniche funzioni di I/O
 	 | getFunction												#getData
-	 //le unità di base, le foglie dell'albero se vogliamo
+	 //le unitï¿½ di base, le foglie dell'albero se vogliamo
 	 | varmember												#membershipexpr
 	 | varname													#varexpr
 	 | literal													#literalexpr
@@ -130,7 +130,7 @@ clausefun: varname LSQR clausebody (COMMA clausebody)* RSQR					#clausebase
 //tutti i possibili "corpi"
 clausebody : op=(KEEP|RENAME) LPAR clausebodyparam (COMMA clausebodyparam)* RPAR #clauseKeepRename
 		   | FILTER LPAR expr (COMMA expr)* RPAR #clauseFilter
-		   //lo separo da keep/ename, perchè questo deve solo aggiungere una/più colonna
+		   //lo separo da keep/ename, perchï¿½ questo deve solo aggiungere una/piï¿½ colonna
 		   //dopo aver calcolato un'expr
 		   | CALC LPAR clausebodycalc (COMMA clausebodycalc)* RPAR #clausecalc
 		   | DROP LPAR varname (COMMA varname)* RPAR #clausedrop
@@ -139,7 +139,7 @@ clausebody : op=(KEEP|RENAME) LPAR clausebodyparam (COMMA clausebodyparam)* RPAR
 //blocco per keep/rename
 clausebodyparam   : (varname|varmember) (AS stringLiteral)? (ROLE componentRole)?;
 //blocco per calc
-//AS è obbligatorio, ROLE opz. Se non specificato, è Measure.
+//AS ï¿½ obbligatorio, ROLE opz. Se non specificato, ï¿½ Measure.
 clausebodycalc : expr AS stringLiteral (ROLE componentRole)?;
 
 
@@ -170,10 +170,10 @@ namedProcDef : DEFINE PROCEDURE varname LPAR procVarInList (COMMA OUTPUT varname
 procVarInList : singleVarIn (COMMA singleVarIn)*;
 singleVarIn : (INPUT varname AS datatype=(DATASET|STRINGTYPE));
 //call procedure
-callProc : varname LPAR varname (COMMA varname)* RPAR;
+callProc : CALL varname LPAR varname (COMMA varname)* RPAR;
 /* NAMED FUNCTIONS */
 namedFunDef : CREATE FUNCTION varname LPAR varname (COMMA varname)* RPAR LBRA RETURN expr AS dataType RBRA;
-callFun : CALL varname LPAR varname (COMMA varname)* RPAR;
+callFun : varname LPAR varname (COMMA varname)* RPAR;
 
 /*
  * Qui le istruzioni personali
@@ -393,8 +393,8 @@ STRING_LITERAL   :'"' (ESCAPED_QUOTE|~'"')* '"';
 fragment ESCAPED_QUOTE : '""';
 BOOLEAN_LITERAL  : 'true' | 'false' ;
 /* Il +/- per indicare numeri positivi e negativi l'ho tolto dai fragment
- * a quanto pare, il +/- va gestito non come token, bensì come operatore unario
- * inoltre, questo deve avere la precedenza più alta in assoluto nell'espressione
+ * a quanto pare, il +/- va gestito non come token, bensï¿½ come operatore unario
+ * inoltre, questo deve avere la precedenza piï¿½ alta in assoluto nell'espressione
  * infatti l'ho messo come prima alternativa a expr
  */
 FLOAT_LITERAL    : /*(PLUS|MINUS)?*/(DIGIT)+ '.' (DIGIT)* FLOATEXP?
@@ -406,7 +406,7 @@ fragment FLOATEXP : ('e'|'E')(PLUS|MINUS)?('0'..'9')+;
 
 /* Variable */
 /*
- * L'ho dovuto piazzare qui sotto per via di un problema di priorità.
+ * L'ho dovuto piazzare qui sotto per via di un problema di prioritï¿½.
  * Per evitare l'errore "mismatch 'X' expected {'X'...}", tutte le regole
  * devono trovarsi sopra quella usata per l'ID, nel mio caso varname.
  * Notare che si parla dei fragment usati per l'ID, non l'ID stesso,

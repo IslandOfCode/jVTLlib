@@ -14,11 +14,14 @@ public class DataPoint {
 	
 	private Map<String, Scalar> row;
 	
+	private Map<String, Boolean> Erow;
+	
 	/**
 	 * Costrutture di base. Crea un datapoint vuoto, da popolare.
 	 */
 	public DataPoint() {
 		this.row = new HashMap<String, Scalar>();
+		this.Erow = new HashMap<String, Boolean>();
 	}
 	
 	/**
@@ -65,6 +68,10 @@ public class DataPoint {
 		return this.row.get(key);
 	}
 	
+	public boolean getError(String key) {
+		return this.Erow.get(key);
+	}
+	
 	/**
 	 * Imposta il valore per la chiave specificata.<br>
 	 * Se la chiave non esiste, viene creata una nuova entry con il valore specificato.
@@ -73,6 +80,9 @@ public class DataPoint {
 	 */
 	public void setValue(String key, Scalar value) {
 		this.row.put(key, value);
+		if(!Erow.containsKey(key)) {
+			Erow.put(key, false);
+		}
 	}
 	
 	public Set<String> getKeys(){

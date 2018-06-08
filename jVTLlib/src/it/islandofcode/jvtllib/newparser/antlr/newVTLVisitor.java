@@ -441,12 +441,6 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAggregationFun(newVTLParser.AggregationFunContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link newVTLParser#variable}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitVariable(newVTLParser.VariableContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link newVTLParser#namedProcDef}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -508,6 +502,12 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitVarmember(newVTLParser.VarmemberContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link newVTLParser#variable}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVariable(newVTLParser.VariableContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link newVTLParser#dataType}.
 	 * @param ctx the parse tree

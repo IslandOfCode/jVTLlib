@@ -96,8 +96,11 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	private static final String FLG_FNCT_BODY = "f_fnct_body";
 	private static final String FLG_CALC_1_PASS = "f_calc_1pass";
 	
+	private static final String FLG_RS_EVAL = "f_rlst_evaluation";
+	
 	private static final String U_NXT_DATAPOINT = "nextDataPoint";
 	private static final String U_KEEP_MAPPING = "keepMapping";
+	private static final String U_DP_RULE_EVAL = "DataPointRuleSetEvaluation";
 	
 	
 	private static final Logger LOG = Logger.getLogger( NewEval.class.getName() );
@@ -1159,9 +1162,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			if(((Scalar)expr).getScalarType().equals(Scalar.SCALARTYPE.Boolean))
 				if( !((Scalar)expr).asBoolean() ) {
 					this.MEMORY.put("ErrMsg", new Scalar(err,Scalar.SCALARTYPE.String));//ctx.errorCode().literal().getText(),Scalar.SCALARTYPE.String));
-					return Scalar.createBoolean(false);
+					return Scalar.FALSE;
 				} else 
-					return Scalar.createBoolean(true);
+					return Scalar.TRUE;
 		
 		throw new RuntimeException("The rule is not valid. Rule have to return a boolean!");
 	}
@@ -1185,14 +1188,14 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			if( ((Scalar) a).getScalarType().equals(Scalar.SCALARTYPE.Boolean) ) { //se ant è un bool
 				if( !a.asBoolean() ) { //precondizione fallita, ignoro la regola.
 					//this.MEMORY.put("ErrMsg", new Scalar(err,Scalar.SCALARTYPE.String));//ctx.errorCode().literal().getText(),Scalar.SCALARTYPE.String));
-					return Scalar.createBoolean(true);
+					return Scalar.TRUE;
 				} else { //se l'antecedente non ha ritornato false, verifico il conseguente
 					if( c.getScalarType().equals(Scalar.SCALARTYPE.Boolean) ) //se cons è un bool
 						if( !c.asBoolean() ) { //condizione fallita, torna errore
 							this.MEMORY.put("ErrMsg", new Scalar(err,Scalar.SCALARTYPE.String));//ctx.errorCode().literal().getText(),Scalar.SCALARTYPE.String));
-							return Scalar.createBoolean(false);
+							return Scalar.FALSE;
 						} else
-							return Scalar.createBoolean(true);
+							return Scalar.TRUE;
 				}
 				
 				//qualche altro controllo qui?
@@ -1223,9 +1226,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		}
 		
 		SCOPE.push(CLONER.deepClone(MEMORY));
-		this.MEMORY = new HashMap<String, VTLObj>();
-		this.MEMORY.clear();
-		
+		this.MEMORY = new HashMap<String, VTLObj>();		
 		
 		/*
 		 * Come visitCheckFunWithOpt, ma con (not valid,condition) come opzioni di default
@@ -1237,8 +1238,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		dstr.putComponent("CONDITION", new Scalar(Scalar.SCALARTYPE.Boolean), DataStructure.ROLE.Measure);
 		dstr.putComponent("RULE_ID", new Scalar(Scalar.SCALARTYPE.String), DataStructure.ROLE.Attribute);
 		
-		DataSet ret = null;
-			ret = new DataSet(
+		DataSet ret = new DataSet(
 					ds.getName()+"_check",
 					ds.getDescription(),
 					dstr,
@@ -1304,7 +1304,6 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			//questa riga ha passato i controlli quindi la scarto
 		}
 		
-		this.MEMORY = null;
 		this.MEMORY = this.SCOPE.pop();
 		return ret;
 		//return super.visitCheckFunBase(ctx);
@@ -1324,7 +1323,6 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		SCOPE.push(CLONER.deepClone(MEMORY));
 		this.MEMORY = new HashMap<String, VTLObj>();
-		this.MEMORY.clear();
 		
 		LOG.fine("Valutazione CHECKFUNWITHOPT ["+ctx.checkParamEnum().getText()+"]["+ctx.checkParamOpt().getText()+"]");
 
@@ -1423,7 +1421,6 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			}
 		}//fine for sulle righe
 		
-		this.MEMORY = null;
 		this.MEMORY = this.SCOPE.pop();
 		return ret;
 		//return super.visitCheckFunWithOpt(ctx);
@@ -1454,7 +1451,6 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		SCOPE.push(CLONER.deepClone(MEMORY));
 		this.MEMORY = new HashMap<String, VTLObj>();
-		this.MEMORY.clear();
 		this.MEMORY.put(ctx.varname().getText(), ds);
 		/* questa var contiene il nome del data set.
 		 * Si rende necessario perchè altrimenti dovremmo scorrere tutte le var per trovare il dataset.
@@ -1495,7 +1491,6 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		SCOPE.push(CLONER.deepClone(MEMORY));
 		this.MEMORY = new HashMap<String, VTLObj>();
-		this.MEMORY.clear();
 		this.MEMORY.put(joined.getName(), joined);
 		
 		DataSet tmp = null;
@@ -1530,7 +1525,6 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			ret.setPoint(dp);
 		}
 		
-		this.MEMORY = null;
 		this.MEMORY = this.SCOPE.pop();
 		return ret;
 	}
@@ -1561,7 +1555,6 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		SCOPE.push(CLONER.deepClone(MEMORY));
 		this.MEMORY = new HashMap<String, VTLObj>();
-		this.MEMORY.clear();
 		
 		//riferimenti ai nomi dei DS
 		String refA = ((Scalar)this.visit(ctx.stringLiteral(0))).asString();
@@ -1629,7 +1622,6 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			}//for A
 			
 		
-		this.MEMORY = null;
 		this.MEMORY = this.SCOPE.pop();
 		this.MEMORY.put("refA", new Scalar(refA));
 		this.MEMORY.put("refB", new Scalar(refB));
@@ -1723,8 +1715,6 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				}
 				nds.setPoint(dp);
 			}
-			//pulizia
-			map = null;
 
 
 		//ripulisco la globale
