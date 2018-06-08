@@ -63,7 +63,14 @@ public class SimpleDate {
 			try {
 				this.myDate = LocalDate.parse(date, DateTimeFormatter.ofPattern(DATEFORMAT[f]));
 				this.myformat = f;
-			} catch (DateTimeParseException e) {
+			} catch (DateTimeParseException | IllegalArgumentException e) {
+				/*
+				 * se non catturassi IllegalArgumentException, quando ho una stringa,
+				 * proverei ad eseguire LocalDate.parse, che potrebbe (oopure no, dipende dalla stringa)
+				 * andare in eccezione e l'esecuzione si bloccherebbe.
+				 * Catturandolo, verrà ritornata una data di default, e quindi Scalar
+				 * saprà che è una stringa.
+				 */
 				continue;
 			}
 		}

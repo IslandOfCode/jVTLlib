@@ -1,0 +1,12 @@
+//LNKD_ENTRPRSS
+FinancialAccounting:=get("LNKD_ENTRPRSS");
+
+define datapoint ruleset PRM001(ANNL_TRNVR,NMBR_EMPLYS){
+ //RL1: when ANNL_TRNVR<>null then (ANNL_TRNVR>1000) or (NMBR_EMPLYS>25) errorcode("FAILURE PRM001")
+	RL1: when true then ANNL_TRNVR<>null errorcode("FAILURE PRM001")
+}
+
+result := check(FinancialAccounting, PRM001, all, condition)
+result := result[keep(CONDITION,ANNL_TRNVR,NMBR_EMPLYS)]
+
+printvar result

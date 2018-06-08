@@ -53,6 +53,7 @@ public class Scalar implements VTLObj {
 		}
 
 		// provo a capire se è una data
+
 		SimpleDate sd = new SimpleDate(sca);
 		if (!sd.isDefaultDate()) {
 			this.what = SCALARTYPE.Date;
@@ -86,7 +87,7 @@ public class Scalar implements VTLObj {
 				this.scalar = d.getDateString();
 			}
 		}
-		if (what.equals(SCALARTYPE.Null))
+		if (what.equals(SCALARTYPE.Null) || "".equals(sca))
 			this.isNull = true;
 	}
 
@@ -163,9 +164,11 @@ public class Scalar implements VTLObj {
 	 * @return double
 	 */
 	public double asDouble() {
-		if (this.what == SCALARTYPE.Integer || this.what == SCALARTYPE.Float)
-			return (new BigDecimal(this.scalar)).doubleValue();
-		else
+		if (this.what == SCALARTYPE.Integer || this.what == SCALARTYPE.Float) {
+			BigDecimal t = new BigDecimal(this.scalar);
+			t.toPlainString();
+			return t.doubleValue();
+		} else
 			return 0; // ritorna un valore di default
 	}
 
