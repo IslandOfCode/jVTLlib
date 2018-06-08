@@ -17,7 +17,9 @@ import it.islandofcode.jvtllib.model.DataPoint;
 import it.islandofcode.jvtllib.model.DataSet;
 import it.islandofcode.jvtllib.model.DataStructure;
 import it.islandofcode.jvtllib.model.Scalar;
+import it.islandofcode.jvtllib.model.Scalar.SCALARTYPE;
 import it.islandofcode.jvtllib.model.VTLObj;
+import it.islandofcode.jvtllib.model.ValueDomain;
 import it.islandofcode.jvtllib.model.util.Component;
 
 /**
@@ -106,7 +108,14 @@ public class MongoBasic implements IConnector {
 				for(String I : D.keySet()) {
 					if("_id".equals(I))
 						continue;
-					dp.setValue(I, new Scalar(""+D.get(I)) );
+					VTLObj r = retrive(I).getDataType();
+					SCALARTYPE s;
+					if(r.getObjType()==VTLObj.OBJTYPE.Scalar) {
+						s = ((Scalar)r).getScalarType();
+					} else {
+						s = ((ValueDomain)r).getScalarType();
+					}
+					dp.setValue(I, new Scalar(String.valueOf(D.get(I)),s) );
 				}
 				ds.setPoint(dp);
 			}

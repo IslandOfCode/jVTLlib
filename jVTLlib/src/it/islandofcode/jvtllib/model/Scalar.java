@@ -5,10 +5,13 @@ import java.math.BigDecimal;
 import it.islandofcode.jvtllib.model.util.SimpleDate;
 
 public class Scalar implements VTLObj {
-
+	
 	public static enum SCALARTYPE {
 		String, Integer, Float, Boolean, Date, Null
 	}
+	
+	public static final Scalar TRUE = new Scalar("true", SCALARTYPE.Boolean);
+	public static final Scalar FALSE = new Scalar("false", SCALARTYPE.Boolean);
 
 	private SCALARTYPE what;
 	private String scalar;
@@ -69,26 +72,31 @@ public class Scalar implements VTLObj {
 	 * @param what {@link SCALARTYPE}
 	 */
 	public Scalar(String sca, SCALARTYPE what) {
-		
-		this.scalar = sca.replace("\"", "");
+
 		this.what = what;
-		
-		//questi controlli servono semplicemente per riformattare i numeri al loro tipo (0 int, 0.0 float)
-		if (what.equals(SCALARTYPE.Integer)) {
-			this.scalar = ""+((sca!=null && !sca.isEmpty()) ? Integer.parseInt(sca.split("\\.")[0]) : 0);
-		}
-		if (what.equals(SCALARTYPE.Float)) {
-			this.scalar = ""+((sca!=null && !sca.isEmpty()) ? Float.parseFloat(sca) : 0.0);
-		}
-		if (what.equals(SCALARTYPE.Date)) {
-			SimpleDate d = new SimpleDate(sca);
-			if(!d.isDefaultDate()) {
-				this.isNull = true;
-				this.scalar = d.getDateString();
+		if (what.equals(SCALARTYPE.Null) || "".equals(sca) || "null".equals(sca) || sca == null) {
+			this.isNull = true;
+			this.scalar = "";
+		} else {
+			this.scalar = sca.replace("\"", "");
+
+			// questi controlli servono semplicemente per riformattare i numeri al loro tipo
+			// (0 int, 0.0 float)
+			if (what.equals(SCALARTYPE.Integer)) {
+				this.scalar = ""+Integer.parseInt(sca.split("\\.")[0]);
+			}
+			if (what.equals(SCALARTYPE.Float)) {
+				this.scalar = "" + Float.parseFloat(sca);
+			}
+			if (what.equals(SCALARTYPE.Date)) {
+				SimpleDate d = new SimpleDate(sca);
+				if (d.isDefaultDate()) {
+					this.isNull = true;
+					this.scalar = d.getDateString();
+				}
 			}
 		}
-		if (what.equals(SCALARTYPE.Null) || "".equals(sca))
-			this.isNull = true;
+
 	}
 
 	/**
@@ -165,9 +173,7 @@ public class Scalar implements VTLObj {
 	 */
 	public double asDouble() {
 		if (this.what == SCALARTYPE.Integer || this.what == SCALARTYPE.Float) {
-			BigDecimal t = new BigDecimal(this.scalar);
-			t.toPlainString();
-			return t.doubleValue();
+			return (new BigDecimal(this.scalar)).doubleValue();
 		} else
 			return 0; // ritorna un valore di default
 	}
@@ -191,9 +197,9 @@ public class Scalar implements VTLObj {
 	
 	public static Scalar createBoolean(boolean status) {
 		if(status)
-			return new Scalar("true", Scalar.SCALARTYPE.Boolean);
+			return TRUE;//new Scalar("true", Scalar.SCALARTYPE.Boolean);
 		else
-			return new Scalar("false", Scalar.SCALARTYPE.Boolean);
+			return FALSE;//new Scalar("false", Scalar.SCALARTYPE.Boolean);
 	}
 
 	/* (non-Javadoc)

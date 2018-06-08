@@ -162,9 +162,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		 */
 		//LOG.setLevel(Level.FINEST);
 		Handler systemOut = new ConsoleHandler();
-		systemOut.setLevel( Level.ALL );
+		systemOut.setLevel( Level.WARNING );
 		LOG.addHandler( systemOut );
-		LOG.setLevel( Level.ALL );
+		LOG.setLevel( Level.WARNING );
 
 		// Prevent logs from processed by default Console handler.
 		LOG.setUseParentHandlers( false ); // Solution 1
@@ -666,7 +666,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			a = (Scalar) left;
 			b = (Scalar) right;
 			
-			//se b � NULL, lo stostituisco con uno scalare del tipo di A, ma nullo
+			//se b � NULL, lo sostituisco con uno scalare del tipo di A, ma nullo
 			if(b.getScalarType().equals(Scalar.SCALARTYPE.Null))
 				b = new Scalar(a.getScalarType());
 			
@@ -676,71 +676,66 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			
 			if(a.isNull() ^ b.isNull()) {
 				if(ctx.op.getType() == newVTLParser.NE)
-					return Scalar.createBoolean(true);
+					return Scalar.TRUE;
 				else
-					return Scalar.createBoolean(false);
+					return Scalar.FALSE;
 			} else if(a.isNull() && b.isNull()) {
 				if(ctx.op.getType() == newVTLParser.EQ)
-					return Scalar.createBoolean(true);
+					return Scalar.TRUE;
 				else
-					return Scalar.createBoolean(false);
+					return Scalar.FALSE;
 			}
 		}
-		
-
-			// me li preparo già da prima
-			Scalar scatrue = Scalar.createBoolean(true);
-			Scalar scafalse = Scalar.createBoolean(false);
 
 			switch (ctx.op.getType()) {
 			case (newVTLParser.EQ): {
 				if (a.getScalarType().equals(Scalar.SCALARTYPE.Boolean)) {
-					return (a.asBoolean() == b.asBoolean()) ? scatrue : scafalse;
+					return (a.asBoolean() == b.asBoolean()) ? Scalar.TRUE : Scalar.FALSE;
 				} else if (a.getScalarType().equals(Scalar.SCALARTYPE.Date)) {
 					/*
 					 * Converte la data in stringa, usando un formato a caso, e fa una comparazione
 					 */
-					return (a.asDate().getDateString().equals(b.asDate().getDateString())) ? scatrue : scafalse;
+					return (a.asDate().getDateString().equals(b.asDate().getDateString())) ? Scalar.TRUE : Scalar.FALSE;
 				} else if (a.isNumber()) {
-					return (a.asDouble() == b.asDouble()) ? scatrue : scafalse;
+					return (a.asDouble() == b.asDouble()) ? Scalar.TRUE : Scalar.FALSE;
 				} else { // può essere solo una stringa
-					return (a.asString().equals(b.asString())) ? scatrue : scafalse;
+					return (a.asString().equals(b.asString())) ? Scalar.TRUE : Scalar.FALSE;
 				}
 			}
 			case (newVTLParser.NE): {
 				if (a.getScalarType().equals(Scalar.SCALARTYPE.Boolean)) {
-					return (a.asBoolean() != b.asBoolean()) ? scatrue : scafalse;
+					return (a.asBoolean() != b.asBoolean()) ? Scalar.TRUE : Scalar.FALSE;
 				} else if (a.getScalarType().equals(Scalar.SCALARTYPE.Date)) {
 					/*
 					 * Converte la data in stringa, usando un formato a caso, e fa una comparazione
 					 */
-					return (!a.asDate().getDateString().equals(b.asDate().getDateString())) ? scatrue : scafalse;
+					return (!a.asDate().getDateString().equals(b.asDate().getDateString())) ? Scalar.TRUE : Scalar.FALSE;
 				} else if (a.isNumber()) {
-					return (a.asDouble() != b.asDouble()) ? scatrue : scafalse;
+					return (a.asDouble() != b.asDouble()) ? Scalar.TRUE : Scalar.FALSE;
 				} else { // può essere solo una stringa
-					return (!a.asString().equals(b.asString())) ? scatrue : scafalse;
+					return (!a.asString().equals(b.asString())) ? Scalar.TRUE : Scalar.FALSE;
 				}
 			}
 			case (newVTLParser.LT): {
 				if (a.getScalarType().equals(Scalar.SCALARTYPE.Boolean)) {
 					throw new RuntimeException("Relational op [LesserThan] not applicable with Boolean type");
 				} else if (a.getScalarType().equals(Scalar.SCALARTYPE.Date)) {
-					return (a.asDate().getDate().isBefore(b.asDate().getDate())) ? scatrue : scafalse;
+					return (a.asDate().getDate().isBefore(b.asDate().getDate())) ? Scalar.TRUE : Scalar.FALSE;
 				} else if (a.isNumber()) {
-					return (a.asDouble() < b.asDouble()) ? scatrue : scafalse;
+					return (a.asDouble() < b.asDouble()) ? Scalar.TRUE : Scalar.FALSE;
 				} else { // può essere solo una stringa
-					return (a.asString().compareTo(b.asString()) < 0) ? scatrue : scafalse;
+					return (a.asString().compareTo(b.asString()) < 0) ? Scalar.TRUE : Scalar.FALSE;
 				}
 			}
 			case (newVTLParser.GT): {
 				if (a.getScalarType().equals(Scalar.SCALARTYPE.Boolean)) {
 					throw new RuntimeException("Relational op [GreaterThan] not applicable with Boolean type");
 				} else if (a.getScalarType().equals(Scalar.SCALARTYPE.Date)) {
-					return (a.asDate().getDate().isAfter(b.asDate().getDate())) ? scatrue : scafalse;
+					return (a.asDate().getDate().isAfter(b.asDate().getDate())) ? Scalar.TRUE : Scalar.FALSE;
 				} else if (a.isNumber()) {
-					return (a.asDouble() > b.asDouble()) ? scatrue : scafalse;
+					return (a.asDouble() > b.asDouble()) ? Scalar.TRUE : Scalar.FALSE;
 				} else { // può essere solo una stringa
-					return (a.asString().compareTo(b.asString()) > 0) ? scatrue : scafalse;
+					return (a.asString().compareTo(b.asString()) > 0) ? Scalar.TRUE : Scalar.FALSE;
 				}
 			}
 			case (newVTLParser.LE): {
@@ -748,11 +743,11 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					throw new RuntimeException("Conditional op [LesserEquals] not applicable with Boolean type");
 				} else if (a.getScalarType().equals(Scalar.SCALARTYPE.Date)) {
 					return (a.asDate().getDate().isBefore(b.asDate().getDate())
-							|| a.asDate().getDateString().equals(b.asDate().getDateString())) ? scatrue : scafalse;
+							|| a.asDate().getDateString().equals(b.asDate().getDateString())) ? Scalar.TRUE : Scalar.FALSE;
 				} else if (a.isNumber()) {
-					return (a.asDouble() <= b.asDouble()) ? scatrue : scafalse;
+					return (a.asDouble() <= b.asDouble()) ? Scalar.TRUE : Scalar.FALSE;
 				} else { // può essere solo una stringa
-					return (a.asString().compareTo(b.asString()) <= 0) ? scatrue : scafalse;
+					return (a.asString().compareTo(b.asString()) <= 0) ? Scalar.TRUE : Scalar.FALSE;
 				}
 			}
 			case (newVTLParser.GE): {
@@ -760,11 +755,11 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					throw new RuntimeException("Relational op [GreaterEquals] not applicable with Boolean type");
 				} else if (a.getScalarType().equals(Scalar.SCALARTYPE.Date)) {
 					return (a.asDate().getDate().isAfter(b.asDate().getDate())
-							|| a.asDate().getDateString().equals(b.asDate().getDateString())) ? scatrue : scafalse;
+							|| a.asDate().getDateString().equals(b.asDate().getDateString())) ? Scalar.TRUE : Scalar.FALSE;
 				} else if (a.isNumber()) {
-					return (a.asDouble() >= b.asDouble()) ? scatrue : scafalse;
+					return (a.asDouble() >= b.asDouble()) ? Scalar.TRUE : Scalar.FALSE;
 				} else { // può essere solo una stringa
-					return (a.asString().compareTo(b.asString()) >= 0) ? scatrue : scafalse;
+					return (a.asString().compareTo(b.asString()) >= 0) ? Scalar.TRUE : Scalar.FALSE;
 				}
 			}
 			default: {
@@ -868,21 +863,21 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		case(newVTLParser.AND):{
 			if(!left.isNull() && left.asBoolean()) { //X TRUE
 				if(!right.isNull() && right.asBoolean()) { //Y TRUE
-					return Scalar.createBoolean(true);
+					return Scalar.TRUE;
 				} else if (!right.isNull() && !right.asBoolean()) { //Y FALSE
-					return Scalar.createBoolean(false);
+					return Scalar.FALSE;
 				} else if(right.isNull()) { //Y NULL
 					return new Scalar(Scalar.SCALARTYPE.Boolean);
 				}
 				
 			}
 			if(!left.isNull() && !left.asBoolean()) { //X FALSE
-				return Scalar.createBoolean(false);
+				return Scalar.FALSE;
 				
 			}
 			if(left.isNull()) { //X NULL
 				if(!right.asBoolean()) { //Y FALSE
-					return Scalar.createBoolean(false);
+					return Scalar.FALSE;
 				} else { //Y TRUE E NULL
 					return new Scalar(Scalar.SCALARTYPE.Boolean);
 				}
@@ -890,20 +885,20 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		}//AND CASE
 		case(newVTLParser.OR):{
 			if(!left.isNull() && left.asBoolean()) { //X TRUE
-				return Scalar.createBoolean(true);
+				return Scalar.TRUE;
 			}
 			if(!left.isNull() && !left.asBoolean()) { //X FALSE
 				if(!right.isNull() && right.asBoolean()) { //Y TRUE
-					return Scalar.createBoolean(true);
+					return Scalar.TRUE;
 				} else if (!right.isNull() && !right.asBoolean()) { //Y FALSE
-					return Scalar.createBoolean(false);
+					return Scalar.FALSE;
 				} else if(right.isNull()) { //Y NULL
 					return new Scalar(Scalar.SCALARTYPE.Boolean);
 				}
 			} 
 			if(left.isNull()) { //X NULL
 				if(right.asBoolean()) { //Y TRUE
-					return Scalar.createBoolean(false);
+					return Scalar.FALSE;
 				} else { //Y FALSE E NULL
 					return new Scalar(Scalar.SCALARTYPE.Boolean);
 				}
@@ -1302,7 +1297,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					ErrMsg = new Scalar("More than one rule have failed.",Scalar.SCALARTYPE.String);
 				
 				dp.setValue("ERRORMESSAGE", ErrMsg);
-				dp.setValue("CONDITION", Scalar.createBoolean(false));
+				dp.setValue("CONDITION", Scalar.FALSE);
 				dp.setValue("RULE_ID", ErrID);
 				ret.setPoint(dp);
 			}
@@ -1406,14 +1401,14 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				dp.setValue("ERRORMESSAGE", ErrMsg);
 				
 				if(ctx.checkParamOpt().CONDITION() != null) {
-					dp.setValue("CONDITION", Scalar.createBoolean(false));
+					dp.setValue("CONDITION", Scalar.FALSE);
 				}
 			} else {
 				//nessuna regola ha fallito
 				dp.setValue("ERRORMESSAGE", new Scalar("",Scalar.SCALARTYPE.String));
 				
 				if(ctx.checkParamOpt().CONDITION() != null) {
-					dp.setValue("CONDITION", Scalar.createBoolean(true));
+					dp.setValue("CONDITION", Scalar.TRUE);
 				}
 			}
 			
@@ -1912,7 +1907,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		 * Dopo, il flag viene impostato a false, cos che clausebodycalc ignori la modellazione del dstr
 		 * e si concentri a popolare i datapoint da pushare nel nuovo ds.
 		 */
-		this.GLOBAL.put(NewEval.FLG_CALC_1_PASS, Scalar.createBoolean(true));
+		this.GLOBAL.put(NewEval.FLG_CALC_1_PASS, Scalar.TRUE);
 		
 		/* Metto in memoria tutte le var del primo rigo del vecchio dstr */
 		DataPoint dp = ds.getPoint(0);
@@ -1948,7 +1943,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		this.MEMORY.put(ndstr.getName(), ndstr);
 		
 		//inverto il flag
-		this.GLOBAL.put(NewEval.FLG_CALC_1_PASS, Scalar.createBoolean(false));
+		this.GLOBAL.put(NewEval.FLG_CALC_1_PASS, Scalar.FALSE);
 		
 		//qui creo il nuovo dataset
 		DataSet nds = null;
