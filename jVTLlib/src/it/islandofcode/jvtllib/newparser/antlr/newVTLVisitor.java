@@ -477,6 +477,12 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCallFun(newVTLParser.CallFunContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link newVTLParser#injection}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInjection(newVTLParser.InjectionContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code DBGprintvar}
 	 * labeled alternative in {@link newVTLParser#debug}.
 	 * @param ctx the parse tree

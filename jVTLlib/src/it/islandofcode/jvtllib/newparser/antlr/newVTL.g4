@@ -175,6 +175,10 @@ callProc : CALL varname LPAR varname (COMMA varname)* RPAR;
 namedFunDef : CREATE FUNCTION varname LPAR varname (COMMA varname)* RPAR LBRA RETURN expr AS dataType RBRA;
 callFun : varname LPAR varname (COMMA varname)* RPAR;
 
+
+/* Qui l'injection */
+injection : '@' LBRA varname RBRA ;
+
 /*
  * Qui le istruzioni personali
  */

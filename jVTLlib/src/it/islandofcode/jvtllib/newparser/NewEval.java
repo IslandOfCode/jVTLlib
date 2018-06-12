@@ -51,6 +51,7 @@ import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.DprulesetContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.GetFunctionContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.IfThenElseCondOpContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.InCondexprContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.InjectionContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.IntegerLiteralContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.IsNullCondexprContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.JoinblockInnerContext;
@@ -88,6 +89,9 @@ import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.VarnameContext;
  */
 public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	
+	//XXX
+	int COUNTER = 0;
+	
 	/* COSTANTI */
 	private static final String FLG_PRCDR_BUILD = "f_prcdr_build";
 	private static final String FLG_PRCDR_BODY = "f_prcdr_body";
@@ -96,11 +100,11 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	private static final String FLG_FNCT_BODY = "f_fnct_body";
 	private static final String FLG_CALC_1_PASS = "f_calc_1pass";
 	
-	private static final String FLG_RS_EVAL = "f_rlst_evaluation";
+	//private static final String FLG_RS_EVAL = "f_rlst_evaluation";
 	
 	private static final String U_NXT_DATAPOINT = "nextDataPoint";
 	private static final String U_KEEP_MAPPING = "keepMapping";
-	private static final String U_DP_RULE_EVAL = "DataPointRuleSetEvaluation";
+	//private static final String U_DP_RULE_EVAL = "DataPointRuleSetEvaluation";
 	
 	
 	private static final Logger LOG = Logger.getLogger( NewEval.class.getName() );
@@ -142,6 +146,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	 */
 	private Map<String, Object> GLOBAL;
 	
+	private Map<String, Scalar> INJECTION;
+	
 	/**
 	 * Connettore che viene usato da get/set.
 	 * Non puù essere nullo.
@@ -174,6 +180,14 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		//Logger.getLogger("").setLevel( Level.OFF ); // Solution 2
 	}
 	
+	public void inject(Map<String,Scalar> obj) {
+		
+		this.INJECTION = obj;
+		
+		if(obj == null)
+			this.INJECTION = new HashMap<String,Scalar>();
+	}
+	
 	/**************** OVERRIDE METODI VISITOR ****************/
 	
 	@Override
@@ -196,16 +210,29 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	}
 	
 	
-	/* (non-Javadoc)
-	 * @see it.islandofcode.jvtllib.newparser.newVTLBaseVisitor#visitPrecedenceexpr(it.islandofcode.jvtllib.newparser.newVTLParser.PrecedenceexprContext)
-	 */
+	
 	@Override
 	public VTLObj visitPrecedenceexpr(PrecedenceexprContext ctx) {
-		//XXX rimuovimi
-		return this.visit(ctx.expr());
+		VTLObj ret = super.visitPrecedenceexpr(ctx); 
+		return ret;
 	}
 
+	@Override
+	public VTLObj visitInjection(InjectionContext ctx) {
 
+		String key = ctx.varname().getText();
+		
+		if(!this.INJECTION.isEmpty()) { //se c'è qualcosa all'interno dell'oggetto
+			if(this.INJECTION.containsKey(key)) { //se l'oggetto contiene lo scalare necessario
+				return (Scalar)this.INJECTION.get(key); //ritorna l'oggetto dopo averlo castato a Scalar
+			}
+		}
+		
+		//in alternativa, ritorno uno scalare di tipo Null
+		return new Scalar(Scalar.SCALARTYPE.Null);
+	}
+
+	
 	/* (non-Javadoc)
 	 * @see it.islandofcode.jvtllib.newparser.newVTLBaseVisitor#visitUnaryexpr(it.islandofcode.jvtllib.newparser.newVTLParser.UnaryexprContext)
 	 */
@@ -1959,6 +1986,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				this.GLOBAL.put(U_NXT_DATAPOINT, ndp);
 				//ciclo su tutti i body per popolare le nuove colonne
 				for(int c=0; c<ctx.clausebodycalc().size(); c++) {
+					//System.out.println(this.COUNTER);
+					//this.COUNTER++;
 					this.visit(ctx.clausebodycalc(c));
 				}
 				//scarico dalla memoria globale
@@ -2640,7 +2669,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	 */
 	@Override
 	public VTLObj visitNamedFunDef(NamedFunDefContext ctx) {
-		System.out.println("NAMED FUN DEFINITION");
+		//System.out.println("NAMED FUN DEFINITION");
 		
 		Function F = new Function(ctx.varname(0).getText());
 		for(int p=1; p<ctx.varname().size(); p++) {
@@ -2660,7 +2689,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	@Override
 	public VTLObj visitCallFun(CallFunContext ctx) {
 
-		System.out.println("NAMED FUN CALLED " + ctx.varname(0).getText());
+		//System.out.println("NAMED FUN CALLED " + ctx.varname(0).getText());
 		Function F = (Function) this.PRCFUNLIST.get(ctx.varname(0).getText());
 		if(F==null)
 			throw new RuntimeException("Undefined function ["+ctx.varname(0).getText()+"]");
@@ -2677,7 +2706,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					);
 		}
 		
-		SCOPE.push(CLONER.deepClone(MEMORY));
+		//SCOPE.push(CLONER.deepClone(MEMORY));
 		this.MEMORY = CLONER.deepClone(M);
 		
 		this.GLOBAL.put(NewEval.FLG_FNCT_BODY, F);
@@ -2685,7 +2714,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		VTLObj ret = this.visit(F.getExpr());
 		
 		this.GLOBAL.remove(NewEval.FLG_FNCT_BODY);
-		this.MEMORY = SCOPE.pop();
+		//this.MEMORY = SCOPE.pop();
 		
 		if( !(ret.getObjType().equals(VTLObj.OBJTYPE.DataSet) && F.getRetType().equals("dataset")) ) {
 			if(ret.getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
@@ -2734,10 +2763,17 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		if (this.connector == null)
 			throw new RuntimeException("Connector cant be null!");
 		
-		LOG.info("PUT > " + ctx.putFunction().stringLiteral().getText());
+		Scalar path = (Scalar) this.visit(ctx.putFunction().stringLiteral());
 		
-		// TODO quindi? come gestire il tutto?
-		return super.visitPutData(ctx);
+		LOG.info("PUT > " + path.asString());
+		
+		DataSet out = (DataSet) this.getFromMemory(ctx.putFunction().varname().getText());
+		
+		boolean res = this.connector.put(path.asString(), out);
+		if(!res)
+			throw new RuntimeException("PUT return false, error in output.");
+		
+		return null;
 	}
 
 	/*
@@ -2751,7 +2787,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		VTLObj var = this.MEMORY.get(ctx.varname().getText());
 		switch(var.getObjType()) {
 		case DataSet:{
-			LOG.fine("[printvar] THIS IS A DATASET");
+			LOG.severe("[printvar] THIS IS A DATASET");
 			DataSet ds = (DataSet) var;
 			for(int i=0; i<ds.getSize(); i++) {
 				DataPoint dp = ds.getPoint(i);
@@ -2761,26 +2797,26 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				}
 				System.out.println();
 			}
-			LOG.fine("[printvar] DATASET ROW COUNT: " + ds.getSize());
+			LOG.severe("[printvar] DATASET ROW COUNT: " + ds.getSize());
 			break;
 		}
 		case DataPointRuleSet:
-			LOG.fine("[printvar] THIS IS A DATAPOINTRULESET");
+			LOG.severe("[printvar] THIS IS A DATAPOINTRULESET");
 			break;
 		case DataSetColumn:
-			LOG.fine("[printvar] THIS IS A DATASETCOLUMN\n"	+ "COLUMN[" + ((DataSetColumn)var).getColumnName() + "]");
+			LOG.severe("[printvar] THIS IS A DATASETCOLUMN\n"	+ "COLUMN[" + ((DataSetColumn)var).getColumnName() + "]");
 			break;
 		case DataStructure:
-			LOG.fine("[printvar] THIS IS A DATASTRUCTURE");
+			LOG.severe("[printvar] THIS IS A DATASTRUCTURE");
 			break;
 		case Scalar:
-			LOG.fine("[printvar] THIS IS A SCALAR\n"+ "\tVALUE["+((Scalar)var).asString()+"]");
+			LOG.severe("[printvar] THIS IS A SCALAR\n"+ "\tVALUE["+((Scalar)var).asString()+"]");
 			break;
 		case ValueDomain:
-			LOG.fine("[printvar] THIS IS A VALUEDOMAIN");
+			LOG.severe("[printvar] THIS IS A VALUEDOMAIN");
 			break;
 		default:
-			LOG.fine("[printvar] UNRECOGNIZABLE VTLOBJ TYPE");
+			LOG.severe("[printvar] UNRECOGNIZABLE VTLOBJ TYPE");
 			break;
 		}
 		return null;

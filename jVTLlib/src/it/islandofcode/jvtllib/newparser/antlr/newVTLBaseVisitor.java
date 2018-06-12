@@ -500,6 +500,13 @@ public class newVTLBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitInjection(newVTLParser.InjectionContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitDBGprintvar(newVTLParser.DBGprintvarContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
