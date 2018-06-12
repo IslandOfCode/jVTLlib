@@ -669,7 +669,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			a = (Scalar) left;
 			b = (Scalar) right;
 			
-			//se b � NULL, lo sostituisco con uno scalare del tipo di A, ma nullo
+			//se b � NULL, lo sostituisco con uno scalare del tipo di A, ma nullo
 			if(b.getScalarType().equals(Scalar.SCALARTYPE.Null))
 				b = new Scalar(a.getScalarType());
 			
@@ -1822,7 +1822,14 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			if(P!=null) {
 				varname = P.translate(varname);
 			}
-			throw new RuntimeException("Can't find ["+varname+"] field");
+			/*
+			 * L'eccezione rende problematica la situazione in cui non è presente un campo.
+			 * Togliendo l'eccezione ma loggando l'errore, si è ora in grado di non bloccare
+			 * l'esecuzione, ignorando semplicemente il campo.
+			 */
+			//throw new RuntimeException("Can't find ["+varname+"] field");
+			LOG.severe("Can't find ["+varname+"] field");
+			return null;
 		}
 
 		// recupero vecchio componente

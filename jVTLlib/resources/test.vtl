@@ -1,14 +1,19 @@
 //LNKD_ENTRPRSS
 FinancialAccounting:=get("LNKD_ENTRPRSS");
+FinancialAccounting := FinancialAccounting[keep(CNTRPRTY_ID,ANNL_TRNVR),filter(ANNL_TRNVR<400)]
 
 printvar FinancialAccounting
 
-define datapoint ruleset PRM001(ANNL_TRNVR){
+define datapoint ruleset PRM001(CNTRPRTY_ID){
  //RL1: when ANNL_TRNVR<>null then (ANNL_TRNVR>1000) or (NMBR_EMPLYS>25) errorcode("FAILURE PRM001")
-	RL1: when true then ANNL_TRNVR<>null errorcode("FAILURE PRM001")
+	RL1: when true then CNTRPRTY_ID<>"C001" errorcode("FAILURE PRM001")
 }
 
-result := check(FinancialAccounting, PRM001)//, all, condition)
-result := result[keep(CONDITION,RULE_ID,ANNL_TRNVR)]
+result := check(FinancialAccounting, PRM001, all, condition)
+result := result[keep(CONDITION,RULE_ID,ANNL_TRNVR,PEPPINO)]
+
+printvar result
+
+result := result[rename(PEPPINO as "LUIGI" role attribute)]
 
 printvar result
