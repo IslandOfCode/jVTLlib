@@ -1986,8 +1986,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				this.GLOBAL.put(U_NXT_DATAPOINT, ndp);
 				//ciclo su tutti i body per popolare le nuove colonne
 				for(int c=0; c<ctx.clausebodycalc().size(); c++) {
-					//System.out.println(this.COUNTER);
-					//this.COUNTER++;
+					System.out.println(this.COUNTER);
+					this.COUNTER++;
 					this.visit(ctx.clausebodycalc(c));
 				}
 				//scarico dalla memoria globale
@@ -2707,13 +2707,20 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		}
 		
 		//SCOPE.push(CLONER.deepClone(MEMORY));
-		this.MEMORY = CLONER.deepClone(M);
+		//this.MEMORY = CLONER.deepClone(M);
+		
+		this.MEMORY.putAll(M);
 		
 		this.GLOBAL.put(NewEval.FLG_FNCT_BODY, F);
 		
 		VTLObj ret = this.visit(F.getExpr());
 		
 		this.GLOBAL.remove(NewEval.FLG_FNCT_BODY);
+		
+		for(String key: M.keySet()) {
+			this.MEMORY.remove(key);
+		}
+		
 		//this.MEMORY = SCOPE.pop();
 		
 		if( !(ret.getObjType().equals(VTLObj.OBJTYPE.DataSet) && F.getRetType().equals("dataset")) ) {
