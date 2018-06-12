@@ -210,11 +210,19 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	}
 	
 	
-	
+	/*
+	 * Assolutamente necessario! Perchè altrimenti le funzioni, ad esempio, andrebbero a leggere solo le parentesi ma non
+	 * l'espressione in esso contenuta (BUG!).
+	 * Per esempio, la returns di una funzione non specifica l'uso di parentesi, ma viene spontaneo scrivere
+	 * 		returns ( if(A>B) then true else false) as boolean
+	 * invece di
+	 * 		returns if(A>B) then true else false as boolean
+	 * Entrambi sarebbero corrette, ma non sovrascrivendo questo metodo, la prima fallisce la seconda no.
+	 * Questo problema si è presentato solo con le funzioni, dato il loro funzionamenteo particolare.
+	 */
 	@Override
 	public VTLObj visitPrecedenceexpr(PrecedenceexprContext ctx) {
-		VTLObj ret = super.visitPrecedenceexpr(ctx); 
-		return ret;
+		return this.visit(ctx.expr());
 	}
 
 	@Override
@@ -1986,8 +1994,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				this.GLOBAL.put(U_NXT_DATAPOINT, ndp);
 				//ciclo su tutti i body per popolare le nuove colonne
 				for(int c=0; c<ctx.clausebodycalc().size(); c++) {
-					System.out.println(this.COUNTER);
-					this.COUNTER++;
+					/*System.out.println(this.COUNTER);
+					this.COUNTER++;*/
 					this.visit(ctx.clausebodycalc(c));
 				}
 				//scarico dalla memoria globale
