@@ -20,10 +20,13 @@ import it.islandofcode.jvtllib.model.DataPoint;
 import it.islandofcode.jvtllib.model.DataSet;
 import it.islandofcode.jvtllib.model.DataSetColumn;
 import it.islandofcode.jvtllib.model.DataStructure;
+import it.islandofcode.jvtllib.model.DataStructure.ROLE;
 import it.islandofcode.jvtllib.model.Function;
 import it.islandofcode.jvtllib.model.Procedure;
 import it.islandofcode.jvtllib.model.Scalar;
+import it.islandofcode.jvtllib.model.Scalar.SCALARTYPE;
 import it.islandofcode.jvtllib.model.VTLObj;
+import it.islandofcode.jvtllib.model.ValueDomain;
 import it.islandofcode.jvtllib.model.util.Aggregation;
 import it.islandofcode.jvtllib.model.util.Component;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLBaseVisitor;
@@ -88,9 +91,6 @@ import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.VarnameContext;
  * @author Pier Riccardo Monzo
  */
 public class NewEval extends newVTLBaseVisitor<VTLObj> {
-	
-	//XXX
-	int COUNTER = 0;
 	
 	/* COSTANTI */
 	private static final String FLG_PRCDR_BUILD = "f_prcdr_build";
@@ -1990,12 +1990,10 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				for(String K: dstr.getKeys()) {
 					this.MEMORY.put(K, dp.getValue(K));
 				}
-				//carico in memoria globale in datapoint
+				//carico in memoria globale il datapoint
 				this.GLOBAL.put(U_NXT_DATAPOINT, ndp);
 				//ciclo su tutti i body per popolare le nuove colonne
 				for(int c=0; c<ctx.clausebodycalc().size(); c++) {
-					/*System.out.println(this.COUNTER);
-					this.COUNTER++;*/
 					this.visit(ctx.clausebodycalc(c));
 				}
 				//scarico dalla memoria globale
@@ -2024,10 +2022,10 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 
 		// recupero i riferimenti per accedere in memoria
 		String refn = ((Scalar) this.MEMORY.get("newDSTR")).asString();
-
+		
 		// recupero il datastructure
 		DataStructure N = (DataStructure) this.MEMORY.get(refn);
-
+		
 		//recupero e verifico nome della nuova colonna
 		String column = (ctx.stringLiteral() != null) ? ((Scalar) this.visit(ctx.stringLiteral())).asString()
 				: null;
@@ -2048,15 +2046,76 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		if (flag) {
 			//primo passaggio, popolo solo il datastructure nuovo
 			
-			String newrole = (ctx.componentRole() != null) ? ctx.componentRole().role.getText().toLowerCase()
-					: "measure";
+			//recupero riferimento del DataStructure precedente per confronti tra tipi.
+			String refo = ((Scalar) this.MEMORY.get("oldDSTR")).asString();
+			DataStructure O = (DataStructure) this.MEMORY.get(refo);
+			
+			ROLE oldrole = null;
+			VTLObj oldtype = null;
+			if(O.containtComponent(column)) {
+				oldrole = O.getComponent(column).getType();
+				oldtype = O.getComponent(column).getDataType();
+			}
+			
+			String newrole;
+			if(ctx.componentRole()==null) {
+				if(oldrole==null) {
+					newrole = "measure";
+				} else {
+					newrole = oldrole.toString().toLowerCase();
+				}
+			} else {
+				newrole = ctx.componentRole().role.getText().toLowerCase();
+			}
+			
+			VTLObj newtype = null;
+			if(oldtype==null) {
+				newtype = new Scalar(s.getScalarType());
+			} else {
+				newtype = oldtype;
+				/*if(oldtype instanceof Scalar) {
+					newtype = (Scalar) oldtype;
+				} else {
+					newtype = (ValueDomain) oldtype;
+				}*/
+			}
+			
+			//newrole = (ctx.componentRole() != null) ? ctx.componentRole().role.getText().toLowerCase() : "measure";
 
-			N.putComponent(column, new Scalar(s.getScalarType()), DataStructure.string2type(newrole));
+			//N.putComponent(column, new Scalar(s.getScalarType()), DataStructure.string2type(newrole));
+			
+			N.putComponent(column, newtype, DataStructure.string2type(newrole));
+			
 			// sovrascrivo dstr in memoria con quello aggiornato.
 			this.MEMORY.put(refn, N);
 		} else {
 			// devo riempire il datapoint
 			DataPoint ndp = (DataPoint) this.GLOBAL.get(U_NXT_DATAPOINT);
+			
+			VTLObj type = N.getComponent(column).getDataType();
+			if(type instanceof Scalar) {
+				Scalar is = (Scalar) type;
+				if(!is.getScalarType().equals(s.getScalarType())) {
+					if(is.isNumber() && s.isNumber()) {
+						Scalar t = new Scalar(s.getScalar(),is.getScalarType());
+						s = t;
+					} else {
+						throw new RuntimeException("Different data type in clause CALC!");
+					}
+				}
+			} else {
+				ValueDomain ivd = (ValueDomain) type;
+				if(!ivd.getScalarType().equals(s.getScalarType())) {
+					if( (ivd.getScalarType().equals(Scalar.SCALARTYPE.Integer) ^ ivd.getScalarType().equals(Scalar.SCALARTYPE.Float)) && s.isNumber()) {
+						Scalar t = new Scalar(s.getScalar(),ivd.getScalarType());
+						s = t;
+					} else {
+						throw new RuntimeException("Different data type in clause CALC!");
+					}
+				}
+			}
+			
+			
 			
 			ndp.setValue(column, s);
 			
@@ -2192,8 +2251,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			for(int p=0; p<tds.getSize(); p++)
 				ret.setPoint(tds.getPoint(p));
 
-		tds = null;
-		tdstr = null;
+		//tds = null;
+		//tdstr = null;
 		
 		//ciclo su tutte le tabelle
 		for(int g=0; g<LDS.size(); g++) { //g come global
@@ -2202,8 +2261,11 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			for(int a=0; a<LDS.get(g).getSize(); a++) { //a come actual
 				LOG.finest("\tACTUAL iteration "+(a+1)+" of " + LDS.get(g).getSize());
 				boolean dup = false;
+				
+				//NON VERIFICO I DUPLICATI.
+				
 				//ciclo sui datapoint della tabella da ritornare
-				for(int r=0; r<ret.getSize(); r++) { //r come return
+				/*for(int r=0; r<ret.getSize(); r++) { //r come return
 					LOG.finest("\t\tRETURN iteration "+(r+1)+" of " + ret.getSize());
 					if(LDS.get(g).getPoint(a).equals(ret.getPoint(r), ret.getDataStructure(), false)) {
 						//se l'elemento actual  presente in ret
@@ -2211,9 +2273,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 						//aggiungo il punto
 					}
 					//passo al prossimo datapoint
-				}//fine r
+				}*///fine r
 				if(!dup) {
-					LOG.finest("\t\t\tADD newpoint " + LDS.get(g).getPoint(a).getValue("NAME").asString());
+					//LOG.finest("\t\t\tADD newpoint " + LDS.get(g).getPoint(a).getValue("NAME").asString());
 					ret.setPoint(LDS.get(g).getPoint(a));
 				}
 			}//fine a
@@ -2710,7 +2772,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		for(int v=1; v<ctx.varname().size(); v++) {
 			F.setMapping(v-1, ctx.varname(v).getText());
 			M.put(F.getWithIndex(v-1),
-					this.MEMORY.get(F.translate(F.getWithIndex(v-1)))
+					this.getFromMemory(F.translate(F.getWithIndex(v-1)))
+					//this.MEMORY.get(F.translate(F.getWithIndex(v-1)))
 					);
 		}
 		
@@ -2736,8 +2799,10 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				Scalar S = (Scalar) ret;
 				String dt = F.getRetType().substring(0, 1).toUpperCase() + F.getRetType().substring(1);
 				//TODO se sconosciuto, valueOf dovrebbe lanciare un'eccezione, mi pare IllegalArgument.
-				if(!S.getScalarType().equals(Scalar.SCALARTYPE.valueOf(dt))) {
-					throw new RuntimeException("Mismatched function return type");
+				SCALARTYPE t = Scalar.SCALARTYPE.valueOf(dt);
+				if(!S.getScalarType().equals(t)) {
+					if(!(S.isNumber() && (t.equals(Scalar.SCALARTYPE.Integer) ^ t.equals(Scalar.SCALARTYPE.Float))) )
+						throw new RuntimeException("Mismatched function return type");
 				}
 			}
 		}

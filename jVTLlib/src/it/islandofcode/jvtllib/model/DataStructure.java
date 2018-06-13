@@ -206,10 +206,7 @@ public class DataStructure implements VTLObj {
 						//se i due scalari sono di tipo diverso, torna false
 						if(!s1.getScalarType().equals(s2.getScalarType()))
 							return false;
-					} else
-						return false;
-					
-					if(this.component.get(K).getDataType().getObjType().equals(VTLObj.OBJTYPE.ValueDomain)
+					} else if(this.component.get(K).getDataType().getObjType().equals(VTLObj.OBJTYPE.ValueDomain)
 							&& dstr.getComponent(K).getDataType().getObjType().equals(VTLObj.OBJTYPE.ValueDomain)) {
 						//Se i due componenti sono entrambi ValueDomain
 						ValueDomain vd1 = (ValueDomain) this.component.get(K).getDataType();
