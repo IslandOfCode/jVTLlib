@@ -134,14 +134,7 @@ public class Procedure {
 		if(index<0 && index>=this.mapParam.size())
 			return false;
 		
-		if( 
-				(input == this.mapParam.get(index).isInput()) &&
-				dt.equals(this.mapParam.get(index).getDataType())
-				)
-			return true;
-		
-		
-		return false;
+		return( (input == this.mapParam.get(index).isInput()) && dt.equals(this.mapParam.get(index).getDataType()) );
 	}
 	
 	/**

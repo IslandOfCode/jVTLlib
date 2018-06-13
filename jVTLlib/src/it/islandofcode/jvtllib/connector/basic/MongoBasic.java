@@ -69,6 +69,9 @@ public class MongoBasic implements IConnector {
 			
 			//creiamo qui in DataStructure
 			Document first = table.find().first();
+			if(first==null) {
+				return null; //se ne occupa l'eccezione in NewEval
+			}
 			DataStructure dstr = new DataStructure(location+"_dstr");
 			for(String K : first.keySet()) {
 				if("_id".equals(K))

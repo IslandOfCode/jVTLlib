@@ -1,10 +1,11 @@
 package it.islandofcode.jvtllib.junit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashMap;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import it.islandofcode.jvtllib.model.DataPoint;
@@ -17,19 +18,12 @@ import it.islandofcode.jvtllib.model.exception.DataPointInvalidCostructor;
 class TestDataPoint {
 
 	/**
-	 * @throws java.lang.Exception
-	 */
-	@BeforeEach
-	void setUp() throws Exception {
-	}
-
-	/**
 	 * Test method for {@link it.islandofcode.jvtllib.model.DataPoint#DataPoint()}.
 	 */
 	@Test
 	void testDataPoint() {
 		DataPoint dp = new DataPoint();
-		assertEquals(dp.getValue(""),null);
+		assertNull(dp.getValue(""));
 	}
 
 	/**

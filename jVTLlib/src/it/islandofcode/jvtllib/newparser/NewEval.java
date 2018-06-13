@@ -250,14 +250,14 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		VTLObj val = this.visit(ctx.expr());
 		
 		if(!(val instanceof Scalar))
-			throw new RuntimeException("UNARY accept only Scalar.");
+			throw new IllegalArgumentException("UNARY accept only Scalar.");
 		else if( !((Scalar)val).isNumber() && !((Scalar)val).getScalarType().equals(Scalar.SCALARTYPE.Boolean) )
 			throw new IllegalArgumentException("UNARY accept only Numeric or Boolean Scalar.");
 	
 		switch(ctx.op.getType()) {
 		case(newVTLParser.NOT):{
 			if( !((Scalar)val).getScalarType().equals(Scalar.SCALARTYPE.Boolean))
-				throw new RuntimeException("UNARY NOT accept ONLY boolean value.");
+				throw new IllegalArgumentException("UNARY NOT accept ONLY boolean value.");
 			if( ((Scalar)val).asBoolean() )
 				return Scalar.createBoolean(false);
 			else
@@ -266,17 +266,17 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		case(newVTLParser.PLUS):{
 			//non serve praticamente a niente, quindi perchè lo considero?
 			if( ((Scalar)val).getScalarType().equals(Scalar.SCALARTYPE.Boolean))
-				throw new RuntimeException("UNARY PLUS undefiened for boolean value.");
+				throw new UnsupportedOperationException("UNARY PLUS undefiened for boolean value.");
 			return val;
 		}
 		case(newVTLParser.MINUS):{
 			if( ((Scalar)val).getScalarType().equals(Scalar.SCALARTYPE.Boolean))
-				throw new RuntimeException("UNARY MINUS undefiened for boolean value.");
+				throw new UnsupportedOperationException("UNARY MINUS undefiened for boolean value.");
 			//moltiplico valore preesistente per -1, in modo da alterarne il segno
 			return new Scalar( ""+( ((Scalar)val).asDouble()*(-1) ), ((Scalar)val).getScalarType() );
 		}
 		default:
-			throw new RuntimeException("Unknow UNARY operator " + ctx.op.getText());
+			throw new UnsupportedOperationException("Unknow UNARY operator " + ctx.op.getText());
 		}
 		
 		//return super.visitUnaryexpr(ctx);
@@ -289,7 +289,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		VTLObj right = this.visit(ctx.expr(1));
 
 		if (left == null || right == null)
-			throw new RuntimeException("Math operand cannot be null: left[" + left + "] OP right[" + right + "]");
+			throw new IllegalArgumentException("Math operand cannot be null: left[" + left + "] OP right[" + right + "]");
 
 		// caso solo scalari, il più semplice
 		if (left.getObjType().equals(VTLObj.OBJTYPE.Scalar) && right.getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
@@ -310,7 +310,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			}
 		}
 
-		throw new RuntimeException("Can't compute math operation on this VTLObject.");
+		throw new IllegalArgumentException("Can't compute math operation on this VTLObject.");
 	}
 
 	@Override
@@ -319,7 +319,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		VTLObj right = this.visit(ctx.expr(1));
 
 		if (left == null || right == null)
-			throw new RuntimeException("Math operand cannot be null: left[" + left + "] OP right[" + right + "]");
+			throw new IllegalArgumentException("Math operand cannot be null: left[" + left + "] OP right[" + right + "]");
 
 		// caso solo scalari, il più semplice
 		if (left.getObjType().equals(VTLObj.OBJTYPE.Scalar) && right.getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
@@ -332,7 +332,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		
 
-		throw new RuntimeException("Can't compute math operation on this VTLObject.");
+		throw new IllegalArgumentException("Can't compute math operation on this VTLObject.");
 	}
 
 	/*@SuppressWarnings("deprecation")
@@ -529,7 +529,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		Scalar value = (Scalar) this.visit(ctx.varname());
 		
 		if(!value.isNumber())
-			throw new RuntimeException("LOG can't operate on non numerical value.");
+			throw new IllegalArgumentException("LOG can't operate on non numerical value.");
 		
 		//TODO se intero, va aggiunto un Math.ceil al risultato
 		return new Scalar(
@@ -545,7 +545,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	public VTLObj visitCeilFloorexpr(CeilFloorexprContext ctx) {
 		Scalar value = (Scalar) this.visit(ctx.varname());
 		if(!value.isNumber())
-			throw new RuntimeException("CEIL/FLOOR can't operate on non numerical value.");
+			throw new IllegalArgumentException("CEIL/FLOOR can't operate on non numerical value.");
 		
 		if(ctx.op.getType() == newVTLParser.CEIL) {
 			return new Scalar(
@@ -558,7 +558,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					value.getScalarType()
 					);
 		} else {
-			throw new RuntimeException("Unknown operator [" + ctx.op.getText()+"]");
+			throw new UnsupportedOperationException("Unknown operator [" + ctx.op.getText()+"]");
 		}
 		
 		//return super.visitCeilFloorexpr(ctx);
@@ -573,10 +573,10 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		Scalar value = (Scalar) this.visit(ctx.varname());
 		
 		if(!value.isNumber())
-			throw new RuntimeException("ROUND can't operate on non numerical value.");
+			throw new IllegalArgumentException("ROUND can't operate on non numerical value.");
 		
 		if(digit<=0)
-			throw new RuntimeException("ROUND digit has to be greater than 0");
+			throw new IllegalArgumentException("ROUND digit has to be greater than 0");
 		
 		return new Scalar(
 				""+(Math.round(value.asDouble() * Math.pow(10, digit)) / Math.pow(10, digit)),
@@ -592,7 +592,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	public VTLObj visitSingleparamMathfun(SingleparamMathfunContext ctx) {
 		Scalar value = (Scalar) this.visit(ctx.varname());
 		if(!value.isNumber())
-			throw new RuntimeException("ABS/EXP/LN/SQRT can't operate on non numerical value.");
+			throw new IllegalArgumentException("ABS/EXP/LN/SQRT can't operate on non numerical value.");
 		
 		switch(ctx.op.getType()) {
 		case(newVTLParser.ABS):{
@@ -620,7 +620,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					);
 		}
 		default:
-			throw new RuntimeException("Unknown operator [" + ctx.op.getText()+"]");
+			throw new UnsupportedOperationException("Unknown operator [" + ctx.op.getText()+"]");
 		}
 	}
 
@@ -631,10 +631,10 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		Scalar value = (Scalar) this.visit(ctx.varname());
 		
 		if(!value.isNumber())
-			throw new RuntimeException("TRUNC/POW/NROOT/MOD can't operate on non numerical value.");
+			throw new IllegalArgumentException("TRUNC/POW/NROOT/MOD can't operate on non numerical value.");
 		
 		if(digit<0)
-			throw new RuntimeException("2nd parameters has to be greater or equal than 0");
+			throw new IllegalArgumentException("2nd parameters has to be greater or equal than 0");
 		
 		switch(ctx.op.getType()) {
 		case(newVTLParser.TRUNC):{
@@ -674,7 +674,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					);
 		}
 		default:
-			throw new RuntimeException("Unknown operator [" + ctx.op.getText()+"]");
+			throw new UnsupportedOperationException("Unknown operator [" + ctx.op.getText()+"]");
 		}
 	}
 	
@@ -698,7 +698,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		Scalar b = null;
 
 		if (left == null || right == null)
-			throw new RuntimeException("Relational operand cannot be null: left[" + left + "] OP right[" + right + "]");
+			throw new IllegalArgumentException("Relational operand cannot be null: left[" + left + "] OP right[" + right + "]");
 
 		if (left.getObjType().equals(VTLObj.OBJTYPE.Scalar) && right.getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
 			a = (Scalar) left;
@@ -709,7 +709,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				b = new Scalar(a.getScalarType());
 			
 			if ( !(a.isNumber() && b.isNumber()) && !a.getScalarType().equals(b.getScalarType())) {
-				throw new RuntimeException("Relational op are possible ONLY if both operand have the same scalar type");
+				throw new IllegalArgumentException("Relational op are possible ONLY if both operand have the same scalar type");
 			}
 			
 			if(a.isNull() ^ b.isNull()) {
@@ -756,7 +756,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			}
 			case (newVTLParser.LT): {
 				if (a.getScalarType().equals(Scalar.SCALARTYPE.Boolean)) {
-					throw new RuntimeException("Relational op [LesserThan] not applicable with Boolean type");
+					throw new IllegalArgumentException("Relational op [LesserThan] not applicable with Boolean type");
 				} else if (a.getScalarType().equals(Scalar.SCALARTYPE.Date)) {
 					return (a.asDate().getDate().isBefore(b.asDate().getDate())) ? Scalar.TRUE : Scalar.FALSE;
 				} else if (a.isNumber()) {
@@ -767,7 +767,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			}
 			case (newVTLParser.GT): {
 				if (a.getScalarType().equals(Scalar.SCALARTYPE.Boolean)) {
-					throw new RuntimeException("Relational op [GreaterThan] not applicable with Boolean type");
+					throw new IllegalArgumentException("Relational op [GreaterThan] not applicable with Boolean type");
 				} else if (a.getScalarType().equals(Scalar.SCALARTYPE.Date)) {
 					return (a.asDate().getDate().isAfter(b.asDate().getDate())) ? Scalar.TRUE : Scalar.FALSE;
 				} else if (a.isNumber()) {
@@ -778,7 +778,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			}
 			case (newVTLParser.LE): {
 				if (a.getScalarType().equals(Scalar.SCALARTYPE.Boolean)) {
-					throw new RuntimeException("Conditional op [LesserEquals] not applicable with Boolean type");
+					throw new IllegalArgumentException("Conditional op [LesserEquals] not applicable with Boolean type");
 				} else if (a.getScalarType().equals(Scalar.SCALARTYPE.Date)) {
 					return (a.asDate().getDate().isBefore(b.asDate().getDate())
 							|| a.asDate().getDateString().equals(b.asDate().getDateString())) ? Scalar.TRUE : Scalar.FALSE;
@@ -790,7 +790,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			}
 			case (newVTLParser.GE): {
 				if (a.getScalarType().equals(Scalar.SCALARTYPE.Boolean)) {
-					throw new RuntimeException("Relational op [GreaterEquals] not applicable with Boolean type");
+					throw new IllegalArgumentException("Relational op [GreaterEquals] not applicable with Boolean type");
 				} else if (a.getScalarType().equals(Scalar.SCALARTYPE.Date)) {
 					return (a.asDate().getDate().isAfter(b.asDate().getDate())
 							|| a.asDate().getDateString().equals(b.asDate().getDateString())) ? Scalar.TRUE : Scalar.FALSE;
@@ -802,7 +802,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			}
 			default: {
 				// non dovrei mai arrivare qui...
-				throw new RuntimeException("Unknow Relational operator: " + ctx.op.getText());
+				throw new UnsupportedOperationException("Unknow Relational operator: " + ctx.op.getText());
 			}
 			}// fine switch per i tipi del caso 0
 
@@ -826,7 +826,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				return Scalar.createBoolean(false^not);
 			
 		} else 
-			throw new RuntimeException("ISNULL operator allowed only on Scalar object.");
+			throw new IllegalArgumentException("ISNULL operator allowed only on Scalar object.");
 		//return super.visitIsNullCondexpr(ctx);
 	}
 
@@ -854,7 +854,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				}
 			}
 		} else 
-			throw new RuntimeException("IN operator allowed only on Scalar object.");
+			throw new IllegalArgumentException("IN operator allowed only on Scalar object.");
 		return Scalar.createBoolean(false^not);
 	}
 
@@ -884,7 +884,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		 */
 		
 		if(ctx.op == null)
-			throw new RuntimeException("Missing conditional operator AND/OR/XOR.");
+			throw new IllegalArgumentException("Missing conditional operator AND/OR/XOR.");
 		
 		//fai controllo su tipo, deve essere scalare.
 		
@@ -892,7 +892,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		Scalar right = (Scalar) this.visit(ctx.right);
 		
 		if(left==null || right==null)
-			throw new RuntimeException("Conditional operand can't be null. Can, however, be a Scalar NULL.");
+			throw new IllegalArgumentException("Conditional operand can't be null. Can, however, be a Scalar NULL.");
 		
 		if(left.isNull() && right.isNull())
 			return new Scalar(Scalar.SCALARTYPE.Boolean); //ritorna un booleano nullo
@@ -943,7 +943,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			}
 		}//OR CASE
 		default:
-			throw new RuntimeException("Conditional operator has to be AND/OR.");
+			throw new UnsupportedOperationException("Conditional operator has to be AND/OR.");
 		}
 		
 		
@@ -1054,12 +1054,12 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		Scalar str = null;
 		
 		if( !(expr instanceof Scalar) )
-			throw new RuntimeException("SUBSTR accept only Scalar.");
+			throw new IllegalArgumentException("SUBSTR accept only Scalar.");
 		
 		if( ((Scalar)expr).getScalarType().equals(Scalar.SCALARTYPE.String) )
 			str = (Scalar)expr;
 		else 
-			throw new RuntimeException("SUBSTR accept only String");
+			throw new IllegalArgumentException("SUBSTR accept only String");
 		
 		int start = -1;
 		int len = -1;
@@ -1068,16 +1068,16 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		if(ctx.integerLiteral().size()>0) {
 			start = ( (Scalar)this.visit(ctx.integerLiteral(0)) ).asInteger();
 			if(start<0 || start>str.asString().length())
-				throw new RuntimeException("SUBSTR start index out of bound!");
+				throw new IndexOutOfBoundsException("SUBSTR start index out of bound!");
 		} else {
-			throw new RuntimeException("SUBSTR need at least the start index.");
+			throw new IllegalArgumentException("SUBSTR need at least the start index.");
 		}
 		
 		//ho indicato due  parametri
 		if(ctx.integerLiteral().size()>1) {
 			len = ( (Scalar)this.visit(ctx.integerLiteral(1)) ).asInteger();
 			if(len<0 || len>str.asString().length()) {
-				throw new RuntimeException("SUBSTR lenght value out of bound!");
+				throw new IndexOutOfBoundsException("SUBSTR lenght value out of bound!");
 			} else if((start+len)>str.asString().length())
 				len = -1;
 			//Come da specifiche, se start+len > len stringa originaria, ignoro parametro len
@@ -1089,7 +1089,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		if(start==0 && (len<0 || (start+len)==str.asString().length()) )
 			return str;
 		
-		if(start>=0 && len<0) {
+		if(/*start>=0 && */len<0) {
 			//da start alla fine della stringa
 			return new Scalar(
 					str.asString().substring(start),
@@ -1115,12 +1115,12 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		Scalar str = null;
 		
 		if( !(expr instanceof Scalar) )
-			throw new RuntimeException("REPLACE accept only Scalar.");
+			throw new IllegalArgumentException("REPLACE accept only Scalar.");
 		
 		if( ((Scalar)expr).getScalarType().equals(Scalar.SCALARTYPE.String) )
 			str = (Scalar)expr;
 		else 
-			throw new RuntimeException("REPLACE accept only String");
+			throw new IllegalArgumentException("REPLACE accept only String");
 		
 		String oldchar = ((Scalar)this.visit(ctx.stringLiteral(0))).asString();
 		String newchar = ((Scalar)this.visit(ctx.stringLiteral(1))).asString();
@@ -1139,7 +1139,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		if(a.getScalarType().equals(Scalar.SCALARTYPE.String) && b.getScalarType().equals(Scalar.SCALARTYPE.String)) {
 			return new Scalar(a.asString()+b.asString(), Scalar.SCALARTYPE.String);
 		} else
-			throw new RuntimeException("CONCAT need two string.");
+			throw new IllegalArgumentException("CONCAT need two string.");
 	}
 
 	/* VISITOR PER DEFINE DATAPOINT RULESET */
@@ -1181,27 +1181,25 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		LOG.finest("EVAL SINGLERULE CONSEQUENCEONLY["+ctx.varname().getText()+"] IN CORSO");
 		String err = "";
-		if(ctx.errorCode()!=null) {
-			if(ctx.errorCode().literal()!=null)
+		if(ctx.errorCode()!=null && ctx.errorCode().literal()!=null) {
 				err = ctx.errorCode().literal().getText();
 		}
 		
 		
 		if(!ctx.booleanLiteral().getText().equals("true")) {
-			throw new RuntimeException("Antecedent condition cannot be a literal false. Only literal true or condition are allowed.");
+			throw new IllegalArgumentException("Antecedent condition cannot be a literal false. Only literal true or condition are allowed.");
 		}
 		
 		VTLObj expr = this.visit(ctx.expr());
 		
 		if(expr instanceof Scalar)
-			if(((Scalar)expr).getScalarType().equals(Scalar.SCALARTYPE.Boolean))
-				if( !((Scalar)expr).asBoolean() ) {
+			if( ((Scalar)expr).getScalarType().equals(Scalar.SCALARTYPE.Boolean) && !((Scalar)expr).asBoolean() ) {
 					this.MEMORY.put("ErrMsg", new Scalar(err,Scalar.SCALARTYPE.String));//ctx.errorCode().literal().getText(),Scalar.SCALARTYPE.String));
 					return Scalar.FALSE;
 				} else 
 					return Scalar.TRUE;
 		
-		throw new RuntimeException("The rule is not valid. Rule have to return a boolean!");
+		throw new IllegalArgumentException("The rule is not valid. Rule have to return a boolean!");
 	}
 
 	@Override
@@ -1238,7 +1236,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			}
 		}
 		
-		throw new RuntimeException("The rule is not valid. Rule have to return a boolean!");
+		throw new IllegalArgumentException("The rule is not valid. Rule have to return a boolean!");
 		
 		//return null;
 		//return super.visitSingleruleBoth(ctx);
@@ -1283,7 +1281,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		//un datapoint vuoto che userò come var d'appoggio
 		DataPoint dp = null;
 		int numFailed = 0;
-		Scalar ErrMsg, ErrID;
+		Scalar ErrMsg;
+		Scalar ErrID;
 		
 		//ciclo su tutte le righe del dataset
 		for(int i=0; i<ds.getSize(); i++) {
@@ -1365,11 +1364,11 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		//questo if viene chiamato solo se uno dei due è assente
 		//se mancano entrambi, viene chiamato visitCheckFunBase.
 		if(ctx.checkParamEnum().getText().replace(",", "").isEmpty() || ctx.checkParamOpt().getText().replace(",", "").isEmpty()) {
-			throw new RuntimeException("Check() need both option specified.");
+			throw new IllegalArgumentException("Check() need both option specified.");
 		}
 		
 		if(ctx.checkParamEnum().ALL()!=null && ctx.checkParamOpt().MEASURES()!=null) {
-			throw new RuntimeException("Incompatible check() option: can't use [ALL] with [MEASURES]");
+			throw new IllegalArgumentException("Incompatible check() option: can't use [ALL] with [MEASURES]");
 		}
 		
 		//recupero datastructure e aggiungo colonna errormessage
@@ -1574,16 +1573,16 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			throw new RuntimeException("You have to aliases both DataSet in Join Clause.");
 		
 		if(ctx.varname().size()!=2)
-			throw new RuntimeException("JOIN need exactly 2 DataSet as input.");
+			throw new IllegalArgumentException("JOIN need exactly 2 DataSet as input.");
 		
 		VTLObj tmp = this.MEMORY.get(ctx.varname(0).getText());
 		if( !(tmp instanceof DataSet))
-			throw new RuntimeException("Parameter 1 of INNER has to be a valid DataSet.");
+			throw new IllegalArgumentException("Parameter 1 of INNER has to be a valid DataSet.");
 		DataSet A = (DataSet) this.MEMORY.get(ctx.varname(0).getText());
 		
 		tmp = this.MEMORY.get(ctx.varname(1).getText());
 		if( !(tmp instanceof DataSet))
-			throw new RuntimeException("Parameter 2 of INNER has to be a valid DataSet.");
+			throw new IllegalArgumentException("Parameter 2 of INNER has to be a valid DataSet.");
 		DataSet B = (DataSet) this.MEMORY.get(ctx.varname(1).getText());
 
 		tmp = null;
@@ -1649,9 +1648,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 								continue;
 							}
 						} else
-							throw new RuntimeException("The condition expression has to return a Scalar Boolean.");
+							throw new IllegalArgumentException("The condition expression has to return a Scalar Boolean.");
 					else
-						throw new RuntimeException("The condition expression has to return a Scalar.");
+						throw new IllegalArgumentException("The condition expression has to return a Scalar.");
 				}//for B
 				
 			}//for A
@@ -1816,7 +1815,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 					}
 					
 					//non  uno scalare o non  un booleano, eccezione!
-					throw new RuntimeException("FILTER need a boolean result for the expression.");
+					throw new IllegalArgumentException("FILTER need a boolean result for the expression.");
 				}//fine for expr
 				
 			}
@@ -1887,7 +1886,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		//se l'operazione  rename, allora devo avere almeno uno tra AS e ROLE
 		if(opref.equals("rename"))
 				if(newid==null && newrole==null)
-					throw new RuntimeException("RENAME clause need at least one parameter: AS, ROLE or both");
+					throw new IllegalArgumentException("RENAME clause need at least one parameter: AS, ROLE or both");
 		//altrimenti  keep, quindi posso andare avanti
 		
 		// inserisco nuovo componente
@@ -2030,7 +2029,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		String column = (ctx.stringLiteral() != null) ? ((Scalar) this.visit(ctx.stringLiteral())).asString()
 				: null;
 		if (column == null)
-			throw new RuntimeException("CALC clause need at least the AS parameter. ROLE is optional.");
+			throw new IllegalArgumentException("CALC clause need at least the AS parameter. ROLE is optional.");
 		
 		// recupero valore dell'espressione
 		VTLObj ret = this.visit(ctx.expr());
@@ -2039,7 +2038,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		if (ret instanceof Scalar) {
 			s = (Scalar) ret;
 		} else {
-			throw new RuntimeException(
+			throw new IllegalArgumentException(
 					"CALC clause need a scalar value as first parameter. [" + ret.getObjType() + "] found instead!");
 		}
 
@@ -2198,11 +2197,11 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 						/* Se il datastructure precedente e l'attuale non sono uguali,
 						 * lancia eccezione!
 						 */
-						throw new RuntimeException("UNION accept only DataSet with the same DataStructure.");
+						throw new IllegalArgumentException("UNION accept only DataSet with the same DataStructure.");
 					}
 				}
 			} else {
-				throw new RuntimeException("UNION accept only DataSet.");
+				throw new IllegalArgumentException("UNION accept only DataSet.");
 			}
 		}//fine for controllo tipo e dstr
 		
@@ -2311,11 +2310,11 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 						/* Se il datastructure precedente e l'attuale non sono uguali,
 						 * lancia eccezione!
 						 */
-						throw new RuntimeException("INTERSECT accept only DataSet with the same DataStructure.");
+						throw new IllegalArgumentException("INTERSECT accept only DataSet with the same DataStructure.");
 					}
 				}
 			} else {
-				throw new RuntimeException("INTERSECT accept only DataSet.");
+				throw new IllegalArgumentException("INTERSECT accept only DataSet.");
 			}
 		}//fine for controllo tipo e dstr
 		
@@ -2411,7 +2410,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		LOG.fine("Valutazione SET "+ctx.op.getText().toUpperCase());
 		
 		if(ctx.varname().size()!=2)
-			throw new RuntimeException(ctx.op.getText().toUpperCase()+" need two parameter.");
+			throw new IllegalArgumentException(ctx.op.getText().toUpperCase()+" need two parameter.");
 		
 		VTLObj a = this.visit(ctx.varname(0));
 		VTLObj b = this.visit(ctx.varname(1));
@@ -2472,14 +2471,14 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		if(tmp instanceof DataSet)
 			ds = (DataSet)tmp;
 		else
-			throw new RuntimeException("NVL accept DataSet only as first parameter.");
+			throw new IllegalArgumentException("NVL accept DataSet only as first parameter.");
 		
 		tmp = this.visit(ctx.expr());
 		Scalar s = null;
 		if(tmp instanceof Scalar)
 			s = (Scalar)tmp;
 		else
-			throw new RuntimeException("NVL accept Scalar only as second parameter.");
+			throw new IllegalArgumentException("NVL accept Scalar only as second parameter.");
 		
 		//controlla che tutti i campi measure abbiano lo stesso tipo
 		DataStructure dstr = ds.getDataStructure();
@@ -2488,7 +2487,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			if(dstr.getComponent(K).getType().equals(DataStructure.ROLE.Measure)) {
 				//confronto il tipo della misura con lo scalare in input
 				if( !((Scalar)dstr.getComponent(K).getDataType()).getScalarType().equals(s.getScalarType()) ) {
-					throw new RuntimeException("DataSet need to have all field Measure of the same type of the Scalar parameter.");
+					throw new IllegalArgumentException("DataSet need to have all field Measure of the same type of the Scalar parameter.");
 				}
 			}
 		}
@@ -2593,7 +2592,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				}
 			}
 			if(count!=1) {
-				throw new RuntimeException("AGGREGATE accept only DataSet with exactly one Measure.");
+				throw new IllegalArgumentException("AGGREGATE accept only DataSet with exactly one Measure.");
 			}
 			
 		} else if(in instanceof DataSetColumn) {
@@ -2604,12 +2603,12 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			dstr = ds.getDataStructure();
 			
 			if(!dstr.getComponent(dsc.getColumnName()).getType().equals(DataStructure.ROLE.Measure)) {
-				throw new RuntimeException("AGGREGATE: the column specified isn't a valid Measure component.");
+				throw new IllegalArgumentException("AGGREGATE: the column specified isn't a valid Measure component.");
 			}
 			target = dsc.getColumnName();
 			
 		} else {
-			throw new RuntimeException("AGGREGATE accept only DataSet or Membership.");
+			throw new IllegalArgumentException("AGGREGATE accept only DataSet or Membership.");
 		}
 		
 		//DataSet, la sua struttura e la colonna Measure verificati
@@ -2618,9 +2617,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		for(VarnameContext V : ctx.varname()) {
 			if(!dstr.containtComponent(V.getText()))
-				throw new RuntimeException("AGGREGATE: the Identifiers specified doesn't exist.");
+				throw new IllegalArgumentException("AGGREGATE: the Identifiers specified doesn't exist.");
 			if(!dstr.getComponent(V.getText()).getType().equals(DataStructure.ROLE.Identifier))
-				throw new RuntimeException("AGGREGATE: the Identifiers specified aren't valid.");
+				throw new IllegalArgumentException("AGGREGATE: the Identifiers specified aren't valid.");
 			
 			Component I = dstr.getComponent(V.getText());
 			ndstr.putComponent(I.getId(), I.getDataType(), I.getType());
@@ -2685,10 +2684,10 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		Procedure P = (Procedure) this.PRCFUNLIST.get(ctx.varname(0).getText());
 		if(P==null)
-			throw new RuntimeException("Undefined procedure ["+ctx.varname(0).getText()+"]");
+			throw new IllegalArgumentException("Undefined procedure ["+ctx.varname(0).getText()+"]");
 		
 		if((ctx.varname().size()-1) != P.getMapSize())
-			throw new RuntimeException("Bad procedure signature for ["+ctx.varname(0).getText()+"]");
+			throw new IllegalArgumentException("Bad procedure signature for ["+ctx.varname(0).getText()+"]");
 		
 		//prendo le variabili che mi servono dalla memoria, le copio in una nuova memoria rinominate
 		//e sostituisco la memoria
@@ -2762,10 +2761,10 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		//System.out.println("NAMED FUN CALLED " + ctx.varname(0).getText());
 		Function F = (Function) this.PRCFUNLIST.get(ctx.varname(0).getText());
 		if(F==null)
-			throw new RuntimeException("Undefined function ["+ctx.varname(0).getText()+"]");
+			throw new IllegalArgumentException("Undefined function ["+ctx.varname(0).getText()+"]");
 		
 		if((ctx.varname().size()-1) != F.getVarMapSize())
-			throw new RuntimeException("Bad function signature for ["+ctx.varname(0).getText()+"]");
+			throw new IllegalArgumentException("Bad function signature for ["+ctx.varname(0).getText()+"]");
 		
 		HashMap<String,VTLObj> M = new HashMap<String, VTLObj>();
 		//la prima  l'id della funzione quindi la salto

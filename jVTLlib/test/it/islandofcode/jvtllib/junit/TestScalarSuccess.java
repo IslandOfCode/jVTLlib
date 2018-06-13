@@ -2,7 +2,6 @@ package it.islandofcode.jvtllib.junit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import it.islandofcode.jvtllib.model.Scalar;
@@ -15,13 +14,6 @@ import it.islandofcode.jvtllib.model.util.SimpleDate;
 class TestScalarSuccess {
 
 	/**
-	 * @throws java.lang.Exception
-	 */
-	@BeforeEach
-	void setUp() throws Exception {
-	}
-
-	/**
 	 * Test method for {@link it.islandofcode.jvtllib.model.Scalar#Scalar(java.lang.Object)}.
 	 */
 	@Test
@@ -31,7 +23,6 @@ class TestScalarSuccess {
 	}
 	
 	
-
 	/**
 	 * Test method for {@link it.islandofcode.jvtllib.model.Scalar#Scalar(java.lang.Object, it.islandofcode.jvtllib.model.Scalar.SCALARTYPE)}.
 	 */

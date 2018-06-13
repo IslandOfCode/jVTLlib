@@ -17,15 +17,7 @@ public class DPRuleset implements VTLObj {
 	private ArrayList<String> columns;
 	/** lista regole */
 	private ArrayList<SingleruleContext> rules;
-	/** ultimo errore rilevato */
-	private Scalar lastError;
 
-	/**
-	 * Costruttore vuoto.
-	 * @deprecated
-	 */
-	public DPRuleset() {
-	}
 	
 	/**
 	 * Costruttore di base, prende in input il nome e una lista di colonne su cui deve operare.<br>
@@ -54,10 +46,7 @@ public class DPRuleset implements VTLObj {
 	public void addRule(SingleruleContext sr) {
 		this.rules.add(sr);	
 	}
-	
-	public Scalar lastErrorCode() {
-		return this.lastError;
-	}
+
 
 	/* (non-Javadoc)
 	 * @see it.islandofcode.jvtllib.model.VTLObj#getObjType()

@@ -163,13 +163,11 @@ public class DataStructure implements VTLObj {
 		VTLObj obj = this.getComponent(key).getDataType();
 		if(obj.getObjType().equals(objtype) && scatype==null) //se non sto esaminando uno scalare, allora scatype è vuoto.
 			return true;
-		if(
-				(scatype!=null && obj.getObjType().equals(VTLObj.OBJTYPE.Scalar)) &&
-				((Scalar)obj).getScalarType().equals(scatype)
-				) //voglio esaminare uno scalare, casto a scalare e confronto i tipi
-			return true;
+		
+		return ( (scatype!=null && obj.getObjType().equals(VTLObj.OBJTYPE.Scalar)) && ((Scalar)obj).getScalarType().equals(scatype) ); //voglio esaminare uno scalare, casto a scalare e confronto i tipi
+			//return true;
 		//se l'oggetto non è dello stesso tipo o dello stesso scalare, torno false
-		return false;
+		//return false;
 	}
 	
 	

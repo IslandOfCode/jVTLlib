@@ -1,11 +1,12 @@
 package it.islandofcode.jvtllib.junit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import it.islandofcode.jvtllib.model.DataPoint;
@@ -17,18 +18,17 @@ import it.islandofcode.jvtllib.model.exception.DataPointInvalidCostructor;
 
 class TestDataSet {
 
-	@BeforeEach
-	void setUp() throws Exception {
-	}
-
-	@SuppressWarnings("unused")
 	@Test
 	void testDataSetStringStringDataStructureBoolean() {
 		DataStructure dstr = new DataStructure("dstr1");
 		dstr.putComponent("comp1", new Scalar("test",Scalar.SCALARTYPE.String), DataStructure.ROLE.Identifier);
 		dstr.putComponent("comp2", new Scalar("619",Scalar.SCALARTYPE.Integer), DataStructure.ROLE.Measure);
 		DataSet ds = new DataSet("ds1","desc",dstr,false);
-		
+		DataPoint dp = new DataPoint();
+		dp.setValue("comp1", new Scalar("pippo",Scalar.SCALARTYPE.String));
+		dp.setValue("comp2", new Scalar("5",Scalar.SCALARTYPE.Integer));
+		ds.setPoint(dp);
+		assertEquals(ds.getSize(),1);
 	}
 
 	@Test

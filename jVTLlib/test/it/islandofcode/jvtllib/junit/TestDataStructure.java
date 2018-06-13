@@ -3,9 +3,11 @@
  */
 package it.islandofcode.jvtllib.junit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import it.islandofcode.jvtllib.model.DataStructure;
@@ -14,16 +16,8 @@ import it.islandofcode.jvtllib.model.VTLObj;
 
 /**
  * @author Pier Riccardo Monzo
- * @date 14 mar 2018
  */
 class TestDataStructure {
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@BeforeEach
-	void setUp() throws Exception {
-	}
 
 	/**
 	 * Test method for {@link it.islandofcode.jvtllib.model.DataStructure#DataStructure(java.lang.String)}.
@@ -33,15 +27,6 @@ class TestDataStructure {
 		DataStructure ds = new DataStructure("ds1");
 		assertEquals(ds.getName(),"ds1");
 		//che test idiota, ma tant'è...
-	}
-
-	/**
-	 * Test method for {@link it.islandofcode.jvtllib.model.DataStructure#isCollected()}.
-	 */
-	@Test
-	void testIsCollected() {
-		return;
-		//ritorno e basta perchè non è usato.
 	}
 
 	/**

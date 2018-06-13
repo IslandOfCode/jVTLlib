@@ -1,6 +1,7 @@
 package it.islandofcode.jvtllib.junit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,7 @@ import it.islandofcode.jvtllib.model.util.Aggregation;
  */
 class TestAggregation {
 
-	DataSet dst;
+	private DataSet dst;
 	
 	/**
 	 * @throws java.lang.Exception

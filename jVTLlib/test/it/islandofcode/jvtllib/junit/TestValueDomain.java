@@ -1,6 +1,7 @@
 package it.islandofcode.jvtllib.junit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashMap;
 import java.util.regex.PatternSyntaxException;
@@ -21,13 +22,13 @@ class TestValueDomain {
 	/**
 	 * Test method for {@link it.islandofcode.jvtllib.model.ValueDomain#ValueDomain(java.lang.String, java.lang.String, it.islandofcode.jvtllib.model.VTLObj, it.islandofcode.jvtllib.model.ValueDomain.RESTRICT, it.islandofcode.jvtllib.model.Scalar, it.islandofcode.jvtllib.model.Scalar)}.
 	 */
-	@SuppressWarnings("unused")
 	@Test
 	void testValueDomain() {
 		try {
 			String reg = "^\\\\$\\\\{([\\\\w]+)\\\\}$";
 			ValueDomain vd = new ValueDomain("name",reg,Scalar.SCALARTYPE.Float);
 			fail("Doveva lanciare eccezione, perchè " + reg + " non è una regex valida.");
+			reg = vd.getName(); //giusto per evitare il problema dell'unused
 		} catch (PatternSyntaxException pse){
 		}
 	}

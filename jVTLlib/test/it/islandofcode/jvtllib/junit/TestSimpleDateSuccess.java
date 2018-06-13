@@ -5,7 +5,8 @@ package it.islandofcode.jvtllib.junit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.BeforeEach;
+import java.time.LocalDate;
+
 import org.junit.jupiter.api.Test;
 
 import it.islandofcode.jvtllib.model.util.SimpleDate;
@@ -17,20 +18,12 @@ import it.islandofcode.jvtllib.model.util.SimpleDate;
 class TestSimpleDateSuccess {
 
 	/**
-	 * @throws java.lang.Exception
-	 */
-	@BeforeEach
-	void setUp() throws Exception {
-	}
-
-	/**
 	 * Test method for {@link it.islandofcode.jvtllib.model.util.SimpleDate#SimpleDate()}.
 	 */
 	@Test
 	void testSimpleDate() {
-		@SuppressWarnings("unused")
 		SimpleDate d = new SimpleDate();
-		//emm�?
+		assertEquals(d.getDate(), LocalDate.MIN);
 	}
 
 	/**
