@@ -300,7 +300,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			}
 		}
 
-		// caso solo scalari, il più semplice
+		// caso solo DataSet
 		if (left.getObjType().equals(VTLObj.OBJTYPE.DataSet) && right.getObjType().equals(VTLObj.OBJTYPE.DataSet)) {
 			if (ctx.op.getType() == newVTLParser.PLUS) {
 				return NumberOp.add((DataSet) left, (DataSet) right);
@@ -323,7 +323,7 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 
 		// caso solo scalari, il più semplice
 		if (left.getObjType().equals(VTLObj.OBJTYPE.Scalar) && right.getObjType().equals(VTLObj.OBJTYPE.Scalar)) {
-			if(ctx.op.getType()==newVTLParser.MUL) {
+			if(ctx.op.getType()==newVTLParser.MINUS) {
 				return NumberOp.sub((Scalar) left, (Scalar) right);
 			} else {
 				return NumberOp.div((Scalar) left, (Scalar) right);

@@ -51,9 +51,9 @@ public class NumberOp {
 				throw new ArithmeticException("Division by zero!");
 			}
 			if(a.getScalarType().equals(Scalar.SCALARTYPE.Float) || b.getScalarType().equals(Scalar.SCALARTYPE.Float)) {
-				return new Scalar(""+(a.asDouble()*b.asDouble()), Scalar.SCALARTYPE.Float);
+				return new Scalar(""+(a.asDouble()/b.asDouble()), Scalar.SCALARTYPE.Float);
 			}
-			return new Scalar(""+(a.asDouble()*b.asDouble()), Scalar.SCALARTYPE.Integer);
+			return new Scalar(""+(a.asDouble()/b.asDouble()), Scalar.SCALARTYPE.Integer);
 		} else 
 			throw new IllegalArgumentException("Div of non numerical value.");
 	}
