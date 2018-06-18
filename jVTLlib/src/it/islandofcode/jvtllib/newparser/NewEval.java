@@ -230,10 +230,11 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 
 		String key = ctx.varname().getText();
 		
-		if(!this.INJECTION.isEmpty()) { //se c'è qualcosa all'interno dell'oggetto
-			if(this.INJECTION.containsKey(key)) { //se l'oggetto contiene lo scalare necessario
-				return (Scalar)this.INJECTION.get(key); //ritorna l'oggetto dopo averlo castato a Scalar
-			}
+		
+		//se c'è qualcosa all'interno dell'oggetto
+		//se l'oggetto contiene lo scalare necessario
+		if(!this.INJECTION.isEmpty() && this.INJECTION.containsKey(key)) { 
+			return (Scalar)this.INJECTION.get(key); //ritorna l'oggetto dopo averlo castato a Scalar
 		}
 		
 		//in alternativa, ritorno uno scalare di tipo Null
@@ -1206,10 +1207,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	public VTLObj visitSingleruleBoth(SingleruleBothContext ctx) {
 		LOG.finest("EVAL SINGLERULE BOTH["+ctx.varname().getText()+"] IN CORSO");
 		String err = "";
-		if(ctx.errorCode()!=null) {
-			if(ctx.errorCode().literal()!=null)
-				err = ctx.errorCode().literal().getText();
-		}
+		if(ctx.errorCode()!=null && ctx.errorCode().literal()!=null)
+			err = ctx.errorCode().literal().getText();
 		
 		VTLObj antexp = this.visit(ctx.expr(0));
 		VTLObj conexp = this.visit(ctx.expr(1));
@@ -1390,7 +1389,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		//un datapoint vuoto che userò come var d'appoggio
 		DataPoint dp = null;
 		int numFailed = 0;
-		Scalar ErrMsg, ErrID;
+		Scalar ErrMsg;
+		Scalar ErrID;
 		
 		//ciclo su tutte le righe del dataset
 		for(int i=0; i<ds.getSize(); i++) {
@@ -1620,7 +1620,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		DataSet ds = null;
 
 			ds = new DataSet(A.getName()+"_"+B.getName(), "inner joined dataset", ndstr, false);
-			DataPoint dpA = null,dpB = null, dpR = null;
+			DataPoint dpA = null;
+			DataPoint dpB = null;
+			DataPoint dpR = null;
 			for(int a=0; a<A.getSize(); a++) {
 				dpR = new DataPoint();
 				dpA = A.getPoint(a);
@@ -1710,13 +1712,11 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		HashMap<String,String> map = (HashMap<String,String>) this.GLOBAL.get(U_KEEP_MAPPING);
 		
 		//se è rename, devo aggiungere tutti i component rimanenti
-		if(ctx.op.getText().toLowerCase().equals("rename")) {
-			//prima di tutto controllo se la dimensione è inferiore
-			if(dstr.getKeys().size() > ndstr.getKeys().size()) {
+		//prima di tutto controllo se la dimensione è inferiore
+		if(ctx.op.getText().equalsIgnoreCase("rename") && (dstr.getKeys().size() > ndstr.getKeys().size())) {
 				//mi mancano componenti
 				for(String OK : dstr.getKeys()) {
-					if(map.get(OK)==null)
-						if(ndstr.getComponent(OK)==null) {
+					if(map.get(OK)==null && ndstr.getComponent(OK)==null) {
 							//aggiungo nuovo componente
 							ndstr.putComponent(
 									dstr.getComponent(OK).getId(),
@@ -1727,7 +1727,6 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 						//non c'è nella mappa ma è presente nel nuovo dstr
 					//è presente nella mappa, unitile andare oltre
 				}//fine for
-			}
 			//la dimensione è la stessa, quindi potenzialmente ho tutti i componenti
 		}
 		
@@ -1884,9 +1883,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		String newrole = (ctx.componentRole() != null) ? ctx.componentRole().role.getText().toLowerCase() : null;
 		
 		//se l'operazione  rename, allora devo avere almeno uno tra AS e ROLE
-		if(opref.equals("rename"))
-				if(newid==null && newrole==null)
-					throw new IllegalArgumentException("RENAME clause need at least one parameter: AS, ROLE or both");
+		if("rename".equals(opref) && (newid==null && newrole==null) ) {
+			throw new IllegalArgumentException("RENAME clause need at least one parameter: AS, ROLE or both");
+		}
 		//altrimenti  keep, quindi posso andare avanti
 		
 		// inserisco nuovo componente
@@ -2178,9 +2177,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 	public VTLObj visitSetUnion(SetUnionContext ctx) {
 		LOG.fine("Valutazione SET UNION");
 		//secondo le specifiche, se passo un unico dataset, devo ritornarlo senza cambiamenti.
-		if(ctx.varname().size()<=1)
-			if( this.visit(ctx.varname(0)).getObjType().equals(VTLObj.OBJTYPE.DataSet) )
-				return this.visit(ctx.varname(0));
+		if(ctx.varname().size()<=1 && this.visit(ctx.varname(0)).getObjType().equals(VTLObj.OBJTYPE.DataSet) )
+			return this.visit(ctx.varname(0));
 		
 		//altrimenti, verifica che siano tutti dataset e che abbiano tutti lo stesso datastructure
 		ArrayList<DataSet> LDS = new ArrayList<>();
@@ -2192,13 +2190,12 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				LDS.add(i,(DataSet)tds);
 				//mi salvo il dstr per verificare che sia uguale al precedente
 				tdstr = ((DataSet)tds).getDataStructure();
-				if(i>0) { //se ho inserito solo il primo dataset, non posso fare controlli
-					if(!LDS.get(i-1).getDataStructure().equals(tdstr)) {
+				//se ho inserito solo il primo dataset, non posso fare controlli
+				if(i>0 && !LDS.get(i-1).getDataStructure().equals(tdstr)) {
 						/* Se il datastructure precedente e l'attuale non sono uguali,
 						 * lancia eccezione!
 						 */
-						throw new IllegalArgumentException("UNION accept only DataSet with the same DataStructure.");
-					}
+					throw new IllegalArgumentException("UNION accept only DataSet with the same DataStructure.");
 				}
 			} else {
 				throw new IllegalArgumentException("UNION accept only DataSet.");
@@ -2233,7 +2230,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		 */
 		
 		//il primo elemento  la mia nuova tabella
-		DataSet ret = null, tds = LDS.remove(0);
+		DataSet ret = null;
+		DataSet tds = LDS.remove(0);
 		DataStructure tdstr = tds.getDataStructure();
 		//creamo un nuovo datastructure senza attributi
 		DataStructure ndstr = new DataStructure("uniondstr");
@@ -2341,7 +2339,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		
 		//il primo elemento  la mia nuova tabella
-		DataSet ret = null, tds = LDS.get(0);
+		DataSet ret = null;
+		DataSet tds = LDS.get(0);
 		DataStructure tdstr = tds.getDataStructure();
 		//creamo un nuovo datastructure senza attributi
 		DataStructure ndstr = new DataStructure("uniondstr");
@@ -2484,11 +2483,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		DataStructure dstr = ds.getDataStructure();
 		for(String K : dstr.getKeys()) {
 			//ho trovato un campo measure
-			if(dstr.getComponent(K).getType().equals(DataStructure.ROLE.Measure)) {
-				//confronto il tipo della misura con lo scalare in input
-				if( !((Scalar)dstr.getComponent(K).getDataType()).getScalarType().equals(s.getScalarType()) ) {
-					throw new IllegalArgumentException("DataSet need to have all field Measure of the same type of the Scalar parameter.");
-				}
+			//confronto il tipo della misura con lo scalare in input
+			if(dstr.getComponent(K).getType().equals(DataStructure.ROLE.Measure) && !((Scalar)dstr.getComponent(K).getDataType()).getScalarType().equals(s.getScalarType()) ) {
+				throw new IllegalArgumentException("DataSet need to have all field Measure of the same type of the Scalar parameter.");
 			}
 		}
 		//se sono arrivato qui, significa che il controllo ha avuto successo
@@ -2545,11 +2542,9 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			tmp = this.visit(ctx.expr(e));
 			if(tmp instanceof Scalar) {
 				stmp = (Scalar)tmp;
-				if(stmp.getScalarType().equals(Scalar.SCALARTYPE.Boolean)) {
-					if(stmp.asBoolean()) {
-						//la condizione  true, quindi ritorno il then!
-						return this.visit(ctx.expr(e+1));
-					}
+				if(stmp.getScalarType().equals(Scalar.SCALARTYPE.Boolean) && stmp.asBoolean()) {
+					//la condizione  true, quindi ritorno il then!
+					return this.visit(ctx.expr(e+1));
 				}
 			}			
 		}
@@ -2720,10 +2715,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		VTLObj ret = this.getFromMemory(P.getOutputVarName());
 		
-		if(ret.getObjType().equals(VTLObj.OBJTYPE.DataSet)) {
-			if(!P.checkParam(P.getMapSize()-1, false, "dataset")) {
-				throw new RuntimeException("Return value type mismatch");
-			}
+		if(ret.getObjType().equals(VTLObj.OBJTYPE.DataSet) && !P.checkParam(P.getMapSize()-1, false, "dataset")) {
+			throw new RuntimeException("Return value type mismatch");
 		}
 		
 		this.GLOBAL.remove(NewEval.FLG_PRCDR_BODY);
@@ -2799,10 +2792,8 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 				String dt = F.getRetType().substring(0, 1).toUpperCase() + F.getRetType().substring(1);
 				//TODO se sconosciuto, valueOf dovrebbe lanciare un'eccezione, mi pare IllegalArgument.
 				SCALARTYPE t = Scalar.SCALARTYPE.valueOf(dt);
-				if(!S.getScalarType().equals(t)) {
-					if(!(S.isNumber() && (t.equals(Scalar.SCALARTYPE.Integer) ^ t.equals(Scalar.SCALARTYPE.Float))) )
-						throw new RuntimeException("Mismatched function return type");
-				}
+				if(!S.getScalarType().equals(t) && !(S.isNumber() && (t.equals(Scalar.SCALARTYPE.Integer) ^ t.equals(Scalar.SCALARTYPE.Float))) )
+					throw new RuntimeException("Mismatched function return type");
 			}
 		}
 
