@@ -3,12 +3,14 @@ package it.islandofcode.jvtllib;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
 
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import it.islandofcode.jvtllib.connector.IConnector;
+import it.islandofcode.jvtllib.model.Scalar;
 import it.islandofcode.jvtllib.newparser.NewEval;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLLexer;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser;
@@ -38,6 +40,8 @@ public class JVTLlib {
 	 * Tempo di esecuzione dello script in millisecondi.
 	 */
 	private String lastExTime = "";
+	
+	private HashMap<String,Scalar> injection = new HashMap<>();
 
 	/**
 	 * Aggiunge un connettore. Obbligatorio.
@@ -58,6 +62,12 @@ public class JVTLlib {
 			throw new IllegalArgumentException("Path cannot be null or empty");
 		
 		this.pathfile = path;
+	}
+	
+	public void addInjection(HashMap<String,Scalar> inj) {
+		if(inj!=null && !inj.isEmpty()) {
+			this.injection = inj;
+		}
 	}
 	
 	public void parseOnly() throws ParseException, IOException{
@@ -101,6 +111,7 @@ public class JVTLlib {
 		try {
 			tree = parser.parse();
 			NewEval visitor = new NewEval(this.connect);
+			visitor.inject(this.injection);
 	        visitor.visit(tree);
 		} catch(RuntimeException ex) {
 			//System.out.println("eccezione! " + ex.getMessage() + " @ " + ex.getClass().getSimpleName());

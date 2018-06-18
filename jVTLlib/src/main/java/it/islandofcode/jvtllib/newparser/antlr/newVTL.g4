@@ -66,6 +66,7 @@ expr : op=(NOT | PLUS | MINUS) right=expr						#unaryexpr
 	 //le uniche funzioni di I/O
 	 | getFunction												#getData
 	 //le unit� di base, le foglie dell'albero se vogliamo
+	 | injection 												#InjectionExpr
 	 | varmember												#membershipexpr
 	 | varname													#varexpr
 	 | literal													#literalexpr
@@ -177,7 +178,7 @@ callFun : varname LPAR varname (COMMA varname)* RPAR;
 
 
 /* Qui l'injection */
-injection : '@' LBRA varname RBRA ;
+injection : AT LBRA varname RBRA ;
 
 /*
  * Qui le istruzioni personali
@@ -283,6 +284,7 @@ RSQR : ']' ;
 COMMA : ',' ;
 COLON : ':' ;
 SCOL : ';';
+AT : '@';
 
 /* FUNCTION */
 RESTRICT : 'restrict';

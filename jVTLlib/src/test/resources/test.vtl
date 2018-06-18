@@ -1,7 +1,10 @@
-//LNKD_ENTRPRSS
-FinancialAccounting:=get("LNKD_ENTRPRSS");
-FinancialAccounting := FinancialAccounting[keep(CNTRPRTY_ID,ANNL_TRNVR),filter(ANNL_TRNVR<400)]
+A:=@{prova}
+printvar A
 
+
+//LNKD_ENTRPRSS
+FinancialAccounting:=get("LNKD_ENTRPRSS")
+FinancialAccounting := FinancialAccounting[keep(CNTRPRTY_ID,ANNL_TRNVR)]//,filter(ANNL_TRNVR<400)]
 printvar FinancialAccounting
 
 define datapoint ruleset PRM001(CNTRPRTY_ID){
@@ -13,7 +16,8 @@ result := check(FinancialAccounting, PRM001, all, condition)
 result := result[keep(CONDITION,RULE_ID,ANNL_TRNVR,PEPPINO)]
 
 printvar result
-
+//questo peppino è una colonna per testare la resilienza delle clausole keep/rename, quando esposte
+//a parametri non esattamente corretti. In questo caso PEPPINO non esiste.
 result := result[rename(PEPPINO as "LUIGI" role attribute)]
 
 printvar result

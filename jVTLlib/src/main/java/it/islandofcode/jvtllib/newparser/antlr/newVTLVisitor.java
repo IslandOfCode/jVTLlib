@@ -184,6 +184,13 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStringFunSubstr(newVTLParser.StringFunSubstrContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code InjectionExpr}
+	 * labeled alternative in {@link newVTLParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInjectionExpr(newVTLParser.InjectionExprContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code IsNullCondexpr}
 	 * labeled alternative in {@link newVTLParser#expr}.
 	 * @param ctx the parse tree

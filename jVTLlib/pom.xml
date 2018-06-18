@@ -6,7 +6,6 @@
 	<artifactId>jVTLlib</artifactId>
 	<version>0.5.0</version>
 	<build>
-		<sourceDirectory>src</sourceDirectory>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>

@@ -1,5 +1,6 @@
 package it.islandofcode.jvtllib.connector.basic;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
@@ -165,7 +166,7 @@ public class MongoBasic implements IConnector {
 		CsvParser p = new CsvParser(parserSettings);
 		Component c = null;
 		try {
-			p.beginParsing(new InputStreamReader(this.getClass().getResourceAsStream("src/main/resource/BIRDmap.csv"), "UTF-8"));
+			p.beginParsing(new InputStreamReader(this.getClass().getResourceAsStream("/BIRDmap.csv"), "UTF-8"));
 			String[] row;
 			VTLObj obtype = null;
 			DataStructure.ROLE attr;
