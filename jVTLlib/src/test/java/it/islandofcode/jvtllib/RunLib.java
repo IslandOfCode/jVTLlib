@@ -1,4 +1,4 @@
-package it.islandofcode.jvtllib.junit;
+package it.islandofcode.jvtllib;
 
 import java.io.IOException;
 import java.util.HashMap;
