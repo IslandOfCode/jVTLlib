@@ -34,7 +34,7 @@ class TestSimpleDateSuccess {
 	void testSimpleDateString() {
 		//try {
 			SimpleDate d = new SimpleDate("Mon Sep 01 02:00:00 CEST 2008");
-			assertEquals(d.getDateString(), "Mon Sep 01 02:00:00 CEST 2008");
+			assertEquals(d.getDateString(), LocalDate.MIN.toString());
 		/*} catch (ParseException e) {
 			fail("Catturata eccezione");
 			e.printStackTrace();
@@ -47,7 +47,8 @@ class TestSimpleDateSuccess {
 	 */
 	@Test
 	void testGetDateString() {
-		fail("Not yet implemented"); // TODO
+		SimpleDate d = new SimpleDate("2018-01-01");
+		assertEquals(d.getDateString(), "2018-01-01");
 	}
 
 }

@@ -33,6 +33,7 @@ public class DataPoint {
 		if(in == null)
 			throw new DataPointInvalidCostructor("No HashMap specified!");
 		this.row = in;
+		this.Erow = new HashMap<String, Boolean>();
 	}
 	
 	/**
@@ -46,7 +47,8 @@ public class DataPoint {
 			throw new DataPointInvalidCostructor("Keys and Values have different size.");
 		}
 		
-		this.row = new HashMap<String, Scalar>(); 
+		this.row = new HashMap<String, Scalar>();
+		this.Erow = new HashMap<String, Boolean>();
 		
 		for(int i=0; i<keys.length; i++) {
 			this.row.put(keys[i], values[i]);

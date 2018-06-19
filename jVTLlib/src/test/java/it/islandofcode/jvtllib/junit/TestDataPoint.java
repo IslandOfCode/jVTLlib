@@ -27,45 +27,41 @@ class TestDataPoint {
 	}
 
 	/**
-	 * Test method for {@link it.islandofcode.jvtllib.model.DataPoint#DataPoint(java.util.HashMap)}.
+	 * Test method for
+	 * {@link it.islandofcode.jvtllib.model.DataPoint#DataPoint(java.util.HashMap)}.
 	 */
 	@Test
 	void testDataPointHashMapOfStringScalar() {
 		HashMap<String, Scalar> in = new HashMap<String, Scalar>();
 		in.put("prova", new Scalar("pippo", Scalar.SCALARTYPE.String));
 		in.put("prova2", new Scalar("pluto", Scalar.SCALARTYPE.String));
-		
+
 		DataPoint dp;
 		try {
 			dp = new DataPoint(in);
-			//System.out.println("VALUE: " + dp.getValue("prova").asString());
-			assertEquals(dp.getValue("prova").asString(),"pippo");
+			// System.out.println("VALUE: " + dp.getValue("prova").asString());
+			assertEquals(dp.getValue("prova").asString(), "pippo");
 		} catch (Exception e) {
 			fail(e.getMessage());
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
 	}
 
 	/**
-	 * Test method for {@link it.islandofcode.jvtllib.model.DataPoint#DataPoint(java.lang.String[], it.islandofcode.jvtllib.model.Scalar[])}.
+	 * Test method for
+	 * {@link it.islandofcode.jvtllib.model.DataPoint#DataPoint(java.lang.String[], it.islandofcode.jvtllib.model.Scalar[])}.
 	 */
 	@Test
 	void testDataPointStringArrayScalarArray() {
-		String[] key = {
-				"prova",
-				"prova2"
-				};
-		Scalar[] value = {
-				new Scalar("10", Scalar.SCALARTYPE.Integer),
-				new Scalar("20", Scalar.SCALARTYPE.Integer)
-				};
-		
-		//System.out.println("KEYLEN: " + key.length + "\nVALUELEN: " + value.length);
+		String[] key = { "prova", "prova2" };
+		Scalar[] value = { new Scalar("10", Scalar.SCALARTYPE.Integer), new Scalar("20", Scalar.SCALARTYPE.Integer) };
+
+		// System.out.println("KEYLEN: " + key.length + "\nVALUELEN: " + value.length);
 		try {
-			DataPoint dp = new DataPoint(key,value);
-			assertEquals(dp.getValue("prova").asInteger(),10);
+			DataPoint dp = new DataPoint(key, value);
+			assertEquals(dp.getValue("prova").asInteger(), 10);
 		} catch (DataPointInvalidCostructor e) {
-			//System.out.println(e.getMessage());
+			// System.out.println(e.getMessage());
 			fail(e.getMessage());
 		}
 	}
@@ -78,20 +74,26 @@ class TestDataPoint {
 		HashMap<String, Scalar> in = new HashMap<String, Scalar>();
 		in.put("prova", new Scalar("pippo", Scalar.SCALARTYPE.String));
 		in.put("prova2", new Scalar("pluto", Scalar.SCALARTYPE.String));
-		
-		DataPoint dp = new DataPoint();
-		
-		if(dp.getKeySet() == null)
-			fail("ritornato iterable nullo");
-		
-		for(String K : dp.getKeySet()) {
-			if(dp.getValue(K) == null)
-				fail("ritornata chiave inesistente");
+
+		DataPoint dp;
+		try {
+			dp = new DataPoint(in);
+			if (dp.getKeySet() == null)
+				fail("ritornato iterable nullo");
+
+			for (String K : dp.getKeySet()) {
+				if (dp.getValue(K) == null)
+					fail("ritornata chiave inesistente");
+			}
+		} catch (DataPointInvalidCostructor e) {
+			fail(e.getMessage());
 		}
+
 	}
 
 	/**
-	 * Test method for {@link it.islandofcode.jvtllib.model.DataPoint#getValue(java.lang.String)}.
+	 * Test method for
+	 * {@link it.islandofcode.jvtllib.model.DataPoint#getValue(java.lang.String)}.
 	 */
 	@Test
 	void testGetValue() {
@@ -99,14 +101,15 @@ class TestDataPoint {
 		in.put("prova", new Scalar("pippo", Scalar.SCALARTYPE.String));
 		try {
 			DataPoint dp = new DataPoint(in);
-			assertEquals(dp.getValue("prova").asString(),"pippo");
+			assertEquals(dp.getValue("prova").asString(), "pippo");
 		} catch (DataPointInvalidCostructor e) {
 			fail(e.getMessage());
 		}
 	}
 
 	/**
-	 * Test method for {@link it.islandofcode.jvtllib.model.DataPoint#setValue(java.lang.String, it.islandofcode.jvtllib.model.Scalar)}.
+	 * Test method for
+	 * {@link it.islandofcode.jvtllib.model.DataPoint#setValue(java.lang.String, it.islandofcode.jvtllib.model.Scalar)}.
 	 */
 	@Test
 	void testSetValue() {
@@ -114,8 +117,8 @@ class TestDataPoint {
 		in.put("prova", new Scalar("pippo", Scalar.SCALARTYPE.String));
 		try {
 			DataPoint dp = new DataPoint(in);
-			dp.setValue("prova", new Scalar("pluto",Scalar.SCALARTYPE.String));
-			assertEquals(dp.getValue("prova").asString(),"pluto");
+			dp.setValue("prova", new Scalar("pluto", Scalar.SCALARTYPE.String));
+			assertEquals(dp.getValue("prova").asString(), "pluto");
 		} catch (DataPointInvalidCostructor e) {
 			fail(e.getMessage());
 		}
@@ -130,14 +133,14 @@ class TestDataPoint {
 		HashMap<String, Scalar> in = new HashMap<String, Scalar>();
 		in.put("prova", new Scalar("pippo", Scalar.SCALARTYPE.String));
 		in.put("prova2", new Scalar("pluto", Scalar.SCALARTYPE.String));
-		
+
 		DataPoint dp = new DataPoint();
-		
-		if(dp.getKeySet() == null)
+
+		if (dp.getKeySet() == null)
 			fail("ritornato iterable nullo");
-		
-		for(String K : dp.getKeySet()) {
-			if(dp.getValue(K) == null)
+
+		for (String K : dp.getKeySet()) {
+			if (dp.getValue(K) == null)
 				fail("ritornata chiave inesistente");
 		}
 	}

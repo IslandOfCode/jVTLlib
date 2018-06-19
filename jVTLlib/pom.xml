@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>jVTLlib</groupId>
 	<artifactId>jVTLlib</artifactId>
-	<version>0.5.0</version>
+	<version>0.6.0</version>
 	<build>
 		<plugins>
 			<plugin>
@@ -30,8 +30,14 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.7.4.201502262128</version>
+				<version>0.8.1</version>
 				<executions>
+					<!--<execution>
+						<id>default-prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>-->
 					<execution>
 						<id>jacoco-initialize</id>
 						<goals>
@@ -54,8 +60,23 @@
 				<configuration>
 					<forkCount>3</forkCount>
 					<reuseForks>true</reuseForks>
-					<argLine>-Xmx1024m -XX:MaxPermSize=256m</argLine>
+					<!-- <argLine>${argLine} -Xmx4096m -XX:MaxPermSize=512M ${itCoverageAgent}</argLine> -->
+					<argLine>${argLine} -Xmx1024m -XX:MaxPermSize=256m</argLine>
+					<!--<exclude>RunLib.java</exclude> -->
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>2.22.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
@@ -94,10 +115,15 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
-			<version>5.0.0-M1</version>
+			<version>5.2.0</version>
 			<scope>test</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-failsafe-plugin</artifactId>
+			<version>2.22.0</version>
+			<scope>test</scope>
+		</dependency>
 
 	</dependencies>
 </project>

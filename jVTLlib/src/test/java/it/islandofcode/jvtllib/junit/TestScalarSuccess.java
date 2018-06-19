@@ -74,7 +74,7 @@ class TestScalarSuccess {
 	 */
 	@Test
 	void testAsFloat() {
-		Scalar S = new Scalar("6.45f");
+		Scalar S = new Scalar("6.45");
 		assertEquals(6.45f, S.asFloat());
 	}
 
