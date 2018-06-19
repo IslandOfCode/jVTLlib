@@ -1,6 +1,7 @@
 package it.islandofcode.jvtllib.model.util;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -141,7 +142,7 @@ public class Aggregation {
 			this.data = d;
 			this.measure = a;
 			this.accumulated = new BigDecimal(d.getValue(a).getScalar());
-			this.count = 0;
+			this.count = 1; //palesemente c'è ne almeno uno
 			this.op = o;
 		}
 		
@@ -227,7 +228,10 @@ public class Aggregation {
 				//this.accumulated = new BigDecimal(tmp/getCount());
 				
 				//verificare ordine delle operazioni.
-				BigDecimal tmp = (new BigDecimal(getCount()-1)).multiply(accumulated).add(nv).divide(new BigDecimal(getCount()));
+				BigDecimal tmp = (new BigDecimal(getCount()-1))
+						.multiply(accumulated)
+						.add(nv)
+						.divide(new BigDecimal(getCount()), RoundingMode.HALF_EVEN);
 				this.accumulated = tmp;
 				break;
 			}

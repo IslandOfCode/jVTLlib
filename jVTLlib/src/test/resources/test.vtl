@@ -1,4 +1,16 @@
-A:=@{prova}
+FinancialAccounting:=get("LNKD_ENTRPRSS")
+FinancialAccounting := FinancialAccounting[
+		keep(CNTRPRTY_ID/*,ANNL_TRNVR*/,NMBR_EMPLYS),
+		//filter(ANNL_TRNVR<>null),
+		calc("C001" as "CNTRPRTY_ID")//,
+		//rename(NMBR_EMPLYS role attribute)
+	]
+printvar FinancialAccounting
+agg:=avg(FinancialAccounting) group by (CNTRPRTY_ID)
+printvar agg
+
+
+/*A:=@{prova}
 printvar A
 
 
@@ -20,4 +32,4 @@ printvar result
 //a parametri non esattamente corretti. In questo caso PEPPINO non esiste.
 result := result[rename(PEPPINO as "LUIGI" role attribute)]
 
-printvar result
+printvar result*/
