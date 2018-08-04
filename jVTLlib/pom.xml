@@ -46,11 +46,11 @@
 					</execution>
 				</executions>
 				<configuration>
-					<finalName>jVTLlite-standalone</finalName>
+					<finalName>jVTLlib-standalone</finalName>
 					<appendAssemblyId>false</appendAssemblyId>
 					<archive>
 						<manifest>
-							<mainClass>it.islandofcode.jVTLlite.Main</mainClass>
+							<mainClass>it.islandofcode.jVTLlib.Main</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
