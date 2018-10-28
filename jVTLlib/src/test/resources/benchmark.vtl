@@ -1,0 +1,23 @@
+//dsi:=get("C:\\Users\\Riccardo\\Desktop\\bigtest.xml")
+dsi:=get("C:\\Users\\Riccardo\\Desktop\\smalltest.xml")
+//dsi:=get("C:\\Users\\Riccardo\\Desktop\\debugtest.xml")
+/*
+dst:=dsi[
+	filter(UserId<0, Comment=null, Text<>null),
+	drop(CreationDate,PostHistoryTypeId),
+	rename(RevisionGUID as "Revision")
+	]*/
+
+//printvar dsi
+
+define datapoint ruleset CN0001(UserId,Comment,Text){
+	RL1: when true then UserId<0 and Comment=null and Text<>null errorcode("FAILED")
+}
+
+result := check(dsi,CN0001,valid,condition)
+
+//result := result[drop(CreationDate,PostHistoryTypeId)]
+
+printvar result
+
+nop

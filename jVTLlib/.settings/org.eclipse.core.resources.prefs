@@ -1,6 +1,6 @@
 eclipse.preferences.version=1
-encoding//resources/BIRDmap.csv=UTF-8
-encoding//src/it/islandofcode/jvtllib/newparser/antlr/antlrcompile.bat=UTF-8
-encoding//src/it/islandofcode/jvtllib/newparser/antlr/newVTL.g4=UTF-8
-encoding//src/it/islandofcode/jvtllib/newparser/antlr/newVTL.tokens=UTF-8
-encoding//src/it/islandofcode/jvtllib/newparser/antlr/newVTLLexer.tokens=UTF-8
+encoding//src/main/java/it/islandofcode/jvtllib/newparser/antlr/antlrcompile.bat=UTF-8
+encoding//src/main/java/it/islandofcode/jvtllib/newparser/antlr/newVTL.g4=UTF-8
+encoding//src/main/java/it/islandofcode/jvtllib/newparser/antlr/newVTL.tokens=UTF-8
+encoding//src/main/java/it/islandofcode/jvtllib/newparser/antlr/newVTLLexer.tokens=UTF-8
+encoding//src/main/resources/BIRDmap.csv=UTF-8
