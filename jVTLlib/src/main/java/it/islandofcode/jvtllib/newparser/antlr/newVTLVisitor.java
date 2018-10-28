@@ -121,6 +121,13 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitLogicalexpr(newVTLParser.LogicalexprContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code dateExpr}
+	 * labeled alternative in {@link newVTLParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDateExpr(newVTLParser.DateExprContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code singleparamMathfun}
 	 * labeled alternative in {@link newVTLParser#expr}.
 	 * @param ctx the parse tree
@@ -170,6 +177,13 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStringFunReplace(newVTLParser.StringFunReplaceContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code StringStartWith}
+	 * labeled alternative in {@link newVTLParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStringStartWith(newVTLParser.StringStartWithContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code checkExpr}
 	 * labeled alternative in {@link newVTLParser#expr}.
 	 * @param ctx the parse tree
@@ -197,6 +211,13 @@ public interface newVTLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitIsNullCondexpr(newVTLParser.IsNullCondexprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code RegExpr}
+	 * labeled alternative in {@link newVTLParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRegExpr(newVTLParser.RegExprContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code precedenceexpr}
 	 * labeled alternative in {@link newVTLParser#expr}.

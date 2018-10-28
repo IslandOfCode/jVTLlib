@@ -9,7 +9,6 @@ import it.islandofcode.jvtllib.model.DataSet;
  * @author Pier Riccardo Monzo
  */
 public interface IConnector {
-	//TODO verificare e implementare ulteriormente laddove necessario.
 	
 	/**
 	 * Recupera un dataset da una specifica posizione.<br>
@@ -34,23 +33,5 @@ public interface IConnector {
 	 * @return boolean
 	 */
 	public boolean put(String location, DataSet data);
-	
-	/**
-	 * Ritorna True se questo oggetto è collegato ad una base di dati<br>
-	 * e se questo sia effettivamente raggiungibile e sia possibile operare <br>
-	 * su di esso.
-	 * @return boolean
-	 */
-	public boolean checkStatus();
-	
-	/**
-	 * Ritorna la posizione usata per il recupero dei dati.<br>
-	 * Se non è mai stato chiamato {@code get()}, il valore <br>
-	 * di <i>Location</i> sarà stringa vuota.<br>
-	 * Ovviamente, non è obbligatorio usare lo stesso valore:<br>
-	 * se ad es. abbiamo modificato il valore di tab1 nel dataset ds1,<br>
-	 * ma non vogliamo alterare tab1, possiamo indicare tab2 come <i>Location</i>.<br>
-	 * @return String
-	 */
-	public String getLocation();
+
 }

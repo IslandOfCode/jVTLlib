@@ -49,6 +49,8 @@ import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.ClausedropContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.ClausejoinContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.DBGnopContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.DBGprintvarContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.DateExprContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.DateLiteralContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.DoubleparamMathfunContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.DprulesetContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.GetFunctionContext;
@@ -71,6 +73,7 @@ import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.ParseContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.PrecedenceexprContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.ProcVarInListContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.PutDataContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.RegExprContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.RelationalCondContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.RoundexprContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.SetIntersectContext;
@@ -84,6 +87,7 @@ import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.StringConcatContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.StringFunReplaceContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.StringFunSubstrContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.StringLiteralContext;
+import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.StringStartWithContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.UnaryexprContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.VarmemberContext;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser.VarnameContext;
@@ -1001,11 +1005,11 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 
 	@Override
 	public VTLObj visitLiteral(LiteralContext ctx) {
-		Scalar sca = new Scalar(ctx.getText());
+		//Scalar sca = new Scalar(ctx.getText());
 
-		LOG.finest("Found LITERAL " + ctx.getText() + " type[" + sca.getScalarType() + "]");
+		//LOG.finest("Found LITERAL " + ctx.getText() );// + " type[" + sca.getScalarType() + "]");
 		// return super.visitLiteral(ctx);
-		return sca;
+		return super.visitLiteral(ctx);
 	}
 	
 	/* (non-Javadoc)
@@ -1030,9 +1034,25 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		return sca;
 	}
 	
+	@Override
+	public VTLObj visitDateLiteral(DateLiteralContext ctx) {
+		Scalar sca = new Scalar(ctx.getText(),Scalar.SCALARTYPE.Date);
+		
+		LOG.finest("Found DATE LITERAL " + ctx.getText() + " type[" + sca.getScalarType() + "]");
+		return sca;
+		//return super.visitDateLiteral(ctx);
+	}
+
+	@Override
+	public VTLObj visitDateExpr(DateExprContext ctx) {
+		
+		LOG.finest("Found DATE LITERAL " + ctx.getText());
+		
+		return new Scalar( ctx.dateLiteral().getText(), Scalar.SCALARTYPE.Date );
+	}
 	
 	/* FUNZIONI STRINGHE */
-	
+
 	/* (non-Javadoc)
 	 * @see it.islandofcode.jvtllib.newparser.newVTLBaseVisitor#visitStringLiteral(it.islandofcode.jvtllib.newparser.newVTLParser.StringLiteralContext)
 	 */
@@ -1128,6 +1148,30 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 		
 		return new Scalar(str.asString().replaceAll(oldchar, newchar), Scalar.SCALARTYPE.String);
 	}
+	
+
+	@Override
+	public VTLObj visitStringStartWith(StringStartWithContext ctx) {
+		VTLObj expr = this.visit(ctx.varname());
+
+		Scalar str = null;
+
+		if (!(expr instanceof Scalar))
+			throw new IllegalArgumentException("STARTWITH accept only Scalar.");
+
+		if (((Scalar) expr).getScalarType().equals(Scalar.SCALARTYPE.String))
+			str = (Scalar) expr;
+		else
+			throw new IllegalArgumentException("STARTWITH accept only String");
+		
+		String start = ((Scalar) this.visit(ctx.stringLiteral())).asString();
+		
+		if(str.asString().startsWith(start))
+			return Scalar.TRUE;
+		
+		return Scalar.FALSE;
+	}
+
 
 	/* (non-Javadoc)
 	 * @see it.islandofcode.jvtllib.newparser.newVTLBaseVisitor#visitStringConcatVar(it.islandofcode.jvtllib.newparser.newVTLParser.StringConcatVarContext)
@@ -1141,6 +1185,26 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			return new Scalar(a.asString()+b.asString(), Scalar.SCALARTYPE.String);
 		} else
 			throw new IllegalArgumentException("CONCAT need two string.");
+	}
+	
+
+	@Override
+	public VTLObj visitRegExpr(RegExprContext ctx) {
+		VTLObj vtlobj = this.visit(ctx.varname());
+
+		String input = null;
+
+		if (!(vtlobj instanceof Scalar))
+			throw new IllegalArgumentException("STARTWITH accept only Scalar.");
+
+		input = ((Scalar) vtlobj).asString();
+		
+		String regex = ((Scalar) this.visit(ctx.stringLiteral()) ).asString();
+		
+		if(input.matches(regex))
+			return Scalar.TRUE;
+		
+		return Scalar.FALSE;
 	}
 
 	/* VISITOR PER DEFINE DATAPOINT RULESET */

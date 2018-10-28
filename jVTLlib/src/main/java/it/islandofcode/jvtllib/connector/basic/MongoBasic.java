@@ -1,6 +1,5 @@
 package it.islandofcode.jvtllib.connector.basic;
 
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
@@ -30,139 +29,109 @@ public class MongoBasic implements IConnector {
 	private MongoClient MC;
 	private String database;
 	private String table;
-	
+
 	/*
 	 * Si usa uniVocity per il parsing da csv
 	 * https://github.com/uniVocity/univocity-parsers
 	 */
-	
+
 	public MongoBasic(String IP, int port, String db) {
 		String URI = "mongodb://";
-		//se IP/porta non specificato o fuori specifica, vai di default
-		if(IP==null || IP.isEmpty())
+		// se IP/porta non specificato o fuori specifica, vai di default
+		if (IP == null || IP.isEmpty())
 			URI += "127.0.0.1";
 		else
 			URI += IP;
 		URI += ":";
-		if(port<=0 || port>65535)
-			URI+=27017;
+		if (port <= 0 || port > 65535)
+			URI += 27017;
 		else
-			URI+=port;
-		
-		//mongodb://host1:27017
-		
+			URI += port;
+
+		// mongodb://host1:27017
+
 		MC = MongoClients.create(URI);
-		//MC = new MongoClient(IP,port);
+		// MC = new MongoClient(IP,port);
 		this.database = db;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see it.islandofcode.jvtllib.connector.IConnector#get(java.lang.String)
 	 */
 	@Override
 	public DataSet get(String location, String[] keep) {
 		this.table = location;
 		DataSet ds = null;
-		
-		if(this.checkStatus()) {
-			MongoDatabase db = MC.getDatabase(this.database);
-			MongoCollection<Document> table = db.getCollection(this.table);
-			
-			//creiamo qui in DataStructure
-			Document first = table.find().first();
-			if(first==null) {
-				return null; //se ne occupa l'eccezione in NewEval
-			}
-			DataStructure dstr = new DataStructure(location+"_dstr");
-			for(String K : first.keySet()) {
-				if("_id".equals(K))
-					continue;
-				if(keep!=null) {
-					for(int i=0; i<keep.length; i++) {
-						if(keep[i].equals(K)) {
-							Component C = this.retrive(K);
-							if(C==null)
-								return null; //se non ho trovato la colonna o non sono riuscito a generarla, torno null.
-							dstr.putComponent(
-									C.getId(),
-									C.getDataType(),
-									C.getType()
-									);
-							break;
-						}
-					}//fine for su keep
-				} else {
-					Component C = this.retrive(K);
-					if(C==null)
-						return null; //se non ho trovato la colonna o non sono riuscito a generarla, torno null.
-					dstr.putComponent(
-							C.getId(),
-							C.getDataType(),
-							C.getType()
-							);
-				}
-				
-				
-				
-			}//fine for su first
-			
-			ds = new DataSet(location,this.database,dstr,true);
-			for(Document D : table.find()) {
-				DataPoint dp = new DataPoint();
-				for(String I : D.keySet()) {
-					if("_id".equals(I))
-						continue;
-					VTLObj r = retrive(I).getDataType();
-					SCALARTYPE s;
-					if(r.getObjType()==VTLObj.OBJTYPE.Scalar) {
-						s = ((Scalar)r).getScalarType();
-					} else {
-						s = ((ValueDomain)r).getScalarType();
+
+		MongoDatabase db = MC.getDatabase(this.database);
+		MongoCollection<Document> table = db.getCollection(this.table);
+
+		// creiamo qui in DataStructure
+		Document first = table.find().first();
+		if (first == null) {
+			return null; // se ne occupa l'eccezione in NewEval
+		}
+		DataStructure dstr = new DataStructure(location + "_dstr");
+		for (String K : first.keySet()) {
+			if ("_id".equals(K))
+				continue;
+			if (keep != null) {
+				for (int i = 0; i < keep.length; i++) {
+					if (keep[i].equals(K)) {
+						Component C = this.retrive(K);
+						if (C == null)
+							return null; // se non ho trovato la colonna o non sono riuscito a generarla, torno null.
+						dstr.putComponent(C.getId(), C.getDataType(), C.getType());
+						break;
 					}
-					dp.setValue(I, new Scalar(String.valueOf(D.get(I)),s) );
-				}
-				ds.setPoint(dp);
+				} // fine for su keep
+			} else {
+				Component C = this.retrive(K);
+				if (C == null)
+					return null; // se non ho trovato la colonna o non sono riuscito a generarla, torno null.
+				dstr.putComponent(C.getId(), C.getDataType(), C.getType());
 			}
-			
-		} else
-			return null; //se faccio check prima di get, non dovrei MAI arrivare qui.
-		
+
+		} // fine for su first
+
+		ds = new DataSet(location, this.database, dstr, true);
+		for (Document D : table.find()) {
+			DataPoint dp = new DataPoint();
+			for (String I : D.keySet()) {
+				if ("_id".equals(I))
+					continue;
+				VTLObj r = retrive(I).getDataType();
+				SCALARTYPE s;
+				if (r.getObjType() == VTLObj.OBJTYPE.Scalar) {
+					s = ((Scalar) r).getScalarType();
+				} else {
+					s = ((ValueDomain) r).getScalarType();
+				}
+				dp.setValue(I, new Scalar(String.valueOf(D.get(I)), s));
+			}
+			ds.setPoint(dp);
+		}
+
 		return ds;
 	}
 
-	/* (non-Javadoc)
-	 * @see it.islandofcode.jvtllib.connector.IConnector#set(java.lang.String, it.islandofcode.jvtllib.model.DataSet)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see it.islandofcode.jvtllib.connector.IConnector#set(java.lang.String,
+	 * it.islandofcode.jvtllib.model.DataSet)
 	 */
 	@Override
 	public boolean put(String location, DataSet data) {
-		
+
 		return false;
 	}
 
-	/* (non-Javadoc)
-	 * @see it.islandofcode.jvtllib.connector.IConnector#checkStatus()
-	 */
-	@Override
-	public boolean checkStatus() {
-		for(String N : MC.listDatabaseNames()) {
-			if(N.equals(this.database))
-				return true;
-		}
-		return false;
-	}
-
-	/* (non-Javadoc)
-	 * @see it.islandofcode.jvtllib.connector.IConnector#getLocation()
-	 */
-	@Override
-	public String getLocation() {
-		return this.table;
-	}
-	
-	
 	private final Component retrive(String key) {
 		CsvParserSettings parserSettings = new CsvParserSettings();
-		parserSettings.setHeaderExtractionEnabled(true); //ignora il primo rigo (Header)
+		parserSettings.setHeaderExtractionEnabled(true); // ignora il primo rigo (Header)
 		CsvParser p = new CsvParser(parserSettings);
 		Component c = null;
 		try {
@@ -171,10 +140,10 @@ public class MongoBasic implements IConnector {
 			VTLObj obtype = null;
 			DataStructure.ROLE attr;
 			while ((row = p.parseNext()) != null) {
-				if(!row[0].equals(key)) {
+				if (!row[0].equals(key)) {
 					continue;
 				}
-				switch(row[4]) {
+				switch (row[4]) {
 				case "string":
 					obtype = new Scalar(Scalar.SCALARTYPE.String);
 					break;
@@ -194,8 +163,8 @@ public class MongoBasic implements IConnector {
 					p.stopParsing();
 					return null;
 				}
-				
-				switch(row[1]) {
+
+				switch (row[1]) {
 				case "D":
 					attr = DataStructure.ROLE.Identifier;
 					break;
@@ -209,8 +178,8 @@ public class MongoBasic implements IConnector {
 					p.stopParsing();
 					return null;
 				}
-				
-				c = new Component(row[0],obtype,attr);
+
+				c = new Component(row[0], obtype, attr);
 			}
 		} catch (UnsupportedEncodingException e) {
 			p.stopParsing();
@@ -219,5 +188,5 @@ public class MongoBasic implements IConnector {
 		p.stopParsing();
 		return c;
 	}
-	
+
 }

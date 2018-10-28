@@ -1,6 +1,13 @@
-FinancialAccounting:=get("LNKD_ENTRPRSS")
+TEST := "123pippo"
+SWT := startwith(TEST,"123")
+REG := regexp(TEST,"^[0-9]{3}[a-z]*$");
+printvar SWT
+printvar REG
+
+
+/*FinancialAccounting:=get("LNKD_ENTRPRSS")
 FinancialAccounting := FinancialAccounting[
-		keep(CNTRPRTY_ID/*,ANNL_TRNVR*/,NMBR_EMPLYS),
+		keep(CNTRPRTY_ID/*,ANNL_TRNVR/,NMBR_EMPLYS),
 		//filter(ANNL_TRNVR<>null),
 		calc("C001" as "CNTRPRTY_ID")//,
 		//rename(NMBR_EMPLYS role attribute)
@@ -10,7 +17,10 @@ agg:=avg(FinancialAccounting) group by (CNTRPRTY_ID)
 printvar agg
 
 
-/*A:=@{prova}
+
+
+
+A:=@{prova}
 printvar A
 
 

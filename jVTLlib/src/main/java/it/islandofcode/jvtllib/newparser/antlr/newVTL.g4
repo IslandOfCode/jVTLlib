@@ -25,7 +25,8 @@ assignment : varname ASSIGN expr;
  * Per ogni riga c'� una possibile espressione divisa in base alle operazioni.
  * Importante notare che expr � ricorsiva, e scende fino alle foglie, cio� literal o variabili.
  */
-expr : op=(NOT | PLUS | MINUS) right=expr						#unaryexpr
+expr : DIESIS LBRA dateLiteral RBRA								#dateExpr
+	 | op=(NOT | PLUS | MINUS) right=expr						#unaryexpr
 	 | LPAR expr RPAR											#precedenceexpr
 	 | condOperator												#condOpExpr
 	 //espressioni matematiche
@@ -50,10 +51,12 @@ expr : op=(NOT | PLUS | MINUS) right=expr						#unaryexpr
 	  * pensa sia una lista e non un singolo. */
 	 | (NOT)* ISNULL LPAR expr RPAR									#IsNullCondexpr
 	 | left=expr op=(AND|OR) right=expr							#Logicalexpr
+	 | REGEXP LPAR varname COMMA stringLiteral RPAR			#RegExpr
 	 //funzioni di gestione stringhe
 	 | a=expr CONCAT b=expr														#StringConcat
 	 | SUBSTR LPAR expr (COMMA integerLiteral)? (COMMA integerLiteral)? RPAR	#StringFunSubstr
 	 | REPLACE LPAR varname COMMA stringLiteral COMMA stringLiteral RPAR		#StringFunReplace
+	 | STARTWITH LPAR varname COMMA stringLiteral RPAR							#StringStartWith
 	 //funzioni di validazione (check)
 	 | checkfunction											#checkExpr
 	 //funzioni di manipolazione delle colonne
@@ -222,7 +225,7 @@ stringtype : STRINGTYPE;
 */
 literal : nullLiteral
          | booleanLiteral
-         | dateLiteral
+         //| dateLiteral
          | integerLiteral
          | floatLiteral
          | stringLiteral ;
@@ -285,11 +288,14 @@ COMMA : ',' ;
 COLON : ':' ;
 SCOL : ';';
 AT : '@';
+DIESIS : '#';
 
 /* FUNCTION */
 RESTRICT : 'restrict';
 GET : 'get';
 PUT :'put';
+
+REGEXP : 'regexp';
 
 CHECK : 'check';
 VALID : 'valid';
@@ -347,6 +353,7 @@ GROPUBY: 'group by';
 //string
 SUBSTR : 'substr';
 REPLACE : 'replace';
+STARTWITH : 'startwith';
 
 /* IDENTIFICATORI */
 ROLE : 'role';
@@ -384,11 +391,12 @@ DATASET : 'dataset';
 
 /* LITERAL DEFINITION */
 // "2000-01-01T00:00:00.000Z"
-DATE_LITERAL : FULL_DATE 'T' FULL_TIME ('Z' | OFFSET ) ;
-fragment FULL_DATE : DIGIT4 '-' DIGIT2 '-' DIGIT2 ;
+//DATE_LITERAL : FULL_DATE 'T' FULL_TIME ('Z' | OFFSET ) ;
+DATE_LITERAL : DIGIT4 '-' DIGIT2 '-' DIGIT2;
+//fragment FULL_DATE : DIGIT4 '-' DIGIT2 '-' DIGIT2 ;
 fragment FULL_TIME : DIGIT2 ':' DIGIT2 ':' DIGIT2 ( '.' DIGIT+ )? ;
-fragment OFFSET : ('+' | '-' ) DIGIT+ ':' DIGIT+ ;
-fragment DIGIT4 : DIGIT2 DIGIT2 ;
+//fragment OFFSET : ('+' | '-' ) DIGIT+ ':' DIGIT+ ;
+fragment DIGIT4 : DIGIT DIGIT DIGIT DIGIT ;
 fragment DIGIT2 : DIGIT DIGIT ;
 
 //per il segno leggi float
