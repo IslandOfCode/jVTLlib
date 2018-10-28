@@ -15,10 +15,10 @@ Be advise: this library is a mere _Proof of Concept_.
 
 
 ### Getting Started
-Before use this library, you need to create a class that extend [IConnector](src/main/java/it/islandofcode/jvtllib/connector/IConnector.java)  
+Before use this library, you need to create a class that extend [IConnector](/jVTLlib/src/main/java/it/islandofcode/jvtllib/connector/IConnector.java)  
 
 The ```IConnector``` interface let you implementes the input/output layer.  
-Just remember: the **get** method need to read the external data and populate a dataset. Meanwhile the **put** method have to write a [DataSet](src/main/java/it/islandofcode/jvtllib/model/DataSet.java)
+Just remember: the **get** method need to read the external data and populate a dataset. Meanwhile the **put** method have to write a [DataSet](/jVTLlib/src/main/java/it/islandofcode/jvtllib/model/DataSet.java)
 content into an external file/deb/whatever you choose.
 
 ```java
@@ -31,10 +31,10 @@ public interface IConnector {
 
 ```
 
-You can find a good (**but incomplete**) example within the [connector.basic](src/main/java/it/islandofcode/jvtllib/connector/basic/) package.  
-Use the [MongoBasic](src/main/java/it/islandofcode/jvtllib/connector/basic/MongoBasic.java) class as example, even if is it incomplete (**put** is empty).
+You can find a good (**but incomplete**) example within the [connector.basic](/jVTLlib/src/main/java/it/islandofcode/jvtllib/connector/basic/) package.  
+Use the [MongoBasic](/jVTLlib/src/main/java/it/islandofcode/jvtllib/connector/basic/MongoBasic.java) class as example, even if is it incomplete (**put** is empty).
 
-The **put** method is basically a foreach on the [DataPoint](src/main/java/it/islandofcode/jvtllib/model/DataPoint.java), using the [DataStructure](src/main/java/it/islandofcode/jvtllib/model/DataStructure.java) to reference.
+The **put** method is basically a foreach on the [DataPoint](/jVTLlib/src/main/java/it/islandofcode/jvtllib/model/DataPoint.java), using the [DataStructure](/jVTLlib/src/main/java/it/islandofcode/jvtllib/model/DataStructure.java) to reference.
 
 ### Use
 With the connector, you have everything you need.
