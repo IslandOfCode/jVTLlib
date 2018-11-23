@@ -1,5 +1,6 @@
 package it.islandofcode.jvtllib;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -17,7 +18,8 @@ public class RunLib {
 		JVTLlib lib = new JVTLlib();
 		lib.addConnector(new MongoBasic("127.0.0.1",27017,"jVTLlib"));
 		//lib.addFile("src/test/it/islandofcode/jvtllib/junit/testProcedure.vtl");
-		lib.addFile("src/test/resources/test.vtl");
+		//lib.addFile("src/test/resources/test.vtl");
+		lib.addScript(new File("src/test/resources/test.vtl"));
 		//lib.setParseOnly(true); ??
 		HashMap<String, Scalar> I = new HashMap<>();
 		I.put("prova", new Scalar("pippo",Scalar.SCALARTYPE.String));

@@ -1,11 +1,13 @@
 package it.islandofcode.jvtllib;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 
 import org.antlr.v4.runtime.ANTLRFileStream;
+import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -35,7 +37,11 @@ public class JVTLlib {
 	/**
 	 * Path al file da eseguire.
 	 */
-	private String pathfile = null;
+	private String source = null;
+	/**
+	 * Se true, ho indicato un path ad un file.
+	 */
+	private boolean isFile = false;
 	/**
 	 * Tempo di esecuzione dello script in millisecondi.
 	 */
@@ -54,14 +60,38 @@ public class JVTLlib {
 	}
 	
 	/**
+	 * @deprecated
 	 * Passa una stringa che indica il path della CU VTL da eseguire.
 	 * @param path String
 	 */
 	public void addFile(String path) {
 		if(path == null || path.isEmpty())
 			throw new IllegalArgumentException("Path cannot be null or empty");
-		
-		this.pathfile = path;
+		this.isFile = true;
+		this.source = path;
+	}
+	
+	/**
+	 * Passa il file che contiene la CU VTL da eseguire
+	 * @param File
+	 */
+	public void addScript(File file) {
+		if(file == null || !file.isFile() || !file.exists() || !file.canRead())
+			throw new IllegalArgumentException("File cannot be null or a directory, have to exist and be readable.");
+		this.isFile = true;
+		this.source = file.getPath();
+	}
+	
+	/**
+	 * Passa la VTL da eseguire sotto forma di stringa.
+	 * Utile per database o simili.
+	 * @param String
+	 */
+	public void addScript(String script) {
+		if(script==null || script.isEmpty() || script.length()<3)
+			throw new IllegalArgumentException("Script cannot be null or empty string");
+		this.isFile = false;
+		this.source = script;
 	}
 	
 	public void addInjection(HashMap<String,Scalar> inj) {
@@ -70,11 +100,17 @@ public class JVTLlib {
 		}
 	}
 	
-	public void parseOnly() throws ParseException, IOException{
+	
+	
+	public boolean parseOnly() throws ParseException, IOException{
 		Instant start = Instant.now();
 		Instant end;
 		
-		newVTLLexer lexer = new newVTLLexer(new ANTLRFileStream(pathfile));
+		newVTLLexer lexer;
+		if(this.isFile)
+			lexer = new newVTLLexer(new ANTLRFileStream(source));
+		else
+			lexer = new newVTLLexer(new ANTLRInputStream(source));
 		newVTLParser parser = new newVTLParser(new CommonTokenStream(lexer));
 		
 		//error handling test
@@ -94,13 +130,18 @@ public class JVTLlib {
 		
 		end = Instant.now();
 		this.lastExTime = Duration.between(start, end).toString();
+		return true;
 	}
 	
 	public boolean execute() throws RuntimeException, IOException{
 		Instant start = Instant.now();
 		Instant end;
 		
-		newVTLLexer lexer = new newVTLLexer(new ANTLRFileStream(pathfile));
+		newVTLLexer lexer;
+		if(this.isFile)
+			lexer = new newVTLLexer(new ANTLRFileStream(source));
+		else
+			lexer = new newVTLLexer(new ANTLRInputStream(source));
 		newVTLParser parser = new newVTLParser(new CommonTokenStream(lexer));
 		
 		//error handling test
