@@ -192,6 +192,13 @@ public class NewEval extends newVTLBaseVisitor<VTLObj> {
 			this.INJECTION = new HashMap<String,Scalar>();
 	}
 	
+	public void injectDirect(Map<String,VTLObj> inj) {
+		if(inj == null)
+			inj = new HashMap<String,VTLObj>();
+		
+		this.MEMORY.putAll(inj);
+	}
+	
 	/**************** OVERRIDE METODI VISITOR ****************/
 	
 	@Override

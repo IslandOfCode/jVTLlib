@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>it.islandofcode.jvtllib</groupId>
 	<artifactId>jVTLlib</artifactId>
-	<version>0.6.0</version>
+	<version>0.6.1</version>
 	<build>
 		<plugins>
 					<plugin>

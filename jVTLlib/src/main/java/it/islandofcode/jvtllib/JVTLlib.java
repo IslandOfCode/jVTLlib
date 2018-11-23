@@ -13,6 +13,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import it.islandofcode.jvtllib.connector.IConnector;
 import it.islandofcode.jvtllib.model.Scalar;
+import it.islandofcode.jvtllib.model.VTLObj;
 import it.islandofcode.jvtllib.newparser.NewEval;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLLexer;
 import it.islandofcode.jvtllib.newparser.antlr.newVTLParser;
@@ -48,6 +49,7 @@ public class JVTLlib {
 	private String lastExTime = "";
 	
 	private HashMap<String,Scalar> injection = new HashMap<>();
+	private HashMap<String,VTLObj> directMapping = new HashMap<>();
 
 	/**
 	 * Aggiunge un connettore. Obbligatorio.
@@ -97,6 +99,12 @@ public class JVTLlib {
 	public void addInjection(HashMap<String,Scalar> inj) {
 		if(inj!=null && !inj.isEmpty()) {
 			this.injection = inj;
+		}
+	}
+	
+	public void directMemoryInjection(HashMap<String,VTLObj> mem) {
+		if(mem!=null && !mem.isEmpty()) {
+			this.directMapping = mem;
 		}
 	}
 	
@@ -152,7 +160,10 @@ public class JVTLlib {
 		try {
 			tree = parser.parse();
 			NewEval visitor = new NewEval(this.connect);
+			
 			visitor.inject(this.injection);
+			visitor.injectDirect(directMapping);
+			
 	        visitor.visit(tree);
 		} catch(RuntimeException ex) {
 			//System.out.println("eccezione! " + ex.getMessage() + " @ " + ex.getClass().getSimpleName());
